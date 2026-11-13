@@ -26,6 +26,4 @@ COPY verifier /tests
 RUN chmod +x /tests/test.sh && mkdir -p /var/loophole/episode
 
 EXPOSE 8000
-HEALTHCHECK --interval=2s --timeout=3s --retries=30 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"
 CMD ["python", "-m", "loophole.mcp_server"]

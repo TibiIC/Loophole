@@ -1,0 +1,16 @@
+{"type": "trajectory", "puzzle": "easy", "source": "scripted", "expected_score": 0.875}
+{"t": 0.0, "tool": "grab", "args": {"handle": 0, "target": "rope", "segment": 20}}
+{"t": 1.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}
+{"t": 2.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}
+{"t": 3.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}
+{"t": 4.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}
+{"t": 5.0, "tool": "grab", "args": {"handle": 1, "target": "ring"}}
+{"t": 6.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 7.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 8.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 9.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 10.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 11.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 12.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 13.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}
+{"t": 14.0, "tool": "move", "args": {"handle": 1, "dx": 0.1}}

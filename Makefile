@@ -1,0 +1,52 @@
+# Loophole: one-command workflows. Requires Docker and Harbor (`uv tool install harbor`).
+HARBOR ?= harbor
+AGENT  ?= opencode
+MODEL  ?= anthropic/claude-sonnet-5
+RUNS   ?= 3
+TASKS  ?= tasks
+JOBS   ?= jobs
+PY     ?= python3.11
+STAMP  := $(shell date +%Y%m%d-%H%M%S)
+
+.PHONY: help build dev test tasks reference agent noop stop-early eval view clean
+
+help:
+	@echo "make build                         build the simulator / verifier image"
+	@echo "make reference | noop | stop-early run the oracle / baselines through Harbor"
+	@echo "make agent MODEL=<provider/model> [AGENT=opencode] [RUNS=3]"
+	@echo "make eval MODEL=<provider/model>   build + reference + agent x RUNS + noop + stop-early"
+	@echo "make dev && make test              local venv + pytest"
+
+build:
+	docker build -f docker/sim.Dockerfile -t loophole-sim:local .
+
+dev:
+	$(PY) -m venv .venv && .venv/bin/pip install -e ".[mesh,dev]"
+
+test:
+	.venv/bin/python -m pytest -q
+
+# regenerate trajectories + Harbor task dirs from puzzles/ and the scripted references
+tasks:
+	.venv/bin/python scripts/make_reference.py
+	.venv/bin/python scripts/sync_tasks.py
+
+reference: build
+	$(HARBOR) run -p $(TASKS) -a oracle -o $(JOBS) --job-name reference-$(STAMP)
+
+agent: build
+	$(HARBOR) run -p $(TASKS) -a $(AGENT) -m $(MODEL) -k $(RUNS) -o $(JOBS) --job-name agent-$(AGENT)-$(STAMP)
+
+noop: build
+	$(HARBOR) run -p $(TASKS) -a nop -o $(JOBS) --job-name noop-$(STAMP)
+
+stop-early: build
+	$(HARBOR) run -p $(TASKS) -a oracle --ae LOOPHOLE_SOLUTION=stop_early -o $(JOBS) --job-name stop-early-$(STAMP)
+
+eval: build reference agent noop stop-early
+
+view:
+	$(HARBOR) view $(JOBS)
+
+clean:
+	rm -rf $(JOBS) .pytest_cache MUJOCO_LOG.TXT
