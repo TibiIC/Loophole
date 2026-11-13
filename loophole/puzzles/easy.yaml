@@ -1,0 +1,63 @@
+# Placeholder "easy" puzzle (procedural, primitives only).
+#
+#   A gantry holds both rope ends high above the base. The rope hangs down as a
+#   bight that passes through a horizontal loop (hole "a") carried by a second
+#   post, with its tip hanging below the loop. A free ring encircles both strands
+#   and rests on top of the loop: it is too big to pass through the loop.
+#   Gravity keeps the bight threaded (all contacts are frictionless).
+#
+# Solution idea: lift the bight tip until the whole bight is above the ring and
+# the loop, then carry the ring sideways away from the frame.
+name: easy
+difficulty: easy
+description: "A rope bight hangs through a horizontal loop; free the ring trapped around both strands above the loop."
+max_actions: 60
+timestep: 0.002
+
+frame:
+  - name: base
+    geoms:
+      - {type: box, pos: [0, 0, 0.01], size: [0.30, 0.15, 0.01]}
+  - name: gantry
+    geoms:
+      - {type: capsule, size: [0.008], fromto: [-0.20, 0, 0.02, -0.20, 0, 0.55]}
+      - {type: capsule, size: [0.008], fromto: [-0.20, 0, 0.55, 0.03, 0, 0.55]}
+  - name: post
+    geoms:
+      - {type: capsule, size: [0.008], fromto: [0.12, 0, 0.02, 0.12, 0, 0.25]}
+      - {type: capsule, size: [0.008], fromto: [0.12, 0, 0.25, 0.053, 0, 0.25]}
+      - {type: capsule_ring, name: loop, pos: [0, 0, 0.25], normal: [0, 0, 1], radius: 0.045, tube_radius: 0.008, segments: 20}
+
+objects:
+  - name: ring
+    pos: [0, 0, 0.265]
+    graspable: true
+    mass: 0.01
+    damping: 0.002
+    rgba: [0.2, 0.5, 0.9, 1]
+    geoms:
+      - {type: capsule_ring, normal: [0, 0, 1], radius: 0.042, tube_radius: 0.005, segments: 16}
+
+rope:
+  name: rope
+  start: {pos: [0, -0.02, 0.536], body: gantry}
+  end: {pos: [0, 0.02, 0.536], body: gantry}
+  path:
+    - [0, -0.016, 0.30]
+    - [0, -0.016, 0.16]
+    - [0, -0.0113, 0.1487]
+    - [0, 0.0, 0.144]
+    - [0, 0.0113, 0.1487]
+    - [0, 0.016, 0.16]
+    - [0, 0.016, 0.30]
+  segments: 40
+  radius: 0.006
+  mass: 0.03
+  damping: 0.002
+
+holes:
+  - {name: a, center: [0, 0, 0.25], normal: [0, 0, 1], radius: 0.037}
+  - {name: r, body: ring, center: [0, 0, 0], normal: [0, 0, 1], radius: 0.035}
+
+target: ring
+goal: {type: target_free, margin: 0.05}

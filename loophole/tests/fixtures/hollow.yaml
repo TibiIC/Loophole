@@ -1,0 +1,35 @@
+# Test fixture: a vertical capsule loop (hole radius 0.037) plus two balls.
+# The small ball fits through the loop, the large one must not.
+name: hollow
+max_actions: 100
+frame:
+  - name: base
+    geoms:
+      - {type: box, pos: [0, 0, 0.01], size: [0.35, 0.15, 0.01]}
+  - name: post
+    geoms:
+      - {type: capsule, size: [0.008], fromto: [0, 0, 0.02, 0, 0, 0.19]}
+      - {type: capsule_ring, pos: [0, 0, 0.245], normal: [1, 0, 0], radius: 0.045, tube_radius: 0.008, segments: 20}
+  - name: wall
+    geoms:
+      - {type: box, pos: [0, 0.10, 0.15], size: [0.10, 0.006, 0.13]}
+objects:
+  - name: small
+    pos: [-0.15, 0, 0.245]
+    graspable: true
+    mass: 0.02
+    geoms: [{type: sphere, size: [0.02]}]
+  - name: large
+    pos: [-0.15, -0.10, 0.06]
+    graspable: true
+    mass: 0.05
+    geoms: [{type: sphere, size: [0.05]}]
+rope:
+  start: {pos: [0.25, -0.10, 0.026], body: base}
+  end: {pos: [0.25, 0.08, 0.026], body: base}
+  path: [[0.25, -0.05, 0.10], [0.25, 0.03, 0.10]]
+  segments: 12
+  radius: 0.006
+holes:
+  - {name: a, center: [0, 0, 0.245], normal: [1, 0, 0], radius: 0.037}
+target: small

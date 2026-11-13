@@ -1,0 +1,38 @@
+# Default environment configuration. Override with LOOPHOLE_CONFIG=<file.yaml>.
+reset_settle_steps: 1000
+
+rig:
+  num_handles: 2
+  max_linear_step: 0.10     # m per move request (larger requests are clamped)
+  max_angular_step: 0.6     # rad per move request
+  linear_speed: 0.25        # m/s during execution
+  angular_speed: 1.5        # rad/s during execution
+  settle_steps: 50
+  max_wait_steps: 2000
+  lag_limit: 0.015
+  angle_lag_limit: 0.35
+  grasp_tolerance: 0.02
+  weld_solref: [0.01, 1.0]
+
+audit:
+  penetration_threshold: 0.003
+  anchor_drift_threshold: 0.005
+  max_substep_displacement: 0.004
+
+reward:
+  components:
+    - type: base
+      weight: 1.0
+      params: {alpha: 0.5}
+    - type: topology_shaping
+      weight: 0.2
+      enabled: false        # flip to true to enable potential-based topology shaping
+      params: {gamma: 1.0}
+
+topology:
+  enabled: true
+  expose_in_state: true
+
+render:
+  width: 480
+  height: 360

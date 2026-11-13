@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loophole"
+version = "0.1.0"
+description = "Loophole: a MuJoCo disentanglement-puzzle RL environment exposed over MCP"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "mujoco==4.0.1",
+  "numpy==2.4.6",
+  "mcp==1.30.0",
+  "pydantic==2.14.3",
+  "PyYAML==6.0.3",
+  "PyOpenGL==3.1.10",
+]
+
+[project.optional-dependencies]
+mesh = ["coacd==1.0.14", "trimesh==5.2.1"]
+dev = ["pytest==9.2.0"]
+
+[tool.setuptools.packages.find]
+include = ["loophole*"]
+
+[tool.setuptools.package-data]
+loophole = ["puzzles/*.yaml", "puzzles/assets/**/*", "reference/trajectories/*.jsonl", "default_config.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["loophole/tests"]
