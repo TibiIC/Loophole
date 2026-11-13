@@ -444,7 +444,7 @@ class LoopholeEnv:
             lo, hi = self.frame_aabb()
             center = (lo + hi) / 2
             span = float(np.max(hi - lo))
-            self._renderer = SceneRenderer(self.model, self.cfg.render.width, self.cfg.render.height, center, 1.6 * span + 0.2)
+            self._renderer = SceneRenderer(self.model, self.cfg.render.width, self.cfg.render.height, center, max(0.6, 1.1 * span))
         cam = self._renderer.camera(view, azimuth, elevation, distance, lookat)
         png = self._renderer.render(self.data, cam)
         t = self._target_summary()
