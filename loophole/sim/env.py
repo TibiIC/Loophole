@@ -93,6 +93,7 @@ class LoopholeEnv:
                 for h in self.puzzle.holes
             ],
             target_name=self.puzzle.target,
+            primary=self.cfg.topology.primary,
         )
         self._disc_body = {d.name: (None if d.body == "world" else self.model.body(d.body).id) for d in self.tracker.discs}
         self.composer = RewardComposer.from_config(self.cfg.reward)

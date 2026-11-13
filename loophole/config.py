@@ -62,6 +62,7 @@ class RewardConfig(BaseModel):
 class TopologyConfig(BaseModel):
     enabled: bool = True  # track crossings and expose the summary in get_state
     expose_in_state: bool = True
+    primary: str = "rope"  # word fed to goal_distance: "rope" (reduced), "rope_raw" or "target"
 
 
 class RenderConfig(BaseModel):
