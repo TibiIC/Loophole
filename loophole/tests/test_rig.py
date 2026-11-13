@@ -74,14 +74,38 @@ def test_max_speed_moves_into_frame_do_not_tunnel(easy_env):
     assert env.tracker.target_word == ""
 
 
-def test_audit_catches_forced_tunnelling():
-    # Remove the rig's stall safety and use a very stiff weld: forcing the ring
-    # down through the (too small) loop must be flagged, never silently allowed.
+def test_broken_rig_cannot_tunnel_unnoticed():
+    # Remove every rig safety and use the stiffest weld MuJoCo allows: pressing the
+    # ring down into the (too small) loop must either fail or be flagged.
     env = make_env(rig={"lag_limit": 10.0, "angle_lag_limit": 10.0, "stall_penetration": 10.0, "stall_anchor_drift": 10.0, "weld_solref": [0.002, 1.0]})
     env.act("grab", {"handle": 0, "target": "ring"})
     for _ in range(3):
         if env.done:
             break
         env.act("move", {"handle": 0, "dz": -0.1})
+    passed_through = env.tracker.target_word != ""
+    assert not passed_through or env.audit.count > 0
+
+
+def _ring_qpos_adr(env):
+    return env.model.jnt_qposadr[env.model.body("ring").jntadr[0]]
+
+
+def test_audit_flags_teleport_through_loop(easy_env):
+    # Simulate a physics exploit: the ring jumps 4 cm down, through the loop, in one substep.
+    env = easy_env
+    env.data.qpos[_ring_qpos_adr(env) + 2] -= 0.04
+    env.act("wait", {"steps": 10})
     assert env.audit.count > 0
-    assert env.done and not env.success
+    assert {"speed"} <= {v["kind"] for v in env.audit.summary()["records"]}
+    assert env.done and not env.success and env.finalize()["score"] == 0.0
+
+
+def test_audit_flags_deep_overlap(easy_env):
+    # Ring forced into the loop tube: a deep contact is a violation.
+    env = easy_env
+    adr = _ring_qpos_adr(env)
+    env.data.qpos[adr : adr + 3] = [0.0, 0.0, 0.252]  # ring tube now overlaps the loop tube
+    env.audit._prev_pos = None  # isolate the penetration check from the speed check
+    env.act("wait", {"steps": 1})
+    assert "penetration" in {v["kind"] for v in env.audit.summary()["records"]}

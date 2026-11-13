@@ -62,7 +62,7 @@ class Body(BaseModel):
     geoms: list[Geom]
     graspable: bool = False
     mass: float | None = None  # total mass for free objects
-    damping: float = 0.01  # free-joint damping (objects only)
+    damping: float = 0.05  # free-joint damping (objects only): keeps drops quasi-static (terminal speed ~ m g / damping)
     rgba: tuple[float, float, float, float] | None = None
 
 
@@ -79,7 +79,7 @@ class Rope(BaseModel):
     segments: int = 30
     radius: float = 0.006
     mass: float = 0.03  # total
-    damping: float = 0.002
+    damping: float = 0.005
     armature: float = 1e-5
     graspable: bool = True
     rgba: tuple[float, float, float, float] = (0.85, 0.55, 0.15, 1.0)
@@ -112,9 +112,9 @@ class Puzzle(BaseModel):
     difficulty: Literal["easy", "medium", "hard"] = "easy"
     description: str = ""
     max_actions: int = 60
-    timestep: float = 0.002
+    timestep: float = 0.001
     gravity: Vec3 = (0.0, 0.0, -9.81)
-    contact_solref: list[float] = [0.004, 1.0]
+    contact_solref: list[float] = [0.002, 1.0]  # stiffest stable: timeconst = 2 * timestep
     contact_solimp: list[float] = [0.95, 0.99, 0.001, 0.5, 2.0]
     frame: list[Body]
     objects: list[Body] = []

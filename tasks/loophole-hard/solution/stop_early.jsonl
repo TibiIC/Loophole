@@ -1,0 +1,4 @@
+{"type": "trajectory", "puzzle": "hard", "source": "baseline:stop_early"}
+{"t": 0.0, "tool": "grab", "args": {"handle": 0, "target": "rope", "segment": 27}}
+{"t": 1.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}
+{"t": 2.0, "tool": "move", "args": {"handle": 0, "dz": 0.1}}

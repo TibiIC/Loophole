@@ -1,0 +1,63 @@
+# Placeholder "hard" puzzle (procedural, primitives only).
+#
+#   Medium plus a cage: two walls at y = +-0.07 (from the base up to just below
+#   loop a) run from the post towards -x, so the ring can only leave the space
+#   between the loops on the gantry side: an L-shaped escape (-x, then y).
+#
+# Solution idea: lift the bight out of loop b, the ring and loop a; slide the
+# ring towards the gantry past the bar ends, then out along y and away.
+name: hard
+difficulty: hard
+description: "A rope bight hangs through two stacked loops; free the ring caged between them around both strands."
+max_actions: 45
+
+frame:
+  - name: base
+    geoms:
+      - {type: box, pos: [0, 0, 0.01], size: [0.30, 0.15, 0.01]}
+  - name: gantry
+    geoms:
+      - {type: capsule, size: [0.008], fromto: [-0.20, 0, 0.02, -0.20, 0, 0.62]}
+      - {type: capsule, size: [0.008], fromto: [-0.20, 0, 0.62, 0.03, 0, 0.62]}
+  - name: post
+    geoms:
+      - {type: capsule, size: [0.008], fromto: [0.12, 0, 0.02, 0.12, 0, 0.25]}
+      - {type: capsule, size: [0.008], fromto: [0.12, 0, 0.25, 0.053, 0, 0.25]}
+      - {type: capsule_ring, name: loop_a, pos: [0, 0, 0.25], normal: [0, 0, 1], radius: 0.045, tube_radius: 0.008, segments: 20}
+      - {type: capsule, size: [0.008], fromto: [0.12, 0, 0.17, 0.053, 0, 0.17]}
+      - {type: capsule_ring, name: loop_b, pos: [0, 0, 0.17], normal: [0, 0, 1], radius: 0.045, tube_radius: 0.008, segments: 20}
+      - {type: box, name: wall_left, pos: [0.03, -0.07, 0.1275], size: [0.09, 0.006, 0.1075]}
+      - {type: box, name: wall_right, pos: [0.03, 0.07, 0.1275], size: [0.09, 0.006, 0.1075]}
+
+objects:
+  - name: ring
+    pos: [0, 0, 0.185]
+    graspable: true
+    mass: 0.01
+    rgba: [0.2, 0.5, 0.9, 1]
+    geoms:
+      - {type: capsule_ring, normal: [0, 0, 1], radius: 0.042, tube_radius: 0.005, segments: 16}
+
+rope:
+  name: rope
+  start: {pos: [0, -0.02, 0.606], body: gantry}
+  end: {pos: [0, 0.02, 0.606], body: gantry}
+  path:
+    - [0, -0.016, 0.36]
+    - [0, -0.016, 0.10]
+    - [0, -0.0113, 0.0887]
+    - [0, 0.0, 0.084]
+    - [0, 0.0113, 0.0887]
+    - [0, 0.016, 0.10]
+    - [0, 0.016, 0.36]
+  segments: 54
+  radius: 0.006
+  mass: 0.04
+
+holes:
+  - {name: a, center: [0, 0, 0.25], normal: [0, 0, 1], radius: 0.037}
+  - {name: b, center: [0, 0, 0.17], normal: [0, 0, 1], radius: 0.037}
+  - {name: r, body: ring, center: [0, 0, 0], normal: [0, 0, 1], radius: 0.035}
+
+target: ring
+goal: {type: target_free, margin: 0.05}

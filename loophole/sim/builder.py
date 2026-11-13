@@ -212,7 +212,7 @@ class MJCFBuilder:
         eq = ET.SubElement(root, "equality")
         if rope.connect_eq:
             last = rope.body_names[-1]
-            ET.SubElement(eq, "connect", name=rope.connect_eq, body1=last, anchor=_fmt([rope.seg_lengths[-1], 0, 0]), solref="0.004 1")
+            ET.SubElement(eq, "connect", name=rope.connect_eq, body1=last, anchor=_fmt([rope.seg_lengths[-1], 0, 0]), solref=_fmt([2 * p.timestep, 1.0]))
         weld_names = {}
         for h in range(self.num_handles):
             for g in graspable:

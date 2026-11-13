@@ -135,7 +135,7 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> F
         return physics("release", {"handle": handle})
 
     @mcp.tool(annotations=ACTION)
-    def wait(steps: Annotated[int, Field(description="physics substeps (2 ms each), clamped to [1, 2000]")] = 100) -> dict:
+    def wait(steps: Annotated[int, Field(description="physics substeps (1 ms each), clamped to [1, 4000]")] = 200) -> dict:
         """Let physics run without moving the handles (e.g. to let things settle). Costs one action."""
         return physics("wait", {"steps": steps})
 

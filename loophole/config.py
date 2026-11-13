@@ -23,8 +23,8 @@ class RigConfig(BaseModel):
     max_angular_step: float = 0.6  # rad per move request
     linear_speed: float = 0.25  # m/s while executing a move
     angular_speed: float = 1.5  # rad/s while executing a move
-    settle_steps: int = 50  # substeps after each move/grab/release
-    max_wait_steps: int = 2000
+    settle_steps: int = 100  # substeps after each move/grab/release
+    max_wait_steps: int = 4000
     lag_limit: float = 0.015  # m; mocap stops advancing when the grasped body lags this far
     angle_lag_limit: float = 0.35  # rad
     grasp_tolerance: float = 0.02  # m; a grasp point must be this close to the body's surface
@@ -39,9 +39,9 @@ class RigConfig(BaseModel):
 
 
 class AuditConfig(BaseModel):
-    penetration_threshold: float = 0.003  # m; deeper contact => violation
+    penetration_threshold: float = 0.004  # m; deeper contact => violation (passing through needs >= ~11 mm)
     anchor_drift_threshold: float = 0.005  # m; rope end leaving its anchor => violation
-    max_substep_displacement: float = 0.004  # m per substep (2 m/s); faster bodies could skip through thin parts
+    max_substep_displacement: float = 0.003  # m per substep (3 m/s at dt=1 ms); faster bodies could skip through thin parts
     max_records: int = 50
 
 
@@ -71,7 +71,7 @@ class RenderConfig(BaseModel):
 
 
 class EnvConfig(BaseModel):
-    reset_settle_steps: int = 1000
+    reset_settle_steps: int = 2000
     rig: RigConfig = RigConfig()
     audit: AuditConfig = AuditConfig()
     reward: RewardConfig = RewardConfig()

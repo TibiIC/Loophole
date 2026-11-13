@@ -183,6 +183,7 @@ class LoopholeEnv:
             mujoco.mj_step(m, d)
         settle_violations = self.audit.check(d, 0)
         self.audit.reset()
+        self.audit.prime(d)
         d.time = 0.0
         self.actions_used = 0
         self.done = False

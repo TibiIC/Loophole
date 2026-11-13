@@ -1,0 +1,26 @@
+# Harbor merges this over its base compose; "main" is the agent container.
+services:
+  main:
+    depends_on:
+      loophole-sim:
+        condition: service_healthy
+
+  loophole-sim:
+    # Built from the repository root (the agent container never sees this source).
+    image: loophole-sim:local
+    build:
+      context: ../../..
+      dockerfile: docker/sim.Dockerfile
+    pull_policy: build
+    environment:
+      LOOPHOLE_PUZZLE: "hard"
+      LOOPHOLE_SEED: "0"
+      MUJOCO_GL: "${LOOPHOLE_MUJOCO_GL:-osmesa}"
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 5s

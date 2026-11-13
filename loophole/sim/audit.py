@@ -65,6 +65,11 @@ class Auditor:
         self._prev_pos = None
         self._bad = None
 
+    def prime(self, data: mujoco.MjData) -> None:
+        """Start a fresh audit window from the current state (no gap after reset)."""
+        self._prev_pos = data.xpos[self._moving].copy()
+        self._bad = self._instability_count(data)
+
     def _record(self, v: Violation) -> None:
         self.count += 1
         if len(self.violations) < self.cfg.max_records:
