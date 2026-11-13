@@ -7,9 +7,11 @@ mocap body at the grasp point, writes the weld's relative pose into
 
 Moves are clamped to a maximum linear/angular displacement and executed as an
 interpolated mocap trajectory at bounded speed. If the grasped body lags the
-handle by more than ``lag_limit`` (it is blocked by something), the handle
+handle by more than ``lag_limit`` (it is blocked by something), or any contact / the rope's
+anchor constraint is strained beyond the "careful" stall levels, the handle
 stops advancing and snaps back onto the body: the rig can never push an object
-through an obstacle with unbounded force.
+through an obstacle with unbounded force, and an honest agent never trips the
+anti-tunnelling audit just by pulling a rope taut or pushing into the frame.
 
 Handles have no collision geometry. Teleporting an *empty* handle to a grasp
 point therefore cannot move anything.
@@ -62,7 +64,16 @@ def _point_geom_distance(model: mujoco.MjModel, data: mujoco.MjData, gid: int, p
 
 
 class Rig:
-    def __init__(self, model: mujoco.MjModel, data: mujoco.MjData, built: BuiltModel, cfg: RigConfig, substep: Callable[[], None]):
+    def __init__(
+        self,
+        model: mujoco.MjModel,
+        data: mujoco.MjData,
+        built: BuiltModel,
+        cfg: RigConfig,
+        substep: Callable[[], None],
+        strain: Callable[[], tuple[float, float]] = lambda: (0.0, 0.0),
+    ):
+        self.strain = strain  # () -> (current max penetration, current rope anchor drift)
         self.m = model
         self.d = data
         self.built = built
@@ -219,7 +230,7 @@ class Rig:
         blocked = None
         done_frac = 0.0
         for k in range(1, n + 1):
-            if h.body is not None and (blocked := self._lagging(h)):
+            if h.body is not None and (blocked := self._lagging(h) or self._strained()):
                 self._snap_to_body(h)
                 break
             f = k / n
@@ -255,6 +266,14 @@ class Rig:
         _, ang = quat_to_axis_angle(quat_mul(quat_conj(self.d.mocap_quat[h.mocap_id]), bq))
         if abs(ang) > self.cfg.angle_lag_limit:
             return f"{h.body} orientation lags the handle by {ang:.2f} rad (blocked by contact or constraint)"
+        return None
+
+    def _strained(self) -> str | None:
+        pen, drift = self.strain()
+        if pen > self.cfg.stall_penetration:
+            return f"contact pressed {pen * 1000:.1f} mm deep (blocked by contact)"
+        if drift > self.cfg.stall_anchor_drift:
+            return "rope pulled taut against its anchor (blocked by rope length)"
         return None
 
     def _snap_to_body(self, h: Handle) -> None:

@@ -37,7 +37,7 @@ def test_initial_state_is_stable_and_threaded(easy_env):
 
 def test_rope_cannot_stretch_under_extreme_pull():
     # Disable the stall safety and stiffen the weld to yank as hard as possible.
-    env = make_env(rig={"lag_limit": 10.0, "angle_lag_limit": 10.0, "weld_solref": [0.004, 1.0]})
+    env = make_env(rig={"lag_limit": 10.0, "angle_lag_limit": 10.0, "stall_penetration": 10.0, "stall_anchor_drift": 10.0, "weld_solref": [0.004, 1.0]})
     seg = np.array(env.built.rope.seg_lengths)
     env.act("grab", {"handle": 0, "target": "rope", "segment": 10})
     for _ in range(8):
@@ -48,7 +48,21 @@ def test_rope_cannot_stretch_under_extreme_pull():
         assert np.max(np.abs(adjacent_distances(env) - seg)) < 1e-9
     # the only soft link is the closing connect; overpowering it is caught by the audit
     kinds = {v["kind"] for v in env.audit.summary()["records"]}
-    assert env.audit.count == 0 or kinds & {"anchor_drift", "penetration", "speed"}
+    assert env.audit.count == 0 or kinds & {"anchor_drift", "penetration", "speed", "instability"}
+    # ... and if the integrator diverged it must have been flagged
+    if env.audit._instability_count(env.data):
+        assert "instability" in kinds or env.audit.count > 0
+
+
+def test_two_handle_tug_of_war_is_safe(easy_env):
+    env = easy_env
+    env.act("grab", {"handle": 0, "target": "rope", "segment": 8})
+    env.act("grab", {"handle": 1, "target": "rope", "segment": 32})
+    for _ in range(5):
+        env.act("move", {"handle": 0, "dy": -0.1, "dz": -0.05})
+        env.act("move", {"handle": 1, "dy": 0.1, "dz": -0.05})
+    assert env.audit._instability_count(env.data) == 0
+    assert env.audit.count == 0
 
 
 def test_rope_pull_with_default_rig_keeps_rope_intact(easy_env):

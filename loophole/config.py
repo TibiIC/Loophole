@@ -28,6 +28,10 @@ class RigConfig(BaseModel):
     lag_limit: float = 0.015  # m; mocap stops advancing when the grasped body lags this far
     angle_lag_limit: float = 0.35  # rad
     grasp_tolerance: float = 0.02  # m; a grasp point must be this close to the body's surface
+    # The rig is "careful": it also stalls when any contact or the rope anchor is strained
+    # beyond these levels, which sit below the audit's violation thresholds.
+    stall_penetration: float = 0.002
+    stall_anchor_drift: float = 0.0025
     workspace_min: list[float] = [-1.5, -1.5, 0.0]
     workspace_max: list[float] = [1.5, 1.5, 1.5]
     weld_solref: list[float] = [0.01, 1.0]

@@ -6,7 +6,9 @@ A violation is recorded when
 * a rope end drifts from its anchor by more than ``anchor_drift_threshold``
   (the closing ``connect`` constraint was overpowered: the rope "broke"), or
 * any rope segment / free object moves more than ``max_substep_displacement``
-  in one substep (fast enough to skip through a thin part between checks).
+  in one substep (fast enough to skip through a thin part between checks), or
+* the integrator went unstable (MuJoCo then silently resets the state, which
+  must never be usable as a "teleport").
 
 Any violation makes the episode unsuccessful (see reward/base.py).
 """
@@ -41,6 +43,8 @@ class Auditor:
     violations: list[Violation] = field(default_factory=list)
     count: int = 0
     max_penetration: float = 0.0
+    last_penetration: float = 0.0  # current-substep values, read by the rig's stall check
+    last_anchor_drift: float = 0.0
 
     def __post_init__(self):
         r = self.built.rope
@@ -49,12 +53,17 @@ class Auditor:
         self._end_anchor = None if r.end is None else np.asarray(r.end, dtype=float)
         self._moving = np.array([self.model.body(b).id for b in r.body_names + self.built.object_bodies])
         self._prev_pos = None
+        self._bad = None
+
+    def _instability_count(self, data: mujoco.MjData) -> int:
+        return int(sum(data.warning[w].number for w in (mujoco.mjtWarning.mjWARN_BADQACC, mujoco.mjtWarning.mjWARN_BADQVEL, mujoco.mjtWarning.mjWARN_BADQPOS)))
 
     def reset(self) -> None:
         self.violations.clear()
         self.count = 0
         self.max_penetration = 0.0
         self._prev_pos = None
+        self._bad = None
 
     def _record(self, v: Violation) -> None:
         self.count += 1
@@ -64,10 +73,16 @@ class Auditor:
     def check(self, data: mujoco.MjData, step: int) -> int:
         """Audit the current state; returns the number of new violations."""
         before = self.count
+        bad = self._instability_count(data)
+        if self._bad is not None and bad > self._bad:
+            self._record(Violation(step, "instability", "integrator diverged (state was reset by MuJoCo)", float(bad - self._bad)))
+        self._bad = bad
         n = data.ncon
+        self.last_penetration = 0.0
         if n:
             dist = data.contact.dist[:n]
             pen = -float(dist.min())
+            self.last_penetration = pen
             self.max_penetration = max(self.max_penetration, pen)
             if pen > self.cfg.penetration_threshold:
                 i = int(np.argmin(dist))
@@ -78,6 +93,7 @@ class Auditor:
         if self._end_anchor is not None:
             end = data.xpos[self._end_body] + data.xmat[self._end_body].reshape(3, 3) @ self._end_local
             drift = float(np.linalg.norm(end - self._end_anchor))
+            self.last_anchor_drift = drift
             if drift > self.cfg.anchor_drift_threshold:
                 self._record(Violation(step, "anchor_drift", "rope end left its anchor", drift))
         pos = data.xpos[self._moving]

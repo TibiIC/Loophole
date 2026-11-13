@@ -12,6 +12,8 @@ rig:
   lag_limit: 0.015
   angle_lag_limit: 0.35
   grasp_tolerance: 0.02
+  stall_penetration: 0.002    # rig stops pushing before the audit thresholds below are reached
+  stall_anchor_drift: 0.0025
   weld_solref: [0.01, 1.0]
 
 audit:

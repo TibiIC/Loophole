@@ -77,7 +77,7 @@ def test_max_speed_moves_into_frame_do_not_tunnel(easy_env):
 def test_audit_catches_forced_tunnelling():
     # Remove the rig's stall safety and use a very stiff weld: forcing the ring
     # down through the (too small) loop must be flagged, never silently allowed.
-    env = make_env(rig={"lag_limit": 10.0, "angle_lag_limit": 10.0, "weld_solref": [0.002, 1.0]})
+    env = make_env(rig={"lag_limit": 10.0, "angle_lag_limit": 10.0, "stall_penetration": 10.0, "stall_anchor_drift": 10.0, "weld_solref": [0.002, 1.0]})
     env.act("grab", {"handle": 0, "target": "ring"})
     for _ in range(3):
         if env.done:

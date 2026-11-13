@@ -78,7 +78,10 @@ class LoopholeEnv:
         self.data = mujoco.MjData(self.model)
         self._eq_data0 = self.model.eq_data.copy()
         self.audit = Auditor(self.model, self.built, self.cfg.audit)
-        self.rig = Rig(self.model, self.data, self.built, self.cfg.rig, self._substep)
+        self.rig = Rig(
+            self.model, self.data, self.built, self.cfg.rig, self._substep,
+            strain=lambda: (self.audit.last_penetration, self.audit.last_anchor_drift),
+        )
         self.target_id = self.model.body(self.puzzle.target).id
         self.target_radius = self._body_radius(self.target_id)
         self.rope_node_bodies = [self.model.body(b).id for b in self.built.rope.body_names]
