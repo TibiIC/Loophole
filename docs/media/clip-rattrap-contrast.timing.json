@@ -1,0 +1,15 @@
+{
+ "out": "docs/media/clip-rattrap-contrast",
+ "seconds": 26.3,
+ "s_per_action": 0.08,
+ "reference_actions": 284,
+ "agent_actions": 357,
+ "reference_source_frames": 174,
+ "agent": {
+  "score": 0.0,
+  "success": false,
+  "actions_used": 357,
+  "violation": false
+ },
+ "agent_blocked": 47
+}

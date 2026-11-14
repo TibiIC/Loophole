@@ -6,14 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="An RL environment where an LLM agent solves 3D disentanglement puzzles in a MuJoCo simulation, over MCP.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/dark.css">
+  <style>
+    .markdown-section video, .markdown-section img.clip { width: 100%; height: auto; border-radius: 4px; }
+    .markdown-section .clip-caption { font-size: 0.9em; opacity: 0.8; margin-top: 0.4em; }
+    .markdown-section .placeholder { border: 1px dashed #e7c97a; color: #f0c46a; padding: 0.8em 1em; border-radius: 4px; }
+  </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
+    // Fills <div id="results-table"> on the home page from results.json (the only source of
+    // the results numbers). With no rows it shows a pending placeholder.
+    function resultsTable(hook) {
+      hook.doneEach(function () {
+        var root = document.getElementById('results-table');
+        if (!root) return;
+        fetch('results.json', { cache: 'no-cache' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            var cols = data.columns || [], rows = data.rows || [];
+            root.textContent = '';
+            if (data.status !== 'final' || !rows.length) {
+              var p = document.createElement('p');
+              p.className = 'placeholder';
+              p.textContent = 'Placeholder: final results pending.';
+              root.appendChild(p);
+              if (!rows.length) return;
+            }
+            var table = document.createElement('table'), tr = document.createElement('tr');
+            cols.forEach(function (c) {
+              var th = document.createElement('th');
+              th.textContent = c.label || c.key;
+              if (c.align) th.style.textAlign = c.align;
+              tr.appendChild(th);
+            });
+            var thead = document.createElement('thead'), tbody = document.createElement('tbody');
+            thead.appendChild(tr);
+            rows.forEach(function (row) {
+              var r = document.createElement('tr');
+              cols.forEach(function (c) {
+                var td = document.createElement('td'), v = row[c.key];
+                td.textContent = v === undefined || v === null || v === '' ? '—' : String(v);
+                if (c.align) td.style.textAlign = c.align;
+                r.appendChild(td);
+              });
+              tbody.appendChild(r);
+            });
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            root.appendChild(table);
+            if (data.caption) {
+              var cap = document.createElement('p');
+              cap.className = 'clip-caption';
+              cap.textContent = data.caption;
+              root.appendChild(cap);
+            }
+          })
+          .catch(function (e) { root.textContent = 'Could not load results.json (' + e.message + ').'; });
+      });
+    }
+
     window.$docsify = {
       name: 'Loophole',
       repo: 'TibiIC/Loophole',
       loadSidebar: true,
+      plugins: [resultsTable],
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>

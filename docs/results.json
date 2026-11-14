@@ -11,10 +11,5 @@
     { "key": "notes", "label": "Notes" }
   ],
   "rows": [],
-  "footnotes": [],
-  "video": {
-    "src": null,
-    "poster": null,
-    "caption": null
-  }
+  "footnotes": []
 }
