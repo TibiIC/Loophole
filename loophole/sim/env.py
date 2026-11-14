@@ -17,7 +17,7 @@ import mujoco
 import numpy as np
 
 from ..config import EnvConfig, effective_config, load_config
-from ..reward.components import RewardComposer, RewardState
+from ..reward.components import RewardComposer, RewardState, StableMin
 from ..reward.progress import progress_potential
 from ..reward.roadmap import Roadmap
 from ..reward.topology import Disc, TopologyTracker
@@ -108,6 +108,7 @@ class LoopholeEnv:
         self.rig = Rig(
             self.model, self.data, self.built, self.cfg.rig, self._substep,
             strain=lambda: (self.audit.last_penetration, self.audit.last_anchor_drift),
+            abort=lambda: self.audit.count > 0,
         )
         self.target_id = self.model.body(self.puzzle.target).id
         self.target_radius = self._body_radius(self.target_id)
@@ -262,9 +263,13 @@ class LoopholeEnv:
             self._update_curves()
         self.ctg = self.ctg0 = self.best_ctg = None
         self.ctg_fallbacks = 0
+        self._last_min_distance = None
+        self._stable = StableMin(None)
         if self.roadmap is not None:
             self.ctg, self._ctg_node = self.roadmap.cost_to_go(self.target_pose(), self.checker)
             self.ctg0 = self.best_ctg = self.ctg
+        self._stable = StableMin(self.ctg0, hold=3)
+        self._last_min_distance = self.goal_metrics().get("target_min_distance_to_frame")
         self._last_rstate = self._reward_state()
         self.composer.reset(self._last_rstate)
         self.initial_hash = self.state_hash()
@@ -298,6 +303,8 @@ class LoopholeEnv:
             cost_to_go=self.ctg,
             start_cost_to_go=self.ctg0,
             best_cost_to_go=self.best_ctg,
+            stable_best_cost_to_go=self._stable.best,
+            min_distance=self._last_min_distance,
         )
 
     def _update_cost_to_go(self) -> bool:
@@ -305,6 +312,7 @@ class LoopholeEnv:
         if self.roadmap is None:
             return False
         c, node = self.roadmap.cost_to_go(self.target_pose(), self.checker)
+        self._stable.update(c)  # None (no visible node) breaks the 3-action hold streak
         if c is None:
             self.ctg_fallbacks += 1
             return True
@@ -401,6 +409,8 @@ class LoopholeEnv:
             return self.rig.release(a["handle"])
         for _ in range(a["steps"]):
             self._substep()
+            if self.audit.count > 0:  # end immediately on any violation
+                break
         return {"waited_steps": a["steps"], "sim_time": round(self.data.time, 4)}
 
     def _finish_action(self, tool: str, norm: dict, result: dict) -> dict:
@@ -410,6 +420,7 @@ class LoopholeEnv:
             self._update_curves()
         fallback = self._update_cost_to_go()
         goal = self.goal_metrics()
+        self._last_min_distance = goal.get("target_min_distance_to_frame")
         if self.audit.count > 0:
             self.success = False
             self.done, self.done_reason = True, "anti-tunnelling violation (episode failed)"
@@ -499,7 +510,7 @@ class LoopholeEnv:
             "final_state_hash": self.state_hash(),
             "topology": self.tracker.words if self.cfg.topology.enabled else None,
             "goal": self.goal_metrics(),
-            "cost_to_go": {"start": self.ctg0, "final": self.ctg, "best": self.best_ctg, "fallbacks": self.ctg_fallbacks},
+            "cost_to_go": {"start": self.ctg0, "final": self.ctg, "best": self.best_ctg, "stable_best": self._stable.best, "fallbacks": self.ctg_fallbacks},
         }
         self.log.write({**self.finalized, "wall_time": time.time()})
         self.log.close()

@@ -122,6 +122,8 @@ def build_roadmap(
     log=print,
     resolution: float | None = None,
     box: tuple[np.ndarray, np.ndarray] | None = None,
+    max_edge: float | None = None,
+    goal_rot_sigma: float | None = None,
 ) -> dict:
     from ..planning.se3 import random_quat
 
@@ -141,8 +143,8 @@ def build_roadmap(
     else:  # densify the reference path at the edge-check resolution
         dense = [ref["path"][0]]
         for a, b in zip(ref["path"][:-1], ref["path"][1:]):
-            k = max(1, int(np.ceil(float(pose_metric(a, b, w)) / resolution)))
-            dense += [interpolate(a, b, i / k) for i in range(1, k + 1)]
+            m = max(1, int(np.ceil(float(pose_metric(a, b, w)) / resolution)))
+            dense += [interpolate(a, b, i / m) for i in range(1, m + 1)]
         dense = np.array(dense)
     keep = [0]
     for i in range(1, len(dense)):
@@ -177,7 +179,8 @@ def build_roadmap(
     n_before = len(nodes)
     while len(nodes) < n_before + n_goal and tries < 40 * n_goal:
         tries += 1
-        x = np.concatenate([goal_c[:3] + rng.normal(0, 0.1, 3), random_quat(rng)])
+        q = random_quat(rng) if goal_rot_sigma is None else _rotate_quat(goal_c[3:], rng.normal(0, goal_rot_sigma, 3))
+        x = np.concatenate([goal_c[:3] + rng.normal(0, 0.1, 3), q])
         if ck.is_valid(x) and ck.is_separated(x):
             nodes.append(x)
     nodes = np.array(nodes)
@@ -188,9 +191,13 @@ def build_roadmap(
     edges = set(ref_edges)
     nbrs = _knn(nodes, w, k)
     cand = {(min(i, int(j)), max(i, int(j))) for i in range(N) for j in nbrs[i]} - edges
-    for i, j in sorted(cand):
+    if max_edge is not None:  # long edges are expensive to validate and rarely useful
+        cand = {(i, j) for i, j in cand if float(pose_metric(nodes[i], nodes[j], w)) <= max_edge}
+    for n_done, (i, j) in enumerate(sorted(cand)):
         if ck.segment_valid(nodes[i], nodes[j], w, resolution):
             edges.add((i, j))
+        if n_done % 5000 == 0:
+            log(f"[{variant}]   edges checked {n_done}/{len(cand)} ({time.time() - t0:.0f}s)")
     edges = np.array(sorted(edges))
     log(f"[{variant}] roadmap edges: {len(edges)} valid of {len(cand) + len(ref_edges)} candidates ({time.time() - t0:.0f}s)")
 

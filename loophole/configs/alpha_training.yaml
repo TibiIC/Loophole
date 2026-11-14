@@ -1,23 +1,23 @@
-# Alpha 1.0 training environment: the three literature rewards as dense, logged
-# training signals; the episode score (what the Harbor verifier writes) stays
-#   score = success x (1 - 0.5 x actions_used / max_actions).
-# Use the same file for the sim server and the verifier (LOOPHOLE_CONFIG).
+# Alpha 1.0 training environment (see loophole/reward/literature_rewards.py, REFERENCES.md).
+#
+# Score (the only value the verifier writes to reward.txt) = episode_score(), in [0, 1]:
+#   violation -> 0 (episode ends immediately)
+#   solved    -> 1 - 0.5 * a / T                         in [0.5, 1]
+#   unsolved  -> 0.3 * p,  p = clip(1 - best_ctg / start_ctg, 0, 1)   in [0, 0.3]
+# best_ctg: roadmap cost-to-go via collision-free-visible nodes, held >= 3 consecutive actions.
+# Per-step rewards are training signals only and never enter the score.
 reward:
-  roadmap: true                  # load roadmap-alpha-1.0-paper.npz for cost-to-go
+  roadmap: true                  # load roadmap-alpha-1.0-paper.npz (cost-to-go)
   auto_roadmap_components: false
   components:
-    - type: base                 # the official score
+    - type: cspace_tunnel        # primary: potential shaping Phi = -ctg (gamma = 1); terminal = episode_score
       weight: 1.0
-      params: {alpha: 0.5}
-    - type: cspace_tunnel        # Zhang et al. 2020: potential shaping on roadmap cost-to-go
-      weight: 1.0
+      in_score: true
+      params: {gamma: 1.0, alpha: 0.5, progress_cap: 0.3}
+    - type: clearance_shaping    # training only, potential-based clearance kernel (adapted from IndustReal)
+      weight: 0.0
       in_score: false
-      params: {gamma: 1.0, violation_penalty: 0.5}
-    - type: industreal_sdf       # Tang et al. 2023: clearance kernel - penetration - action energy
-      weight: 1.0
+      params: {d_sep: 0.4, sigma_dist: 0.08, gamma: 1.0}
+    - type: gauss_linking_diagnostic   # log only (open-curve Gauss integral)
+      weight: 0.0
       in_score: false
-      params: {d_sep: 0.4, sigma_dist: 0.08}
-    - type: gauss_linking        # Klenin & Langowski 2000: potential on |linking number| of the closed loops
-      weight: 1.0
-      in_score: false
-      params: {gamma: 1.0, expected_start_lk: 1.0, violation_penalty: 0.5}

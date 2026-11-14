@@ -1,0 +1,8 @@
+{
+ "roadmap_nodes": 8044,
+ "roadmap_edges": 60260,
+ "roadmap_goal_nodes": 847,
+ "roadmap_unreachable_dropped": 640,
+ "start_cost_to_go": 21.6067,
+ "roadmap_build_s": 531.0
+}

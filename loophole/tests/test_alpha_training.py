@@ -1,4 +1,4 @@
-"""Alpha 1.0 training environment: the three literature rewards as logged training signals."""
+"""Alpha 1.0 training environment: score/shaping split and the literature components."""
 
 import json
 from pathlib import Path
@@ -10,6 +10,7 @@ from loophole.config import load_config
 from loophole.puzzles import paper_alpha as pa
 from loophole.reference.recorder import load_trajectory
 from loophole.reference.replay import replay
+from loophole.reward.literature_rewards import episode_score
 from loophole.sim.env import LoopholeEnv
 
 pytestmark = pytest.mark.skipif(not (pa.paper_dir() / pa.FILES["env"]).exists(), reason="paper files not fetched (make fetch-alpha-paper)")
@@ -19,7 +20,7 @@ NAME = "alpha-1.0-paper"
 
 
 def test_centerlines_identical_and_inside():
-    trimesh = pytest.importorskip("trimesh")
+    pytest.importorskip("trimesh")
     lengths = []
     for key, f in (("env", "derived_env.obj"), ("robot", "derived_robot.obj")):
         P = np.load(pa.paper_dir() / f"derived_{key}_centerline.npy")
@@ -30,21 +31,23 @@ def test_centerlines_identical_and_inside():
     assert abs(lengths[0] - lengths[1]) / lengths[1] < 0.02  # congruent tubes
 
 
-def test_training_rewards_on_oracle(tmp_path):
+def test_oracle_score_is_episode_score_and_signals_are_logged(tmp_path):
     log = tmp_path / "ep.jsonl"
     env = LoopholeEnv(NAME, config=load_config(CFG), log_path=log)
-    assert env.diagnostics()["linking_closed"] == pytest.approx(-1.0, abs=0.02)  # interlocked
     final = replay(env, load_trajectory(ROOT / "reference" / "trajectories" / f"{NAME}.jsonl"))
     b = final["breakdown"]
-    # the official score is only the base reward
-    assert final["success"] and final["score"] == pytest.approx(b["base"]["terminal"])
-    assert not any(b[k]["in_score"] for k in ("cspace_tunnel", "industreal_sdf", "gauss_linking"))
-    # topological shaping telescopes from |Lk| = 1 to 0 on the published solution
-    assert b["gauss_linking"]["step_sum"] == pytest.approx(1.0, abs=0.02)
-    assert b["industreal_sdf"]["step_sum"] > 0
+    assert final["success"]
+    # one formula: the verifier score == cspace_tunnel.terminal == episode_score(final state)
+    assert final["score"] == pytest.approx(b["cspace_tunnel"]["terminal"])
+    assert final["score"] == pytest.approx(episode_score(env._reward_state()))
+    assert final["score"] == pytest.approx(1 - 0.5 * final["actions_used"] / final["max_actions"])
+    assert not b["clearance_shaping"]["in_score"] and not b["gauss_linking_diagnostic"]["in_score"]
+    assert b["clearance_shaping"]["weight"] == 0 and b["gauss_linking_diagnostic"]["weight"] == 0
     recs = [json.loads(l) for l in log.read_text().splitlines() if '"type":"action"' in l]
-    assert set(recs[0]["rewards"]) == {"base", "cspace_tunnel", "industreal_sdf", "gauss_linking"}
-    assert recs[-1]["diagnostics"]["linking_closed"] == pytest.approx(0.0, abs=0.02)
+    assert set(recs[0]["rewards"]) == {"cspace_tunnel", "clearance_shaping", "gauss_linking_diagnostic"}
+    assert all(r["rewards"]["gauss_linking_diagnostic"] == 0.0 for r in recs)  # never a reward
+    assert all("linking_open" in r["diagnostics"] for r in recs)  # logged per step
+    assert all("cost_to_go" in r for r in recs)
 
 
 def test_training_noop_scores_zero():

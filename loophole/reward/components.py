@@ -34,6 +34,8 @@ class RewardState:
     cost_to_go: float | None = None  # roadmap cost-to-go of the current pose (None: unavailable)
     start_cost_to_go: float | None = None
     best_cost_to_go: float | None = None  # minimum reached so far in the episode
+    stable_best_cost_to_go: float | None = None  # minimum level held for `hold` consecutive visible matches
+    min_distance: float | None = None  # min distance target-frame (separation puzzles), for clearance shaping
 
 
 class RewardComponent(ABC):
@@ -167,11 +169,76 @@ class ProgressCredit(RewardComponent):
         return self.cap * max(0.0, 1.0 - final.best_cost_to_go / final.start_cost_to_go)
 
 
+class StableMin:
+    """Best (lowest) cost-to-go level that was *held*: a level L counts only once
+    `hold` consecutive actions all had a collision-free-visible roadmap match with
+    cost-to-go <= L. An action without a visible match breaks the streak, so a single
+    nearest-neighbour glitch cannot spike the progress."""
+
+    def __init__(self, start: float | None, hold: int = 3):
+        self.hold = hold
+        self.window: list[float] = []
+        self.best = start
+
+    def update(self, ctg: float | None) -> float | None:
+        if ctg is None:
+            self.window.clear()
+            return self.best
+        self.window = (self.window + [float(ctg)])[-self.hold :]
+        if len(self.window) == self.hold:
+            level = max(self.window)
+            self.best = level if self.best is None else min(self.best, level)
+        return self.best
+
+
+class ScaledProgressScore(RewardComponent):
+    """Official episode score in [0, 1] with partial credit for unsolved runs.
+
+        solved:   1 - alpha * actions_used / max_actions          in [1 - alpha, 1]
+        unsolved: progress_cap * p,  p = 1 - stable_best_ctg / start_ctg   in [0, progress_cap]
+        any anti-tunnelling violation: 0
+
+    With alpha = 0.5 and progress_cap = 0.3, solves land in [0.5, 1] and non-solves in
+    [0, 0.3], so any solve beats any non-solve. p uses the roadmap's visibility-guarded
+    cost-to-go (shortest collision-free route to separation) and only levels held for
+    3 consecutive actions (see StableMin). Doing nothing scores 0. Time = actions.
+    """
+
+    name = "scaled_progress"
+
+    def __init__(self, alpha: float = 0.5, progress_cap: float = 0.3, **kw):
+        super().__init__(alpha=alpha, progress_cap=progress_cap, **kw)
+        if not (0 <= alpha < 1 and 0 <= progress_cap < 1 - alpha):
+            raise ValueError("need 0 <= alpha < 1 and progress_cap < 1 - alpha (solves must beat non-solves)")
+        self.alpha = float(alpha)
+        self.cap = float(progress_cap)
+
+    def reset(self, initial: RewardState) -> None:
+        pass
+
+    def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
+        return 0.0
+
+    @staticmethod
+    def progress(s: RewardState) -> float:
+        if not s.start_cost_to_go or s.stable_best_cost_to_go is None:
+            return 0.0
+        return min(1.0, max(0.0, 1.0 - s.stable_best_cost_to_go / s.start_cost_to_go))
+
+    def terminal(self, final: RewardState, info: dict) -> float:
+        if final.violations > 0:
+            return 0.0
+        if final.success:
+            return 1.0 - self.alpha * min(final.actions_used, final.max_actions) / max(final.max_actions, 1)
+        return self.cap * self.progress(final)
+
+
 REGISTRY: dict[str, type[RewardComponent]] = {
     "base": BaseReward,
     "topology_shaping": TopologyShaping,
     "cost_to_go_shaping": CostToGoShaping,
     "progress": ProgressCredit,
+    "scaled_progress": ScaledProgressScore,
 }
 
 

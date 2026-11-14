@@ -7,57 +7,59 @@ moves tube B with a grab handle and must separate them. The agent only talks to 
 simulator over MCP (sidecar container), so it never sees the simulator, solver or
 reference.
 
-## The Alpha puzzle task (`tasks/loophole-alpha`)
+## The Alpha puzzle task (`tasks/loophole-alpha`): Alpha 1.0
 
 **What the agent must do.** Two identical rigid tubes, each bent into an alpha, are
-interlocked: each loop threads the other. Tube A is fixed; the agent grabs tube B with
-one handle and moves it with bounded steps (≤ 5 cm and ≤ 0.1 rad per `move`,
-velocity-limited) until the minimum distance between the tubes exceeds **0.4 m**,
-within a fixed action budget. It sees the world only through the MCP tools `get_state`,
-`render`, `grab`, `move`, `release` and `wait`.
+interlocked. Tube A is fixed; the agent grabs tube B with one handle and moves it with
+bounded steps (≤ 10 cm and ≤ 0.2 rad per `move`, velocity-limited) until the minimum
+distance between the tubes exceeds **0.4 m**, within 198 actions. It sees the world only
+through the MCP tools `get_state`, `render`, `grab`, `move`, `release` and `wait`.
 
-**Why it is hard.** The Alpha puzzle is a classic narrow-passage problem in the 6-D
-configuration space SE(3). The way out exists, but it is a thin tunnel of
-configurations that requires coordinated translation *and* rotation. Uniform sampling
-almost never hits it, and greedy "move away" motions stall against the other tube. The
-puzzle was designed by Boris Yamrom (GE Corporate R&D) and became a standard
-motion-planning benchmark through Nancy Amato's Parasol Lab and OMPL. On why such
-puzzles are hard and how their C-space tunnels can be found, see X. Zhang, R. Belfer,
-P. G. Kry, E. Vouga, *C-Space Tunnel Discovery for Puzzle Path Planning*, ACM
-Transactions on Graphics 39(4) (SIGGRAPH 2020).
+**Why it is hard.** The way out is a narrow tunnel in the 6-D configuration space SE(3):
+a coordinated sequence of translations *and* rotations with millimetre clearance (the
+published solution grazes contact). Greedy "move away" motions stall against the other
+tube, and Euclidean closeness is deceptive across tube walls. Sampling planners need
+targeted tunnel discovery [ZBKV20]; even the easier Alpha 1.5 has two homotopy classes of
+solution paths [JSCP15]. The puzzle was designed by Boris Yamrom (GE Corporate R&D) and
+became a standard benchmark through Nancy Amato's Parasol Lab and OMPL.
 
-**Geometry: canonical, fetched, never committed.** We use the OMPL.app Alpha files
-(`resources/3D/` at commit `958884d`): `alpha_env-1.5.dae` (tube A), `alpha_robot.dae`
-(tube B), `alpha-1.5.cfg` (start/goal/volume) and `alpha-1.5.path` (OMPL's own solution,
-used only as a test). Licence: *Rice University Software Distribution License*
-(non-commercial; redistribution not permitted). They are downloaded with sha256 checks
-by `make fetch-alpha` (locally, into gitignored `.ompl_alpha/`) and at Docker build time.
-Derived meshes and hulls are generated there and never committed. The repo contains only
-poses and parameters (`loophole/puzzles/alpha_ompl/alpha-1.5.yaml`).
-* Frame convention, taken from OMPL.app's source: Assimp converts the Z-up Collada files
-  to Y-up, (x, y, z) → (x, z, −y), and the robot mesh is shifted by the mean of its
-  vertices before the `.cfg` pose is applied. With this convention OMPL's own path is
-  collision-free under FCL on the raw triangles (0/103 states); without the up-axis step
-  ~40% of it collides.
-* `unit_scale: 0.01` (native units → metres, scene ≈ ±2 m) is applied once at load time;
-  start-pose round-trip to the `.cfg` values is tested to be exact.
-* **Convex decomposition: face wedges rather than CoACD.** CoACD's threshold is relative
-  to the 2.8 m bounding diagonal, so even threshold 0.03 gave hulls bulging ~8 cm. That is
-  far larger than the narrowest clearance on OMPL's path (1.8 mm). We therefore decompose
-  each canonical triangle into a convex wedge extruded inward, with the inward direction
-  found by ray casting: the outside is exactly the canonical surface. Measured against
-  FCL on the raw triangles along OMPL's path, the max distance error is **0.15 mm**
-  (≈ 8% of the 1.8 mm narrowest clearance). Start clearance is 32.9 mm in both. CoACD
-  stays available (`decompose: coacd`) for other meshes.
-* `d_sep = 0.4 m`: hill-climbing the clearance from the start with collision-free motions
-  saturates at ≈ 0.22 m, so 0.4 m cannot be reached while the tubes are still interlocked.
+**Geometry and oracle: from the paper, fetched, never committed.** Alpha 1.0 exactly as
+used in Zhang et al. [ZBKV20]: two congruent tube meshes (volumes 2870.33 / 2869.76), the
+OMPL problem file and the authors' solution, from their puzzle repository
+(`gitlab.com/xinyazhang/puzzle-geometry` @ `cd05c5d`, byte-identical to the paper's
+supplementary). The geometry derives from the OMPL.app Alpha puzzle (Rice licence:
+non-commercial, no redistribution), so `make fetch-alpha-paper` and the Docker build
+fetch it with sha256 checks; only poses and parameters are committed.
+* OMPL conventions (robot shifted by its vertex mean): all 214 states of the authors'
+  path are collision-free under FCL on the raw meshes, and 66,679 interpolated states at
+  0.8 mm too; our MuJoCo collision model (exact-outside convex face wedges) matches FCL to
+  5.8 µm. `unit_scale: 0.04` (tubes ≈ 2.5 m); the start pose round-trips to the `.cfg`.
+* Oracle (`solution/`): the authors' simplified 22-pose solution, densely re-validated
+  in our simulator (28,189 states, 0 collisions) and replayed through the agent's rig:
+  separates in 79/198 actions, 0 violations, score 0.80. Watch it: `make view-alpha`.
 
-**Scoring.** The verifier writes one float to `/logs/verifier/reward.txt`:
-`score = success × (1 − 0.5 × actions_used / max_actions)`. Success means the min
-distance exceeded `d_sep` and the per-substep penetration/speed audit recorded zero
-violations. Doing nothing or stopping early scores 0. Per action, the log also records
-(unscored) the min distance, the relative pose of B w.r.t. A (metres and native units)
-and the `progress_potential` hook (cost-to-go roadmap; flagged off).
+**Scoring** (`loophole/reward/literature_rewards.py: episode_score`). The verifier
+writes one float in [0, 1] to `/logs/verifier/reward.txt`:
+
+| outcome | score |
+|---|---|
+| any penetration/tunnelling violation (episode ends immediately) | 0 |
+| solved (min distance > 0.4 m) | 1 − 0.5 · a/T, in [0.5, 1] |
+| unsolved | 0.3 · p, in [0, 0.3] |
+
+with `a` = actions used, `T` = max actions, and progress
+`p = clip(1 − best_ctg / start_ctg, 0, 1)`. `ctg` is the cost-to-go of a roadmap over the
+free configuration space (shortest collision-free path length to separation), matched only
+through roadmap nodes reachable by a collision-free straight segment; `best_ctg` only
+updates when the match holds for ≥ 3 consecutive actions. Every solve beats every
+non-solve; doing nothing scores 0; going back and forth cannot raise `best_ctg`.
+
+**Training signals** (logged per action in the episode JSONL, never in the score):
+`cspace_tunnel` (primary, potential-based shaping Φ = −ctg with γ = 1 [NHR99]; its
+terminal is `episode_score`), `clearance_shaping` (potential-based clearance kernel adapted
+from IndustReal [TLA+23], weight 0) and `gauss_linking_diagnostic` (open-curve Gauss
+integral [KL00, RN11], logged next to cost-to-go, no reward). Citations, verified, are
+in [REFERENCES.md](REFERENCES.md).
 
 **Anti-exploit setup.** Harbor supports multi-container environments, so the MuJoCo MCP
 server runs in a **separate sidecar container** (`loophole-sim`). The agent's container
@@ -78,8 +80,9 @@ OPENAI_API_KEY=... harbor run -p ./tasks/loophole-alpha -a opencode -m openai/<m
 ```
 
 > **Deprecated:** the procedural Alpha-*style* tubes (`loophole/puzzles/alpha/`,
-> `tasks/loophole-alpha-{easy,medium,hard}`) are not the real Alpha geometry. They are
-> kept for reference and tests but are no longer the active task.
+> `tasks/loophole-alpha-{easy,medium,hard}`) are not the real Alpha geometry, and the
+> OMPL.app Alpha 1.5 pipeline (`loophole/puzzles/alpha_ompl/`) has non-identical tubes
+> (OMPL widens tube A). Both are kept for reference and tests; the active task is Alpha 1.0.
 
 ### Model API keys (for `-a opencode`)
 

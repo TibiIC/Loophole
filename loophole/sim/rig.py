@@ -72,7 +72,9 @@ class Rig:
         cfg: RigConfig,
         substep: Callable[[], None],
         strain: Callable[[], tuple[float, float]] = lambda: (0.0, 0.0),
+        abort: Callable[[], bool] = lambda: False,
     ):
+        self.abort = abort  # () -> True once the episode must end (violation): stop executing
         self.strain = strain  # () -> (current max penetration, current rope anchor drift)
         self.m = model
         self.d = data
@@ -231,6 +233,8 @@ class Rig:
         blocked = None
         done_frac = 0.0
         for k in range(1, n + 1):
+            if self.abort():
+                break
             if h.body is not None and (blocked := self._lagging(h) or self._strained()):
                 self._snap_to_body(h)
                 break
@@ -241,6 +245,8 @@ class Rig:
             self.substep()
         if not blocked:
             for _ in range(self.cfg.settle_steps):
+                if self.abort():
+                    break
                 self.substep()
         pf, qf = self.handle_pose(h)
         out = {

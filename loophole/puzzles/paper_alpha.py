@@ -53,11 +53,14 @@ def prepare() -> dict:
     d = paper_dir()
     rob = load_obj(d / FILES["robot"])
     c = np.asarray(rob.vertices).mean(axis=0)
-    rob.apply_translation(-c)
-    rob.export(d / "derived_robot.obj")
-    load_obj(d / FILES["env"]).export(d / "derived_env.obj")
-    if not (d / "derived_robot_centerline.npy").exists():
-        prepare_centerlines()
+    import trimesh
+
+    def geometry_only(m):  # drop texture coordinates (exporting them would need PIL)
+        return trimesh.Trimesh(np.asarray(m.vertices), np.asarray(m.faces), process=False)
+
+    trimesh.Trimesh(np.asarray(rob.vertices) - c, np.asarray(rob.faces), process=False).export(d / "derived_robot.obj")  # OMPL centring
+    geometry_only(load_obj(d / FILES["env"])).export(d / "derived_env.obj")
+    prepare_centerlines()
     return {"robot_center_native": c.tolist()}
 
 

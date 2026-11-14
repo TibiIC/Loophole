@@ -16,9 +16,12 @@ from loophole.reward.roadmap import build_roadmap  # noqa: E402
 
 cfg = parse_cfg(pa.paper_dir() / pa.FILES["cfg"])
 box = (np.array(cfg["volume"]["min"]) * pa.UNIT_SCALE, np.array(cfg["volume"]["max"]) * pa.UNIT_SCALE)
-# edges checked with <= 2 mm motion of any point of the tube; tube sampled around the published solution
-info = build_roadmap("alpha-1.0-paper", seed=1, n_tube=5000, n_uniform=2500, n_goal=300, k=12,
-                     sigma_t=0.02, sigma_r=0.1, resolution=0.002, box=box)
+# Edges checked with <= 4 mm motion of any point of the tube (tube walls are ~10 cm thick, so
+# visibility can never pass through a wall); candidates longer than 0.3 (metric) skipped.
+# Nodes: the published solution (densified), Gaussian tube samples around it, a few uniform
+# samples, and separated goal samples near the end orientation.
+info = build_roadmap("alpha-1.0-paper", seed=1, n_tube=6000, n_uniform=500, n_goal=300, k=12,
+                     sigma_t=0.02, sigma_r=0.1, resolution=0.004, box=box, max_edge=0.3, goal_rot_sigma=0.2)
 out = pa.PUZZLE_OUT / "alpha-1.0-paper-roadmap.json"
 out.write_text(json.dumps(info, indent=1))
 print(json.dumps(info))
