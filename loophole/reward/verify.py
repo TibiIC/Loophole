@@ -44,6 +44,8 @@ def verify_episode(log_path: str | Path, puzzle: str, seed: int = 0, config_path
         return _zero("log has no header")
     header = records[0]
     pz = load_puzzle(resolve_puzzle(puzzle))
+    if "start_pose" in header or "training" in header:  # evaluation is on the canonical start only
+        return _zero("training episode (non-canonical start or randomised scene), not an evaluation log")
     if header.get("puzzle_sha256") != pz.source_sha256:
         return _zero("episode was played on a different puzzle file", expected=pz.source_sha256, got=header.get("puzzle_sha256"))
     if int(header.get("seed", -1)) != seed:

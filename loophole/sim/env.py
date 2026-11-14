@@ -102,10 +102,15 @@ class LoopholeEnv:
         config: EnvConfig | None = None,
         seed: int = 0,
         log_path: str | Path | None = None,
+        start_pose=None,
     ):
         self.puzzle = puzzle if isinstance(puzzle, Puzzle) else load_puzzle(resolve_puzzle(str(puzzle)))
         self.cfg = effective_config(config or load_config(), self.puzzle)
         self.seed = int(seed)
+        # training only: a non-canonical start pose of the free piece (None = the puzzle's own start;
+        # evaluation always uses None, and the verifier rejects logs whose header has a start_pose)
+        self.start_pose = None if start_pose is None else np.asarray(start_pose, float)
+        self.episode_meta: dict | None = None
         self.built: BuiltModel = build_model(
             self.puzzle,
             num_handles=self.cfg.rig.num_handles,
@@ -274,7 +279,14 @@ class LoopholeEnv:
         h.update(self.model.eq_data.tobytes())
         return h.hexdigest()
 
-    def reset(self) -> dict:
+    def reset(self, seed: int | None = None, log_path: str | Path | None = None) -> dict:
+        """Start an episode. Evaluation constructs a fresh env and never calls this again; training
+        may reset repeatedly (new `seed`, new per-episode `log_path`, `self.start_pose`)."""
+        if seed is not None:
+            self.seed = int(seed)
+        if log_path is not None:
+            self.log.close()
+            self.log = EpisodeLog(log_path)
         m, d = self.model, self.data
         mujoco.mj_resetData(m, d)
         m.eq_data[:] = self._eq_data0
@@ -285,6 +297,10 @@ class LoopholeEnv:
                 j = m.body(name).jntadr[0]
                 adr = m.jnt_qposadr[j]
                 d.qpos[adr : adr + 2] += rng.normal(0.0, self.puzzle.init_noise, size=2)
+        if self.start_pose is not None:
+            adr = m.jnt_qposadr[m.body(self.puzzle.target).jntadr[0]]
+            d.qpos[adr : adr + 3] = self.start_pose[:3]
+            d.qpos[adr + 3 : adr + 7] = self.start_pose[3:7] / np.linalg.norm(self.start_pose[3:7])
         mujoco.mj_forward(m, d)
         self.substeps = 0
         self.audit.reset()
@@ -318,8 +334,14 @@ class LoopholeEnv:
         self._last_rstate = self._reward_state()
         self.composer.reset(self._last_rstate)
         self.initial_hash = self.state_hash()
+        extra = {}
+        if self.start_pose is not None:
+            extra["start_pose"] = [float(x) for x in self.start_pose]  # full precision: replays must reproduce it
+        if self.episode_meta:
+            extra["training"] = self.episode_meta
         self.log.write(
             {
+                **extra,
                 "type": "header",
                 "version": LOG_VERSION,
                 "puzzle": self.puzzle.name,
@@ -502,6 +524,7 @@ class LoopholeEnv:
             "linking_integral": diag.get("linking_integral"),
         }
         step_reward = self.composer.step(rstate, info)
+        self.last_step_reward = float(step_reward)  # training signal (never part of the score)
         self._last_rstate = rstate
         h = self.state_hash()
         self.log.write(
