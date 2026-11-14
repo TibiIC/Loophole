@@ -1,0 +1,10 @@
+{
+ "reward": 0.0,
+ "success": 0,
+ "actions_used": 0,
+ "violations": 0,
+ "log_consistent": 0,
+ "reason": "episode was played on a different puzzle file",
+ "expected": "ff7ed06538d23caf8f36c2406539090183aa480a859403855e98fe5a1751c56d",
+ "got": "29385df9b7fa0377480bbe48aa99296b6dd28105c0c3acd635be6393f08db7a9"
+}

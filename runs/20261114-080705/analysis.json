@@ -1,0 +1,115 @@
+{
+ "oracle": [
+  {
+   "trial": "loophole-alpha__Xx78e6N",
+   "score": 0.800505,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": 1,
+   "actions": 79,
+   "calls": {
+    "grab": 1,
+    "move": 78
+   },
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.9895399243291356
+  }
+ ],
+ "noop": [
+  {
+   "trial": "loophole-alpha__qSYWQW4",
+   "score": 0.0,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": 1,
+   "actions": 0,
+   "calls": {},
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ],
+ "stop-early": [
+  {
+   "trial": "loophole-alpha__Hh5ATY8",
+   "score": 0.0,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": 1,
+   "actions": 6,
+   "calls": {
+    "grab": 1,
+    "move": 5
+   },
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ],
+ "opencode": [
+  {
+   "trial": "loophole-alpha__5oFTZb8",
+   "score": 0.838384,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": "pose-level (see rescored.json)",
+   "actions": 64,
+   "calls": {
+    "grab": 1,
+    "move": 63
+   },
+   "observations": {
+    "render": 329,
+    "get_state": 7
+   },
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.9238038423198108
+  },
+  {
+   "trial": "loophole-alpha__Kt5DJ3h",
+   "score": 0.13941,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": "pose-level (see rescored.json)",
+   "actions": 157,
+   "calls": {
+    "grab": 1,
+    "move": 156
+   },
+   "observations": {
+    "render": 11,
+    "get_state": 82
+   },
+   "rejected": 0,
+   "blocked": 36,
+   "c0": 21.60665698080951,
+   "progress": 0.46469922425208443
+  },
+  {
+   "trial": "loophole-alpha__wRU3ykj",
+   "score": 0.0,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": "pose-level (see rescored.json)",
+   "actions": 0,
+   "calls": {},
+   "observations": {
+    "render": 194,
+    "get_state": 2
+   },
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ]
+}

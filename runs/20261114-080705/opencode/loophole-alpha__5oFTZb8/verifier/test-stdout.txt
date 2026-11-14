@@ -1,0 +1,2 @@
+{"reward": 0.0, "success": 0, "actions_used": 0, "violations": 0, "log_consistent": 0, "reason": "episode was played on a different puzzle file"}
+0.000000

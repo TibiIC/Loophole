@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GROUPS = ("oracle", "noop", "stop-early", "opencode")
+GROUPS = ("oracle", "oracle-planner", "noop", "stop-early", "opencode")
 
 
 def load_trial(trial: Path) -> dict | None:

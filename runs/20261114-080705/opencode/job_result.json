@@ -1,0 +1,50 @@
+{
+    "id": "d92acc77-15ff-4530-9b82-5aadd8f0bb47",
+    "started_at": "2026-11-14T08:11:00.880173",
+    "updated_at": "2026-11-14T10:12:55.453841",
+    "finished_at": "2026-11-14T10:12:55.453841",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 2,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__gemini-4-carbon__adhoc": {
+                "n_trials": 3,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "loophole-alpha__wRU3ykj",
+                            "loophole-alpha__5oFTZb8",
+                            "loophole-alpha__Kt5DJ3h"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "NonZeroAgentExitCodeError": [
+                        "loophole-alpha__wRU3ykj"
+                    ],
+                    "AgentTimeoutError": [
+                        "loophole-alpha__Kt5DJ3h"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 52690870,
+        "n_cache_tokens": 50937070,
+        "n_output_tokens": 226678,
+        "cost_usd": null
+    }
+}

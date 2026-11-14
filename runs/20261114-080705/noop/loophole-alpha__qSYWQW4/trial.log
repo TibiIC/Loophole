@@ -1,0 +1,9 @@
+Skipping image OS validation for hb__788b1ff50fc0e6848252d26bd62e3a8e: docker inspect returned 1
+Agent 'nop' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+Collecting main service artifacts
+Stopping main service before sidecar evidence collection
+Main service stopped
+Collecting sidecar artifacts from services: ['loophole-sim']
+Running collect hook in service 'loophole-sim': 'python -m loophole.mcp_server.finalize'
+Collect hook in service 'loophole-sim' completed
+Skipping image OS validation for hb__60558502204904bdf11cd7c9c5632b81: docker inspect returned 1

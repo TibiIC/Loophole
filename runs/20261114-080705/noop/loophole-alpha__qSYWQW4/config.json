@@ -1,0 +1,11 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__qSYWQW4",
+    "trials_dir": "/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-080705-noop",
+    "agent": {
+        "name": "nop"
+    },
+    "job_id": "71f867bf-afae-418a-8ba1-79e9d418488e"
+}

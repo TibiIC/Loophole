@@ -1,0 +1,6 @@
+{
+ "model": "gemini/gemini-4-carbon",
+ "runs": 3,
+ "task": "./tasks/loophole-alpha",
+ "harbor": "/Users/tg4018/.local/bin/harbor"
+}

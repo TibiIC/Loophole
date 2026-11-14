@@ -1,0 +1,1 @@
+{"rescored": 0.838384, "success": true, "actions": 64, "violations": 0, "done_reason": "solved", "max_pose_deviation_from_log": 4.973823304887937e-07, "per_action_outcomes_match": true, "sidecar_final_score": 0.838384, "cost_to_go": {"start": 21.60665698080951, "final": 1.5191984690819864, "best": 1.5191984690819864, "stable_best": 1.646344242251521, "fallbacks": 48}}

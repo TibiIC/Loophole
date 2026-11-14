@@ -1,0 +1,1 @@
+{"rescored": 0.0, "success": false, "actions": 0, "violations": 0, "done_reason": "stopped by agent/harness", "max_pose_deviation_from_log": 0.0, "per_action_outcomes_match": true, "sidecar_final_score": 0.0, "cost_to_go": {"start": 21.60665698080951, "final": 21.60665698080951, "best": 21.60665698080951, "stable_best": 21.60665698080951, "fallbacks": 0}}

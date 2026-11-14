@@ -1,0 +1,18 @@
+{
+ "reward": 0.13941,
+ "success": 0,
+ "actions_used": 157,
+ "violations": 0,
+ "reason": "stopped by agent/harness",
+ "log_consistent": "pose-level (see rescored.json)",
+ "final": {
+  "cost_to_go": {
+   "start": 21.60665698080951,
+   "final": 11.253123904166578,
+   "best": 11.253123904166578,
+   "stable_best": 11.566060243146445,
+   "fallbacks": 42
+  }
+ },
+ "method": "full replay in a Linux image of the eval's code (commit c5cb729 + the 127f7ae puzzle file); every pose within 5e-7 m of the log, per-action outcomes identical, final score equal to the simulator sidecar's own final record"
+}

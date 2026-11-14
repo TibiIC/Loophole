@@ -1,0 +1,127 @@
+[0] grab {"handle": 0, "target": "tube_b"} -> {
+  "handle": 0,
+  "grasped": "tube_b",
+  "grasp_point": [
+    1.2,
+    0.36,
+    0.28
+  ],
+  "action": 1,
+  "actions_remaining": 197,
+  "done": false,
+  "done_reason": null,
+  "success": false,
+  "violations": 0,
+  "target": {
+    "name": "tube_b",
+    "pos": [
+      1.2,
+      0.36,
+      0.28
+   
+[1] move {"handle": 0, "dx": 0.000709297482015403, "dy": 0.027027821779556118, "dz": -0.021350423236821976} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    1.20071,
+    0.38703,
+    0.25865
+  ],
+  "handle_quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "grasp_point": [
+    1.20071,
+    0.3
+[2] move {"handle": 0, "dx": 0.02691896682823463, "dy": -0.011290112879370873, "dz": -0.004600413061645461} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    1.22763,
+    0.37574,
+    0.25405
+  ],
+  "handle_quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "grasp_point": [
+    1.22763,
+    0.3
+[3] move {"handle": 0, "dx": 0.019662155629226505, "dy": -0.005448051817850323, "dz": 0.0029756212603835696} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    1.24729,
+    0.37029,
+    0.25702
+  ],
+  "handle_quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "grasp_point": [
+    1.24729,
+    0.3
+[4] move {"handle": 0, "dx": -0.028346453205415897, "dy": 0.015210786520488394, "dz": 0.002288598793156693} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    1.21894,
+    0.3855,
+    0.25931
+  ],
+  "handle_quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "grasp_point": [
+    1.21894,
+    0.38
+[5] move {"handle": 0, "dx": -0.01021609701005447, "dy": 0.017305722205704258, "dz": -0.011808310242501301} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    1.20873,
+    0.40281,
+    0.24751
+  ],
+  "handle_quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "grasp_point": [
+    1.20874,
+    0.4
+{"action": 6, "done": false, "done_reason": null, "success": false, "violations": 0}
