@@ -14,7 +14,7 @@ import numpy as np
 from .reward import RatTrapEpisode
 
 MM = 1000.0
-STRIDE = 1  # cord nodes shown in get_state: all of them (runs before 2026-11-14 23:00 showed every 6th)
+STRIDE = 1  # cord nodes shown in get_state: all of them (before commit e7a7df3: every 6th)
 
 
 def mm(v) -> list:

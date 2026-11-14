@@ -64,7 +64,7 @@ did not work through the same interface, and that asymmetry is real.
   * the full geometry in the instruction: every part's position and size, the named passages with their centres and
     axes, the cord's length and radius, the mouse and its node, the start configuration;
   * free state queries: `get_state` returns **every** cord node (143) plus the grippers and the mouse, at no action
-    cost. Runs started before 2026-11-14 23:00 saw every 6th node; that reduction is gone;
+    cost. Runs before commit e7a7df3 saw every 6th node; that reduction is gone;
   * discrete, capped moves (≤ 30 mm per call, halting when blocked). The reference shows these suffice: converted to
     them, the human solve takes 284 actions, a third of the budget;
   * a route-independent success test: the frozen cord slides free in a straight line. The partial credit follows the
