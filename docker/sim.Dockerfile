@@ -1,7 +1,8 @@
 # Loophole simulation sidecar (MCP server) and verifier image.
 # Build context: repository root.  docker build -f docker/sim.Dockerfile -t loophole-sim:local .
-# Bookworm pinned: Mesa >= 25.1 (trixie+) dropped OSMesa.
-FROM python:3.11-slim-bookworm
+# Bookworm pinned (by digest): Mesa >= 25.1 (trixie+) dropped OSMesa. Python packages are pinned
+# by pyproject.toml (direct) and docker/constraints.txt (transitive); apt packages follow bookworm.
+FROM python:3.11-slim-bookworm@sha256:a83ba18aef0f865b1a4a611c2cf460fe446f2795673bbb9fe43be570439e3b39
 
 ARG MUJOCO_GL=osmesa
 ENV MUJOCO_GL=${MUJOCO_GL} \
@@ -18,9 +19,9 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/loophole
-COPY pyproject.toml ./
+COPY pyproject.toml docker/constraints.txt ./
 COPY loophole ./loophole
-RUN pip install -e ".[mesh]"
+RUN pip install -c constraints.txt -e ".[mesh]"
 
 # Alpha 1.0 as used in Zhang et al. 2020 (the task). The meshes derive from the OMPL.app
 # Alpha puzzle (Rice licence: no redistribution), so they are fetched here from a pinned

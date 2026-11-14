@@ -145,3 +145,18 @@ def test_profiles_change_only_observations():
         out.append((f["score"], f["final_state_hash"]))
         e.close()
     assert out[0] == out[1]
+
+
+def test_replay_is_deterministic():
+    """Fixed seeds everywhere: two fresh simulators given the same actions reach bit-identical states."""
+    from loophole.reference.recorder import load_trajectory
+    from loophole.reference.replay import replay
+
+    steps = load_trajectory(ROOT / "reference" / "trajectories" / "alpha-1.0-paper.jsonl")[:12]
+    hashes = []
+    for _ in range(2):
+        e = _env("sensors")
+        replay(e, steps)
+        hashes.append(e.state_hash())
+        e.close()
+    assert hashes[0] == hashes[1]

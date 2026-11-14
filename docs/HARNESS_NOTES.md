@@ -71,6 +71,24 @@ provide pixel-exact numeric channels (metric depth + camera model + segmentation
 compute stack in the agent image, so the vision task does not depend on the harness
 forwarding images.
 
+## Reproducibility
+
+* **Pinned:** both base images by digest (`python:3.11-slim-bookworm@sha256:a83ba18a…`);
+  direct Python dependencies in `pyproject.toml`; transitive ones in
+  `docker/constraints.txt` (frozen from the sim image); the agent image's compute stack
+  (numpy 2.4.6, scipy 1.17.1, Pillow 13.0.0, OpenCV 5.0.0.93, mcp 1.30.0); the geometry by
+  commit + sha256; OpenCode 1.19.5 via Harbor 0.25.0. Apt packages follow Debian bookworm
+  and are not pinned.
+* **Seeds:** the episode seed is `LOOPHOLE_SEED=0` (task.toml + compose); the roadmap was
+  built with seed 1 (stored in the `.npz`); the escape directions are a deterministic
+  Fibonacci lattice. Two fresh simulators given the same actions reach bit-identical
+  states (`test_replay_is_deterministic`), which is what the verifier's per-action
+  state-hash check relies on.
+* **One episode per session:** the MCP server runs exactly one episode per process. After
+  it ends (solved, budget, violation, or `/admin/finalize`), every action tool is refused
+  for every client, including new MCP sessions. There is no reset tool and no reset route
+  (`test_no_second_episode_without_admin_reset`).
+
 ## Network
 
 * **Docker build needs network access:** `docker/sim.Dockerfile` downloads the Alpha 1.0

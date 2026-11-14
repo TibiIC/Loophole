@@ -8,6 +8,7 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 
 import pytest
@@ -92,3 +93,21 @@ def test_admin_finalize_is_loopback_only_and_logged(server):
     # after finalisation the episode accepts no further actions
     res = asyncio.run(_session_calls(url, [("wait", {"steps": 10})]))
     assert res[1].isError
+
+
+def test_no_second_episode_without_admin_reset(server):
+    """One episode per server process: after it ends, a *new* MCP session cannot start another
+    (no reset tool, no reset route); every action tool is refused and nothing is logged."""
+    url, log_dir = server
+    urllib.request.urlopen(urllib.request.Request(url + "/admin/finalize", data=b"{}", method="POST"), timeout=30)
+    before = (log_dir / "episode.jsonl").read_text()
+    calls = [("grab", {"handle": 0, "target": "ring"}), ("move", {"handle": 0, "dx": 0.01}), ("release", {"handle": 0}), ("wait", {"steps": 1})]
+    res = asyncio.run(_session_calls(url, calls))
+    assert not any("reset" in t for t in res[0])
+    assert all(r.isError and "episode is over" in r.content[0].text for r in res[1:])
+    for route in ("/admin/reset", "/reset"):
+        with pytest.raises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(urllib.request.Request(url + route, data=b"{}", method="POST"), timeout=5)
+        assert e.value.code in (404, 405)
+    after = (log_dir / "episode.jsonl").read_text()
+    assert after.count('"type":"action"') == before.count('"type":"action"')
