@@ -248,18 +248,28 @@ PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
 ```
 
 <!-- rattrap-results:start -->
-| Round | Model (provider) | Reward | Score | Solved | Actions used (of T) | Checkpoints reached | Ended by |
-|---|---|---|---|---|---|---|---|
-| 1 | DeepSeek V4.1 Flash (Verda) | sparse (T = 400) | 0.0 | no | 322 / 400 | n/a | 400-turn cap |
-| 1 | Kimi K3 Pro (Verda) | sparse (T = 400) | 0.0 | no | 357 / 400 | n/a | 400-turn cap |
-| 1 | Nemotron 3.5 Super VL (Verda, with images) | sparse (T = 400) | 0.0 | no | 343 / 400 | n/a | 400-turn cap |
-| 1 | Gemini 4 Carbon (Google, OpenAI-compatible API) | sparse (T = 400) | 0.0 | no | 0 / 400 | n/a | returned only empty replies¹ |
+| Round | Model (provider, harness) | Reward | Score | Solved | Actions (of T) | Checkpoints reached | Blocked moves | Closest to c₁ |
+|---|---|---|---|---|---|---|---|---|
+| 1 | DeepSeek V4.1 Flash (Verda, function calling) | sparse, T = 400; re-scored² | 0.0 | no | 322 / 400 | 0 / 20 | 42 | 97.7 mm |
+| 1 | Kimi K3 Pro (Verda, function calling) | sparse, T = 400; re-scored² | 0.0 | no | 357 / 400 | 0 / 20 | 47 | 70.1 mm |
+| 1 | Nemotron 3.5 Super VL (Verda, function calling, with images) | sparse, T = 400; re-scored² | 0.0 | no | 343 / 400 | 0 / 20 | 35 | 110.8 mm |
+| 1 | Gemini 4 Carbon (Google OpenAI-compatible API) | sparse, T = 400 | 0.0 | no | 0 / 400 | – | – | – |
+| 2 | DeepSeek, Kimi, Nemotron (as above) | checkpoints, T = 852 | *running* | | | | | |
+| 2 | Gemini 4 Carbon (OpenCode, native Google provider, 3 runs) | checkpoints, T = 852 | *running* | | | | | |
+| – | reference solve (oracle) | checkpoints, T = 852 | **0.833** | yes | 284 / 852 | 20 / 20 | – | 0 |
+| – | noop | checkpoints, T = 852 | 0.0 | no | 0 | 0 / 20 | – | 110.8 mm (the start) |
 
-¹ Through Google's OpenAI-compatible endpoint, Gemini 4 Carbon spends the whole output budget
-(32k tokens) on hidden reasoning after the first tool result and returns nothing. This happens
-with or without images, and `reasoning_effort` and `thinking_budget` are both ignored. It
-solves Alpha through OpenCode's native Google provider, so this is a harness/API issue, not a
-verdict on the model.
+² Round 1's command logs were replayed offline under the checkpoint reward (`scripts/rescore_rattrap.py`;
+same physics, no API calls). **All three unsolved 300+-action runs land at p = 0.** None came
+within ε = 16.6 mm of the first checkpoint: the closest was 70 mm, and Nemotron never got closer
+than where it started. This is evidence both of the task's difficulty and of the reward's
+integrity: hundreds of plausible-looking moves buy no partial credit.
+
+The Gemini 4 Carbon row in round 1 is a harness/API issue, not a verdict on the model. Through
+Google's OpenAI-compatible endpoint it spent its whole 32k-token output budget on hidden
+reasoning after the first tool result and returned nothing, with or without images;
+`reasoning_effort` and `thinking_budget` were both ignored. Round 2 runs it through OpenCode's
+native Google provider, the path that solves Alpha.
 <!-- rattrap-results:end -->
 
 ## Quick start

@@ -159,3 +159,17 @@ actually is), 30 mm cap, RDP 0.1 mm.
   dense term (normalised distance to the next checkpoint) inside the shaping.
 * **The cost:** progress is measured along *your* route. A different solution route earns
   partial credit only where it passes near your checkpoints, though a solve is still a solve.
+
+## Evidence from the agent runs
+
+* **Round 1** (sparse reward, T = 400): DeepSeek V4.1 Flash, Kimi K3 Pro and Nemotron 3.5 Super VL used 322, 357
+  and 343 actions. Their command logs were replayed offline under the checkpoint reward
+  (`scripts/rescore_rattrap.py`; same physics, no API calls).
+  * **All three land at p = 0.**
+  * None came within ε of the first checkpoint: the closest approaches were 97.7, 70.1 and 110.8 mm, against
+    ε = 16.6 mm and a start that is itself 110.8 mm from it.
+  * This is difficulty evidence: hundreds of plausible-looking moves don't reproduce even the first stage of a solve.
+  * It is also reward-integrity evidence: the partial credit isn't earned by activity, blocked pushing or wandering.
+* **Random agent** (`make rattrap-random`, and `test_random_agent_to_the_full_budget_earns_almost_nothing`): random
+  grabs, moves and releases to the full budget (see the README table for results).
+* Per-model results: the README table.
