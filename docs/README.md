@@ -11,6 +11,8 @@ replays every logged action in a fresh simulator to score the episode.
 
 <p class="clip-caption"><strong>The Rat Trap.</strong> Left: the human teleoperated reference solve, replayed in the simulator; it frees the cord in 284 actions. Right: Kimi K3 Pro, run <code>kimi-20261114-185131</code>: 357 actions, 47 of them blocked moves, 0 of 20 checkpoints. Aligned by action index; once the reference is solved it holds its final frame. <a href="#/media/CLIPS">Clip notes</a>.</p>
 
+**Try it:** `./run_evaluation.sh alpha <provider/model>` runs the reference, the baselines and three agent runs through Harbor. [Quickstart](QUICKSTART.md) covers evaluating a model, plugging in your own agent, and training.
+
 ## Same model, two puzzles
 
 Gemini 4 Carbon, through the same harness (OpenCode), solved the Alpha puzzle in 3 of 3 runs
@@ -53,6 +55,7 @@ and never acted; Alpha uses the default. Details: [Results](RESULTS.md) and the
 
 ## Read more
 
+* [Quickstart](QUICKSTART.md): evaluate a model with one command, drive the simulator with your own agent, or train on Alpha.
 * [Results](RESULTS.md): every evaluation run, strategy classes, behaviour axes and plots.
 * [Anomaly diagnosis](ANOMALY.md): how agent runs scored above the oracle.
 * [Reward design (Rat Trap)](RATTRAP_DESIGN.md): reference solve, score and checkpoint progress.
