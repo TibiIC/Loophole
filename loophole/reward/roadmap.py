@@ -120,6 +120,8 @@ def build_roadmap(
     sigma_t: float = 0.015,
     sigma_r: float = 0.15,
     log=print,
+    resolution: float | None = None,
+    box: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> dict:
     from ..planning.se3 import random_quat
 
@@ -129,12 +131,19 @@ def build_roadmap(
     here = Path(puzzle.source_path).parent
     ref = np.load(here / f"{variant}-reference.npz")
     w = float(ref["w"])
-    c = float(puzzle.meta["nominal_gap_clearance"])
-    resolution = c / 2
+    if resolution is None:  # procedural puzzles: half the nominal gap clearance
+        resolution = float(puzzle.meta["nominal_gap_clearance"]) / 2
     rng = np.random.default_rng(seed)
 
     # 1. densified reference path (consecutive nodes are connected: validated densely already)
-    dense = ref["dense"]
+    if "dense" in ref.files:
+        dense = ref["dense"]
+    else:  # densify the reference path at the edge-check resolution
+        dense = [ref["path"][0]]
+        for a, b in zip(ref["path"][:-1], ref["path"][1:]):
+            k = max(1, int(np.ceil(float(pose_metric(a, b, w)) / resolution)))
+            dense += [interpolate(a, b, i / k) for i in range(1, k + 1)]
+        dense = np.array(dense)
     keep = [0]
     for i in range(1, len(dense)):
         if pose_metric(dense[keep[-1]], dense[i], w) >= 0.01:
@@ -156,7 +165,7 @@ def build_roadmap(
     n_t = len(nodes)
 
     # 3. uniform coverage + 4. explicit goal-set samples around the separated end of the path
-    lo, hi = np.full(3, -0.6), np.full(3, 0.6)
+    lo, hi = box if box is not None else (np.full(3, -0.6), np.full(3, 0.6))
     tries = 0
     while len(nodes) < n_t + n_uniform and tries < 40 * n_uniform:
         tries += 1

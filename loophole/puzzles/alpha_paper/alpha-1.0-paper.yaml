@@ -15,6 +15,7 @@ frame:
   - type: mesh
     path: paper:derived_env.obj
     decompose: facewedge
+  centerline: paper:derived_env_centerline.npy
 objects:
 - name: tube_b
   pos: &id001
@@ -38,10 +39,12 @@ objects:
   - type: mesh
     path: paper:derived_robot.obj
     decompose: facewedge
+  centerline: paper:derived_robot_centerline.npy
 target: tube_b
 goal:
   type: separation
   d_sep: 10.0
+roadmap: roadmap-alpha-1.0-paper.npz
 config:
   reset_settle_steps: 20
   rig:

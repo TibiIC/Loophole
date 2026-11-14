@@ -44,6 +44,7 @@ class Auditor:
     count: int = 0
     max_penetration: float = 0.0
     last_penetration: float = 0.0  # current-substep values, read by the rig's stall check
+    window_penetration: float = 0.0  # max penetration since the last window reset (per action)
     last_anchor_drift: float = 0.0
 
     def __post_init__(self):
@@ -92,6 +93,7 @@ class Auditor:
             dist = data.contact.dist[:n]
             pen = -float(dist.min())
             self.last_penetration = pen
+            self.window_penetration = max(self.window_penetration, pen)
             self.max_penetration = max(self.max_penetration, pen)
             if pen > self.cfg.penetration_threshold:
                 i = int(np.argmin(dist))

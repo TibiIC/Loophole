@@ -6,20 +6,20 @@ artifacts = [{ source = "/var/loophole/episode", destination = "episode", servic
 [task]
 name = "loophole/loophole-alpha"
 authors = [{ name = "Loophole team" }]
-description = "Canonical Alpha puzzle (OMPL.app): two interlocked alpha-shaped tubes; separate them."
+description = "Alpha puzzle 1.0 (two identical interlocked alpha tubes), as in Zhang et al. 2020; separate them."
 keywords = ["mujoco", "physics", "spatial-reasoning", "disentanglement-puzzle", "mcp"]
 
 [metadata]
-difficulty = "easy"
+difficulty = "hard"
 category = "spatial-reasoning"
-max_actions = 348
+max_actions = 198
 
 [agent]
-timeout_sec = 1800.0
+timeout_sec = 7200.0
 
 [verifier]
 timeout_sec = 600.0
-env = { LOOPHOLE_PUZZLE = "alpha-1.5", LOOPHOLE_SEED = "0" }
+env = { LOOPHOLE_PUZZLE = "alpha-1.0-paper", LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "/opt/loophole/loophole/configs/alpha_training.yaml" }
 
 # Runs inside the sim sidecar after the agent container is stopped: ends the
 # episode and writes the final record next to the log.

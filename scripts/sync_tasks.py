@@ -299,7 +299,8 @@ the score is computed by independently replaying your actions. When you are done
 ROADMAP_CFG = "/opt/loophole/loophole/configs/roadmap_reward.yaml"  # path inside the sim image
 
 
-def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None = None) -> Path:
+def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None = None,
+              config_file: str | None = None, agent_timeout: float | None = None) -> Path:
     from loophole.sim.spec import resolve_puzzle
 
     spec = yaml.safe_load(resolve_puzzle(puzzle).read_text())
@@ -327,14 +328,15 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
         "difficulty": spec.get("difficulty", "easy"),
         "max_actions": spec.get("max_actions", 60),
         "target": spec["target"],
-        "agent_timeout": {"easy": 1800.0, "medium": 2700.0, "hard": 3600.0}.get(spec.get("difficulty"), 1800.0),
+        "agent_timeout": agent_timeout or {"easy": 1800.0, "medium": 2700.0, "hard": 3600.0}.get(spec.get("difficulty"), 1800.0),
         "max_lin": cfg.rig.max_linear_step,
         "max_ang": cfg.rig.max_angular_step,
         "d_sep": round(spec.get("goal", {}).get("d_sep", 0) * spec.get("unit_scale", 1.0), 6),
         "lin_speed": cfg.rig.linear_speed,
         "ang_speed": cfg.rig.angular_speed,
     }
-    canon = str(spec.get("meta", {}).get("source", "")).startswith("https://github.com/ompl/omplapp")
+    # canonical (mesh-based) Alpha: OMPL.app or the Zhang et al. 2020 puzzle set
+    canon = any(g.get("type") == "mesh" for b in spec.get("frame", []) for g in b.get("geoms", []))
     alpha = spec.get("goal", {}).get("type") == "separation"
     if canon:
         ctx["name"] = task_name or puzzle
@@ -342,9 +344,10 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
         ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
     toml = TASK_TOML.format(**ctx)
     compose = COMPOSE.format(**ctx)
-    if roadmap_reward:  # same config for the sim sidecar and the verifier
-        toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{ROADMAP_CFG}" }}')
-        compose = compose.replace('      LOOPHOLE_SEED: "0"\n', f'      LOOPHOLE_SEED: "0"\n      LOOPHOLE_CONFIG: "{ROADMAP_CFG}"\n')
+    cfg_path = config_file or (ROADMAP_CFG if roadmap_reward else None)
+    if cfg_path:  # same config for the sim sidecar and the verifier
+        toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{cfg_path}" }}')
+        compose = compose.replace('      LOOPHOLE_SEED: "0"\n', f'      LOOPHOLE_SEED: "0"\n      LOOPHOLE_CONFIG: "{cfg_path}"\n')
     (d / "task.toml").write_text(toml)
     (d / "instruction.md").write_text((INSTRUCTION_CANON if canon else INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)

@@ -26,11 +26,11 @@ Free (no action cost):
 - `render(view, azimuth, elevation, distance, lookat)`: PNG image + caption
   (presets: iso, front, back, side, top).
 
-Each costs one action from a budget of **348**:
+Each costs one action from a budget of **198**:
 - `grab(handle=0, target="tube_b")`: grasp the tube. The handle sits at the tube's
   reference point, and motions are applied about that point.
 - `move(handle, dx, dy, dz, droll, dpitch, dyaw, frame)`: relative motion of the grasped
-  tube. At most **0.05 m** of translation and **0.1 rad** of rotation per call;
+  tube. At most **0.1 m** of translation and **0.2 rad** of rotation per call;
   larger requests are clamped. Execution is velocity-limited (0.1 m/s,
   0.1 rad/s) and stops early (`blocked: true`) if the tube is obstructed.
   `frame` is `"world"` or `"local"` (the tube's own axes).
@@ -40,7 +40,7 @@ There is one handle (0). The workspace is bounded to the box reported in `get_st
 
 ## Scoring
 
-If you separate the tubes: score = 1 - 0.5 × (actions used / 348).
+If you separate the tubes: score = 1 - 0.5 × (actions used / 198).
 Otherwise: score = 0. Observation tools are free, so look before you move. The
 simulator's source is not available to you; the score is computed by independently
 replaying your actions. When you are done (or out of ideas), simply stop.

@@ -13,8 +13,9 @@ services:
       dockerfile: docker/sim.Dockerfile
     pull_policy: build
     environment:
-      LOOPHOLE_PUZZLE: "alpha-1.5"
+      LOOPHOLE_PUZZLE: "alpha-1.0-paper"
       LOOPHOLE_SEED: "0"
+      LOOPHOLE_CONFIG: "/opt/loophole/loophole/configs/alpha_training.yaml"
       MUJOCO_GL: "${LOOPHOLE_MUJOCO_GL:-osmesa}"
     expose:
       - "8000"

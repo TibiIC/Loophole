@@ -49,6 +49,9 @@ class RewardComponentConfig(BaseModel):
     type: str
     weight: float = 1.0
     enabled: bool = True
+    # False: a training signal only - its per-step rewards are logged, but it does not
+    # contribute to the episode score the Harbor verifier writes.
+    in_score: bool = True
     params: dict[str, Any] = {}
 
 
@@ -56,6 +59,7 @@ class RewardConfig(BaseModel):
     # Cost-to-go roadmap reward (work in progress, off by default): loads the puzzle's
     # roadmap-*.npz and adds the `cost_to_go_shaping` and `progress` components.
     roadmap: bool = False
+    auto_roadmap_components: bool = True  # with roadmap: add cost_to_go_shaping + progress
     components: list[RewardComponentConfig] = [
         RewardComponentConfig(type="base", weight=1.0, params={"alpha": 0.5}),
         RewardComponentConfig(type="topology_shaping", weight=0.2, enabled=False, params={"gamma": 1.0}),

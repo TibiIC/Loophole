@@ -11,7 +11,8 @@ ENV MUJOCO_GL=${MUJOCO_GL} \
     PIP_NO_CACHE_DIR=1 \
     LOOPHOLE_LOG_DIR=/var/loophole/episode \
     LOOPHOLE_MESH_CACHE=/opt/loophole/.mesh_cache \
-    LOOPHOLE_OMPL_DIR=/opt/loophole/.ompl_alpha
+    LOOPHOLE_OMPL_DIR=/opt/loophole/.ompl_alpha \
+    LOOPHOLE_ALPHA_PAPER_DIR=/opt/loophole/.alpha_paper
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libosmesa6 libgl1 libegl1 libglib2.0-0 curl ca-certificates \
@@ -25,10 +26,15 @@ RUN pip install -e ".[mesh]"
 # Canonical OMPL.app Alpha meshes (Rice licence: non-commercial, no redistribution) are
 # fetched here from a pinned commit with sha256 checks - never committed to the repo.
 # Derived OBJs and the convex (face-wedge) decomposition are generated inside the image.
-COPY scripts/fetch_alpha.sh ./scripts/fetch_alpha.sh
+COPY scripts/fetch_alpha.sh scripts/fetch_alpha_paper.sh ./scripts/
 RUN scripts/fetch_alpha.sh "$LOOPHOLE_OMPL_DIR" \
  && python -c "from loophole.puzzles.ompl_alpha import prepare; prepare('1.5')" \
  && python -c "from loophole.sim.env import LoopholeEnv; LoopholeEnv('alpha-1.5')"
+# Alpha 1.0 as used in Zhang et al. 2020 (the active task): same licence situation,
+# fetched with sha256 checks; derived meshes, centre-lines and convex pieces built here.
+RUN scripts/fetch_alpha_paper.sh "$LOOPHOLE_ALPHA_PAPER_DIR" \
+ && python -c "from loophole.puzzles.paper_alpha import prepare; prepare()" \
+ && python -c "from loophole.sim.env import LoopholeEnv; LoopholeEnv('alpha-1.0-paper')"
 
 # Verifier entrypoint (used when this image runs as Harbor's separate verifier).
 COPY verifier /tests

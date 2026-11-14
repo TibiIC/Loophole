@@ -40,6 +40,30 @@ class EpisodeOver(RuntimeError):
     pass
 
 
+def _load_centerline(ref: str, puzzle: Puzzle) -> np.ndarray:
+    """Centre-line polyline (native units, body frame) -> simulator units."""
+    if ref.startswith("paper:"):
+        from ..puzzles.paper_alpha import resolve_mesh_path as resolve
+    elif ref.startswith("ompl:"):
+        from ..puzzles.ompl_alpha import resolve_mesh_path as resolve
+    else:
+        def resolve(r):
+            return Path(puzzle.source_path).parent / r
+    return np.load(resolve(ref)) * puzzle.unit_scale
+
+
+def _closed_loop(P: np.ndarray, min_sep: int = 15) -> np.ndarray | None:
+    """An alpha's loop closed across its gap: the centre-line between its crossing
+    (closest pair of points far apart along the curve) plus the closing segment."""
+    if len(P) < 2 * min_sep:
+        return None
+    D = np.linalg.norm(P[:, None] - P[None], axis=2)
+    idx = np.arange(len(P))
+    D[np.abs(idx[:, None] - idx[None]) < min_sep] = np.inf
+    i, j = sorted(np.unravel_index(int(np.argmin(D)), D.shape))
+    return np.vstack([P[i : j + 1], P[i : i + 1]])
+
+
 class EpisodeLog:
     """Append-only JSONL log of every call (also future training data)."""
 
@@ -98,6 +122,10 @@ class LoopholeEnv:
             for b in self.puzzle.frame + self.puzzle.objects
             if any(g.type == "tube" for g in b.geoms)
         }
+        for b in self.puzzle.frame + self.puzzle.objects:  # mesh bodies with an extracted centre-line
+            if b.centerline:
+                self.curves[b.name] = _load_centerline(b.centerline, self.puzzle)
+        self.loops = {name: _closed_loop(c) for name, c in self.curves.items()}
         self.tracker = TopologyTracker(
             [
                 Disc(h.name, h.body, np.asarray(h.center, float), np.asarray(h.normal, float) / np.linalg.norm(h.normal), h.radius)
@@ -295,14 +323,26 @@ class LoopholeEnv:
             "note": "1 = separated, 0 = as far as the start (shortest collision-free route, estimated)",
         }
 
+    def _world(self, body: str, pts: np.ndarray) -> np.ndarray:
+        bid = self.model.body(body).id
+        return self.data.xpos[bid] + pts @ self.data.xmat[bid].reshape(3, 3).T
+
     def diagnostics(self) -> dict:
-        """Topological diagnostics (log only, not part of the reward)."""
+        """Topological quantities of the two tubes (Gauss linking, Klenin & Langowski 2000).
+
+        linking_open:   integral over the whole open centre-lines (real-valued; geometric)
+        linking_closed: linking number of the two alphas' loops, each closed across its own
+                        gap (integer: +-1 interlocked, 0 once a tube has passed a gap)
+        """
         out = {}
         if len(self.curves) >= 2:
             from ..puzzles.alpha.geometry import gauss_linking
 
             a, b = list(self.curves)[:2]
-            out["linking_integral"] = round(gauss_linking(self.curve_points(a), self.curve_points(b)), 5)
+            out["linking_open"] = round(gauss_linking(self.curve_points(a), self.curve_points(b)), 5)
+            if self.loops.get(a) is not None and self.loops.get(b) is not None:
+                out["linking_closed"] = round(gauss_linking(self._world(a, self.loops[a]), self._world(b, self.loops[b])), 5)
+            out["linking_integral"] = out.get("linking_closed", out["linking_open"])
         return out
 
     # ------------------------------------------------------------ actions
@@ -319,6 +359,7 @@ class LoopholeEnv:
             if tool not in PHYSICS_TOOLS:
                 raise RigError(f"unknown action {tool!r}")
             norm = self._normalise(tool, args)
+            self.audit.window_penetration = 0.0
             result = self._execute(tool, norm)
         except (RigError, EpisodeOver, TypeError, ValueError) as e:
             self.log.write({"type": "rejected", "tool": tool, "args": args, "error": str(e), "wall_time": time.time()})
@@ -378,7 +419,17 @@ class LoopholeEnv:
         elif self.actions_used >= self.puzzle.max_actions:
             self.done, self.done_reason = True, "action budget exhausted"
         rstate = self._reward_state()
-        step_reward = self.composer.step(rstate)
+        diag = self.diagnostics()
+        info = {  # what dense reward components may read (all measured by the simulator)
+            "goal": goal,
+            "min_distance": goal.get("target_min_distance_to_frame"),
+            "last_penetration": self.audit.window_penetration,
+            "args": norm,
+            "tool": tool,
+            "diagnostics": diag,
+            "linking_integral": diag.get("linking_integral"),
+        }
+        step_reward = self.composer.step(rstate, info)
         self._last_rstate = rstate
         h = self.state_hash()
         self.log.write(
@@ -402,7 +453,8 @@ class LoopholeEnv:
                 "rel_pose_native": None if self.puzzle.unit_scale == 1.0 else to_native(self.target_pose()[:3].tolist(), self.puzzle, 4) + _r(self.target_pose()[3:], 6),
                 "min_distance": goal.get("target_min_distance_to_frame"),
                 "progress_potential": progress_potential(self),
-                "diagnostics": self.diagnostics(),
+                "diagnostics": diag,
+                "rewards": self.composer.last_step,  # per-component step rewards (training signal)
                 "sim_time": round(self.data.time, 4),
                 "wall_time": time.time(),
             }

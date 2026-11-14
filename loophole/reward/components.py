@@ -182,23 +182,30 @@ def register_component(name: str, cls: type[RewardComponent]) -> None:
 @dataclass
 class RewardComposer:
     entries: list[tuple[float, RewardComponent]]
+    in_score: list[bool] | None = None  # per entry; None = all count towards the score
+    last_step: dict[str, float] = field(default_factory=dict)  # per-component rewards of the last step
     step_totals: list[float] = field(default_factory=list)
     terminal_values: list[float] | None = None
     _prev: RewardState | None = None
 
     @classmethod
     def from_config(cls, cfg: RewardConfig) -> "RewardComposer":
-        entries = []
+        if any(c.enabled and c.type not in REGISTRY for c in cfg.components):
+            from . import literature_rewards  # noqa: F401  (registers its components)
+        entries, in_score = [], []
         for c in cfg.components:
             if c.enabled:
                 entries.append((c.weight, REGISTRY[c.type](**c.params)))
-        if cfg.roadmap:  # WIP roadmap reward: dense cost-to-go shaping + capped progress credit
+                in_score.append(c.in_score)
+        if cfg.roadmap and cfg.auto_roadmap_components:  # roadmap reward: dense cost-to-go shaping + capped progress credit
             names = {comp.name for _, comp in entries}
             if "cost_to_go_shaping" not in names:
                 entries.append((1.0, CostToGoShaping(gamma=1.0)))
+                in_score.append(True)
             if "progress" not in names:
                 entries.append((1.0, ProgressCredit(cap=0.3)))
-        return cls(entries)
+                in_score.append(True)
+        return cls(entries, in_score)
 
     def reset(self, initial: RewardState) -> None:
         for _, comp in self.entries:
@@ -210,9 +217,11 @@ class RewardComposer:
     def step(self, cur: RewardState, info: dict | None = None) -> float:
         info = info or {}
         r = 0.0
+        self.last_step = {}
         for i, (w, comp) in enumerate(self.entries):
             v = comp.step(self._prev, cur, info)
             self.step_totals[i] += v
+            self.last_step[comp.name] = round(float(v), 6)
             r += w * v
         self._prev = cur
         return r
@@ -226,11 +235,13 @@ class RewardComposer:
         out = {}
         for i, (w, comp) in enumerate(self.entries):
             term = self.terminal_values[i] if self.terminal_values is not None else None
-            out[comp.name] = {"weight": w, "step_sum": round(self.step_totals[i], 6), "terminal": term}
+            out[comp.name] = {"weight": w, "step_sum": round(self.step_totals[i], 6), "terminal": term,
+                              "in_score": True if self.in_score is None else self.in_score[i]}
         return out
 
     def score(self) -> float:
         """Episode score in [0, 1]: weighted terminal values (requires terminal())."""
         assert self.terminal_values is not None, "call terminal() first"
-        total = sum(w * t for (w, _), t in zip(self.entries, self.terminal_values))
+        mask = self.in_score or [True] * len(self.entries)
+        total = sum(w * t for (w, _), t, m in zip(self.entries, self.terminal_values, mask) if m)
         return float(min(1.0, max(0.0, total)))

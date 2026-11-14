@@ -1,0 +1,23 @@
+# Alpha 1.0 training environment: the three literature rewards as dense, logged
+# training signals; the episode score (what the Harbor verifier writes) stays
+#   score = success x (1 - 0.5 x actions_used / max_actions).
+# Use the same file for the sim server and the verifier (LOOPHOLE_CONFIG).
+reward:
+  roadmap: true                  # load roadmap-alpha-1.0-paper.npz for cost-to-go
+  auto_roadmap_components: false
+  components:
+    - type: base                 # the official score
+      weight: 1.0
+      params: {alpha: 0.5}
+    - type: cspace_tunnel        # Zhang et al. 2020: potential shaping on roadmap cost-to-go
+      weight: 1.0
+      in_score: false
+      params: {gamma: 1.0, violation_penalty: 0.5}
+    - type: industreal_sdf       # Tang et al. 2023: clearance kernel - penetration - action energy
+      weight: 1.0
+      in_score: false
+      params: {d_sep: 0.4, sigma_dist: 0.08}
+    - type: gauss_linking        # Klenin & Langowski 2000: potential on |linking number| of the closed loops
+      weight: 1.0
+      in_score: false
+      params: {gamma: 1.0, expected_start_lk: 1.0, violation_penalty: 0.5}

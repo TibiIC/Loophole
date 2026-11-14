@@ -73,6 +73,9 @@ class Body(BaseModel):
     pos: Vec3 = (0.0, 0.0, 0.0)
     euler: Vec3 = (0.0, 0.0, 0.0)
     quat: tuple[float, float, float, float] | None = None  # (w, x, y, z); overrides euler
+    # optional centre-line polyline (.npy, native units, body frame) for topological
+    # diagnostics/rewards on mesh bodies; e.g. "paper:derived_robot_centerline.npy"
+    centerline: str | None = None
     geoms: list[Geom]
     graspable: bool = False
     mass: float | None = None  # total mass for free objects
