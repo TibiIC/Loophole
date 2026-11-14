@@ -1,5 +1,6 @@
 - [Home](/)
 - [Quickstart](QUICKSTART.md)
+- [Watching a run live](watching.md)
 - [Results](RESULTS.md)
 - [Anomaly diagnosis](ANOMALY.md)
 - [Reward design (Rat Trap)](RATTRAP_DESIGN.md)

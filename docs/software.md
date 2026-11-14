@@ -111,10 +111,11 @@ The checkpoint progress measure ([Reward design](RATTRAP_DESIGN.md)) was influen
 
 - **Rat Trap.** A commercially available wooden puzzle; its designer is unknown. We bought one
   and modelled it from the physical object.
-- **Alpha.** Designed by Boris Yamrom (GE Corporate R&D) and made a standard benchmark through
-  Nancy Amato's group (Parasol Lab) and OMPL.app, as the repo README describes; a reference entry
-  for that origin is pending. The Alpha 1.0 geometry and published solution we use are from
-  Zhang et al. 2020 (`[ZBKV20]` in [References](references.md)).
+- **Alpha.** Created by Boris Yamrom (GE Corporate Research & Development Center) and posted as
+  a research benchmark by Nancy Amato at Texas A&M University (`[LaV06]`, `[ABDJV98]` in
+  [References](references.md); those entries appear there once they reach `main`); later
+  distributed with OMPL.app. The Alpha 1.0 geometry and published solution we use are from
+  Zhang et al. 2020 (`[ZBKV20]`).
 
 ## Harness and tooling (project links)
 
