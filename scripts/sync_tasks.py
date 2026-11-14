@@ -112,8 +112,12 @@ FROM python:3.11-slim-bookworm
 RUN apt-get update \\
  && apt-get install -y --no-install-recommends curl ca-certificates git \\
  && rm -rf /var/lib/apt/lists/*
-# MCP client library (also used by the oracle's trajectory replayer)
-RUN pip install --no-cache-dir mcp==1.30.0
+# MCP client library (also used by the oracle's trajectory replayer) and the compute stack
+# an agent may use to process images or plan (the run itself has no internet)
+RUN apt-get update \\
+ && apt-get install -y --no-install-recommends build-essential \\
+ && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir mcp==1.30.0 numpy==2.4.6 scipy==1.17.1 pillow==13.0.0 opencv-python-headless==5.0.0.93
 WORKDIR /app
 """
 
@@ -210,25 +214,31 @@ one threads the other.
 
 - **`tube_a`** (grey) is fixed in space; **`{target}`** (blue) is free. There is no gravity
   and contacts are frictionless.
-- Units are metres and radians, world frame. The tubes are about 2 m across.
+- Units are metres and radians; the world frame is `tube_a`'s frame. The tubes are about
+  2 m across.
 
 ## Goal
 
-Separate the tubes: move `{target}` until its **minimum distance to `tube_a` exceeds
-{d_sep} m**. `get_state` reports the current value under
-`goal.target_min_distance_to_frame`. The episode ends as soon as this holds.
+Free `{target}`: get it to a pose from which it could **slide away to infinity along some
+straight line without touching `tube_a`**. There is no distance target. The simulator checks
+this after every action and the episode ends as soon as it holds (`success: true`).
 
-Nothing can pass through anything else. The simulator audits every physics step and
-an episode in which the tubes are forced into each other scores 0.
+Nothing can pass through anything else. The simulator audits every physics step, and an
+episode in which the tubes are forced into each other scores 0.
 
 ## Tools (MCP server `loophole`)
 
 Free (no action cost):
-- `get_state()`: JSON with the pose of `{target}` (position + quaternion w,x,y,z), the
-  goal distance, handle status, the action budget, and the rig limits.
-- `render(view, azimuth, elevation, distance, lookat)`: PNG image + caption
-  (presets: iso, front, back, side, top).
-
+- `render(view, azimuth, elevation, distance, lookat, modalities, width, height, depth_format)`:
+  **cameras**. Any viewpoint; `modalities` is any of `rgb`, `depth`, `segmentation`. The
+  caption is JSON with the full camera model (position, forward/up/right axes, intrinsics),
+  so depth pixels back-project to 3-D points:
+  `point = position + depth * (forward + (u+0.5-cx)/fx * right - (v+0.5-cy)/fy * up)`.
+  `depth_format="metric"` gives a 16-bit PNG in millimetres.
+- `get_state()`: **proprioception**. The pose of `{target}` (position + quaternion w,x,y,z),
+  your handle, the outcome of your last action, the action budget and the rig limits.
+- `get_contacts()`: **touch**. Current contact points, normals and forces between the tubes.
+{planner_tools}
 Each costs one action from a budget of **{max_actions}**:
 - `grab(handle=0, target="{target}")`: grasp the tube. The handle sits at the tube's
   reference point, and motions are applied about that point.
@@ -240,13 +250,27 @@ Each costs one action from a budget of **{max_actions}**:
 - `release(handle)`, `wait(steps)`.
 
 There is one handle (0). The workspace is bounded to the box reported in `get_state`.
+Your container has Python 3.11 with numpy, scipy, Pillow and OpenCV, and a C/C++ compiler,
+and no internet access. You may write and run your own code (for example to process
+images or to plan a path) and call the MCP server from it.
 
 ## Scoring
 
-If you separate the tubes: score = 1 - 0.5 × (actions used / {max_actions}).
-Otherwise: score = 0. Observation tools are free, so look before you move. The
-simulator's source is not available to you; the score is computed by independently
+- Free the tube: score = 1 - 0.5 × (actions used / {max_actions}), between 0.5 and 1.
+- Otherwise: partial credit up to 0.3 for how far along a collision-free way out you got
+  (measured by the simulator; held for at least 3 consecutive actions).
+- Forcing the tubes into each other: 0.
+
+The simulator's source is not available to you; the score is computed by independently
 replaying your actions. When you are done (or out of ideas), simply stop.
+"""
+
+PLANNER_TOOLS = """\
+- `check_motion(handle, dx, dy, dz, droll, dpitch, dyaw, frame)`: **planning query**. Dry
+  run of `move` with the same arguments: is the motion collision-free, and how far is free?
+- `check_poses(poses)`: **planning query**. Is each absolute pose `[x, y, z, qw, qx, qy, qz]`
+  of `{target}` collision-free? (Up to 256 per call.)
+- `get_geometry()`: **planning query**. Triangle meshes of both tubes and their poses.
 """
 
 INSTRUCTION = """\
@@ -336,7 +360,13 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
         "d_sep": round(spec.get("goal", {}).get("d_sep", 0) * spec.get("unit_scale", 1.0), 6),
         "lin_speed": cfg.rig.linear_speed,
         "ang_speed": cfg.rig.angular_speed,
+        "planner_tools": "",
     }
+    if config_file:  # the task's own observation profile decides which tools the instruction lists
+        local = ROOT / "loophole" / "configs" / Path(config_file).name
+        tools = load_config(local).observation.tool_names()
+        if "check_motion" in tools:
+            ctx["planner_tools"] = PLANNER_TOOLS.format(target=spec["target"])
     # canonical (mesh-based) Alpha: OMPL.app or the Zhang et al. 2020 puzzle set
     canon = any(g.get("type") == "mesh" for b in spec.get("frame", []) for g in b.get("geoms", []))
     alpha = spec.get("goal", {}).get("type") == "separation"
@@ -372,9 +402,24 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
     return d
 
 
+ALPHA_TASKS = {  # task dir -> sim config (inside the sim image); Alpha 1.0 (Zhang et al. 2020) only
+    "loophole-alpha": "/opt/loophole/loophole/configs/alpha_training.yaml",  # vision + proprioception + touch
+    "loophole-alpha-planner": "/opt/loophole/loophole/configs/alpha_planner.yaml",  # + planning queries
+}
+
+
+def make_alpha_tasks() -> list[Path]:
+    return [make_task("alpha-1.0-paper", task_name=name, config_file=cfg, agent_timeout=7200.0, agent_no_internet=True)
+            for name, cfg in ALPHA_TASKS.items()]
+
+
 if __name__ == "__main__":
     import sys
 
+    if "--alpha" in sys.argv:
+        for t in make_alpha_tasks():
+            print("wrote", t.relative_to(ROOT))
+        sys.exit(0)
     roadmap_reward = "--roadmap-reward" in sys.argv
     puzzles = sorted(p.stem for p in [*PUZZLES.glob("*.yaml"), *PUZZLES.glob("alpha/*.yaml")] if (TRAJ / f"{p.stem}.jsonl").exists())
     for pz in puzzles:

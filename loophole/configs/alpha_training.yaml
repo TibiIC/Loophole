@@ -1,11 +1,23 @@
 # Alpha 1.0 training environment (see loophole/reward/literature_rewards.py, REFERENCES.md).
 #
+# Goal: free escape by translation - solved as soon as tube_b can slide to infinity along some
+# straight line (64 Fibonacci-sphere directions tested) without touching tube_a. No distance target.
+#
+# Observation profile "sensors": vision (render: rgb / depth / segmentation + camera model),
+# proprioception (get_state) and touch (get_contacts). See alpha_planner.yaml for the profile
+# that adds planning queries.
+#
 # Score (the only value the verifier writes to reward.txt) = episode_score(), in [0, 1]:
 #   violation -> 0 (episode ends immediately)
 #   solved    -> 1 - 0.5 * a / T                         in [0.5, 1]
 #   unsolved  -> 0.3 * p,  p = clip(1 - best_ctg / start_ctg, 0, 1)   in [0, 0.3]
 # best_ctg: roadmap cost-to-go via collision-free-visible nodes, held >= 3 consecutive actions.
 # Per-step rewards are training signals only and never enter the score.
+goal:
+  criterion: escape
+  escape_directions: 64
+observation:
+  profile: sensors
 reward:
   roadmap: true                  # load roadmap-alpha-1.0-paper.npz (cost-to-go)
   auto_roadmap_components: false

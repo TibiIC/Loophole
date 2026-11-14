@@ -44,8 +44,32 @@ The published path was checked in **our** pipeline:
    audit active. The separate verifier then replays the logged actions in a fresh
    simulator and recomputes the score.
 
-Result: `runs/<timestamp>-oracle/`, reward 0.8005, 79 actions, 0 violations, log
-consistent, sidecar agrees.
+Result (old distance goal, min distance > 0.4 m): reward 0.8005, 79 actions, 0 violations,
+log consistent, sidecar agrees. Under the current goal (free escape by translation,
+`goal.criterion: escape`) the same commands free tube B after **59 actions: score 0.851**
+(local replay; the trajectory header records `expected_score` 0.851, `distance_goal_score`
+0.8005).
+
+## Observation profiles and images
+
+The task's MCP tools come from `observation.profile` in the sim config
+(`loophole/configs/alpha_training.yaml` → `sensors`, `alpha_planner.yaml` → `planner`):
+* `sensors` (task `loophole-alpha`): `render` (rgb / depth / segmentation + camera model),
+  `get_state` (proprioception), `get_contacts` (touch). No goal, distance or progress
+  values are exposed (`test_sensors_profile_hides_privileged_information`).
+* `planner` (task `loophole-alpha-planner`): adds `check_motion`, `check_poses`,
+  `get_geometry`. These queries change nothing and cost nothing
+  (`test_check_motion_agrees_with_move`).
+
+**Do images reach the model?** OpenCode stores an MCP `ImageContent` result as a
+tool-part attachment (a data URL) in its session. In the Gemini 4 Carbon runs of
+2026-11-14 (old tool set), agents called `render` and then also fetched the PNGs over raw
+HTTP and decoded them in Python. One agent wrote a PNG decoder, then a C++ space-carving
+reconstruction from 52 renders. The trajectories do not show whether the model saw the
+pixels natively; the agents behaved as if they needed numeric access. We therefore
+provide pixel-exact numeric channels (metric depth + camera model + segmentation) and a
+compute stack in the agent image, so the vision task does not depend on the harness
+forwarding images.
 
 ## Network
 

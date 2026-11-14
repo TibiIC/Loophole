@@ -1,7 +1,7 @@
 # References
 
 Every entry was checked against its DOI record (Crossref), arXiv listing, or publisher /
-proceedings listing on 2026-11-14 (title, authors, venue, year, volume/pages). None is
+proceedings listing on 2026-11-14 ([WL94] and [Mir96] against the publisher record and the author's page) (title, authors, venue, year, volume/pages). None is
 marked `[unverified]`. How each is used is noted in brackets.
 
 ## Alpha puzzle geometry, planning and scoring
@@ -30,6 +30,23 @@ marked `[unverified]`. How each is used is noted in brackets.
   1999), pp. 278–287.
   [ML Anthology](https://mlanthology.org/icml/1999/ng1999icml-policy/)
   *[Potential-based shaping preserves optimal policies; our shaping uses γ = 1, Φ = −ctg.]*
+
+## Goal test: free escape by translation
+
+- **[WL94]** Randall H. Wilson, Jean-Claude Latombe. *Geometric reasoning about
+  mechanical assembly.* Artificial Intelligence 71(2):371–396, 1994.
+  [doi:10.1016/0004-3702(94)90048-5](https://doi.org/10.1016/0004-3702(94)90048-5)
+  *[Assembly planning: whether a part (subassembly) can be removed from the rest by a
+  motion, in particular by a single translation to infinity. Our goal test is that notion
+  for the free tube: it can slide to infinity along some straight line without touching
+  the fixed one. We test a fixed set of 64 directions, which is a sufficient check.]*
+
+- **[Mir96]** Brian Mirtich. *Impulse-based Dynamic Simulation of Rigid Body Systems.*
+  PhD thesis, University of California, Berkeley, 1996.
+  [project page](https://people.eecs.berkeley.edu/~jfc/mirtich/impulse.html)
+  *[Conservative advancement: a body can move by less than its distance to the others
+  without making contact. Our escape sweep advances by the (lower-bound) separation
+  distance at each step.]*
 
 ## Training-only shaping (adapted, not reproduced)
 

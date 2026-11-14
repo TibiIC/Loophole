@@ -19,6 +19,10 @@ world origin: ``pose = (x, y, z, qw, qx, qy, qz)``.
   lower bounds; ``is_separated`` uses the same proxy and can therefore never
   report separation falsely. Distances below ``near`` are exact.
 * ``segment_valid(p, q, step)``: dense straight-line check in SE(3).
+* ``escape_direction(pose)``: a unit direction along which the target can be
+  translated to infinity without touching the frame, or None. This is the goal
+  test of the Alpha task ("free escape by translation", the removability notion
+  of assembly planning): threshold-free, no distance target.
 """
 
 from __future__ import annotations
@@ -41,6 +45,15 @@ def pose_metric(p: np.ndarray, q: np.ndarray, w: float) -> np.ndarray:
     dot = np.abs(np.sum(q[..., 3:] * p[3:], axis=-1))
     ang = 2.0 * np.arccos(np.clip(dot, -1.0, 1.0))
     return dt + w * ang
+
+
+def fibonacci_directions(n: int) -> np.ndarray:
+    """n near-uniform unit vectors on the sphere (deterministic Fibonacci lattice)."""
+    i = np.arange(n) + 0.5
+    z = 1.0 - 2.0 * i / n
+    r = np.sqrt(np.maximum(0.0, 1.0 - z * z))
+    phi = np.pi * (1.0 + 5**0.5) * i
+    return np.stack([r * np.cos(phi), r * np.sin(phi), z], axis=1)
 
 
 def interpolate(p: np.ndarray, q: np.ndarray, f: float) -> np.ndarray:
@@ -85,6 +98,7 @@ class CollisionChecker:
         self._margin = None
         self._set_margin(0.0)
         self.calls = 0
+        self._bounds = None
 
     def _set_margin(self, margin: float) -> None:
         if margin != self._margin:
@@ -144,3 +158,73 @@ class CollisionChecker:
             if not self.is_valid(interpolate(p, q, i / n), margin):
                 return False
         return True
+
+    # ------------------------------------------------------------ free escape
+    def bounding_spheres(self) -> tuple[np.ndarray, float, float]:
+        """(frame centre, frame radius, target radius about its body origin), from this model's geoms
+        (for mesh puzzles: the proxy's, whose chunk hulls contain the true shapes)."""
+        if self._bounds is None:
+            m, d = self.model, self.data
+            d.qpos[:] = m.qpos0
+            mujoco.mj_forward(m, d)
+            f = np.flatnonzero(self._is_frame)
+            lo = np.min(d.geom_xpos[f] - m.geom_rbound[f, None], axis=0)
+            hi = np.max(d.geom_xpos[f] + m.geom_rbound[f, None], axis=0)
+            c = (lo + hi) / 2
+            r_frame = float(np.max(np.linalg.norm(d.geom_xpos[f] - c, axis=1) + m.geom_rbound[f]))
+            t = self.target_geoms
+            r_target = float(np.max(np.linalg.norm(m.geom_pos[t], axis=1) + m.geom_rbound[t]))
+            self._bounds = (c, r_frame, r_target)
+        return self._bounds
+
+    def escape_direction(self, pose: Pose, directions: np.ndarray, step: float = 0.004, tol: float = 0.001,
+                         max_contact_steps: int = 50, first: int | None = None) -> np.ndarray | None:
+        """A direction u (from `directions`) along which the target, at fixed orientation, can slide
+        to infinity without touching the frame; None if every tested direction is blocked.
+
+        Each direction is swept until the bounding spheres of the two pieces are disjoint (beyond
+        that no contact is possible). Away from the frame the sweep advances by the separation
+        distance minus `tol` (conservative advancement: a pure translation shorter than the
+        distance cannot touch). For mesh puzzles that distance comes from the proxy (a superset of
+        the shapes), a lower bound, so the advance stays safe. Within 4 `step`s of the frame it
+        switches to the simulator's exact penetration test every `step` (4 mm, the physics audit's
+        penetration threshold) and gives up (= blocked) after `max_contact_steps` of them (20 cm of
+        sliding contact). A reported direction is therefore free; a missed one only delays success
+        to a later action. `first`: index of a direction to try first (e.g. the last one found free).
+        """
+        pose = np.asarray(pose, float)
+        far = self.proxy or self
+        c, r_frame, r_target = far.bounding_spheres()
+        R = r_frame + r_target + tol
+        w = pose[:3] - c
+        order = list(range(len(directions)))
+        if first is not None and 0 <= first < len(order):
+            order.insert(0, order.pop(first))
+        for k in order:
+            u = directions[k]
+            uw = float(u @ w)
+            disc = uw * uw - float(w @ w) + R * R
+            s_end = max(0.0, -uw + np.sqrt(disc)) if disc > 0 else 0.0
+            s, contact_steps, dmax, x, free = 0.0, 0, 0.1, pose.copy(), True
+            while s < s_end and free:
+                x[:3] = pose[:3] + s * u
+                d = far._exact(x, dmax)  # margin queries get expensive with large caps: grow it only when capped
+                if d >= dmax - 1e-12:
+                    s += d - tol
+                    dmax = min(0.5, 2 * dmax)
+                    continue
+                dmax = 0.1
+                if d - tol >= 4 * step:
+                    s += d - tol
+                    continue
+                for _ in range(8):  # near contact: exact checks
+                    x[:3] = pose[:3] + s * u
+                    if contact_steps >= max_contact_steps or not self.is_valid(x):
+                        free = False
+                        break
+                    s += step
+                    contact_steps += 1
+            if free:
+                self.escape_index = k
+                return u.copy()
+        return None

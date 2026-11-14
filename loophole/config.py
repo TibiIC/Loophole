@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -77,6 +77,30 @@ class RenderConfig(BaseModel):
     height: int = 360
 
 
+class GoalConfig(BaseModel):
+    # for separation puzzles: "escape" = the target can be slid to infinity along some straight
+    # line without touching the frame (free escape by translation, threshold-free);
+    # "distance" = minimum distance above the puzzle's d_sep (legacy)
+    criterion: Literal["distance", "escape"] = "distance"
+    escape_directions: int = Field(64, ge=6, le=1024)  # Fibonacci-sphere directions tested
+
+
+OBSERVATION_PROFILES: dict[str, list[str]] = {
+    # what the agent may observe (action tools grab/move/release/wait are always available)
+    "sensors": ["get_state", "render", "get_contacts"],  # vision + proprioception + touch
+    "planner": ["get_state", "render", "get_contacts", "check_motion", "check_poses", "get_geometry"],  # + planning queries
+    "full": ["get_state", "render", "get_contacts", "check_motion", "check_poses", "get_geometry"],  # + privileged state (debug)
+}
+
+
+class ObservationConfig(BaseModel):
+    profile: Literal["sensors", "planner", "full"] = "full"
+    tools: list[str] | None = None  # explicit override of the profile's tool list
+
+    def tool_names(self) -> list[str]:
+        return list(self.tools) if self.tools is not None else list(OBSERVATION_PROFILES[self.profile])
+
+
 class EnvConfig(BaseModel):
     reset_settle_steps: int = 2000
     rig: RigConfig = RigConfig()
@@ -84,6 +108,8 @@ class EnvConfig(BaseModel):
     reward: RewardConfig = RewardConfig()
     topology: TopologyConfig = TopologyConfig()
     render: RenderConfig = RenderConfig()
+    goal: GoalConfig = GoalConfig()
+    observation: ObservationConfig = ObservationConfig()
 
 
 def _deep_update(base: dict, upd: dict) -> dict:

@@ -5,5 +5,8 @@
  "invalid": 0,
  "reference_actions": 79,
  "max_actions": 198,
- "reference_score": 0.800505
+ "reference_score": 0.800505,
+ "task_config": "loophole/configs/alpha_training.yaml",
+ "task_actions": 59,
+ "task_score": 0.85101
 }

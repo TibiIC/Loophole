@@ -67,7 +67,8 @@ def test_tools_state_render_and_actions(server):
     calls = [("get_state", {}), ("render", {"view": "front"}), ("grab", {"handle": 7, "target": "ring"})]
     calls += [(t, a) for t, a in EASY_SOLUTION[:3]]
     res = asyncio.run(_session_calls(url, calls))
-    assert res[0] == ["get_state", "grab", "move", "release", "render", "wait"]  # nothing else exposed
+    # nothing else exposed (planning queries exist only for rigid separation puzzles)
+    assert res[0] == ["get_contacts", "get_state", "grab", "move", "release", "render", "wait"]
     state = json.loads(res[1].content[0].text)
     assert state["actions_used"] == 0 and state["rope"]["num_segments"] == 40
     img, cap = res[2].content

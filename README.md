@@ -11,9 +11,9 @@ reference.
 
 **What the agent must do.** Two identical rigid tubes, each bent into an alpha, are
 interlocked. Tube A is fixed; the agent grabs tube B with one handle and moves it with
-bounded steps (≤ 10 cm and ≤ 0.2 rad per `move`, velocity-limited) until the minimum
-distance between the tubes exceeds **0.4 m**, within 198 actions. It sees the world only
-through the MCP tools `get_state`, `render`, `grab`, `move`, `release` and `wait`.
+bounded steps (≤ 10 cm and ≤ 0.2 rad per `move`, velocity-limited) until tube B **can
+slide away to infinity along some straight line without touching tube A** (free escape
+by translation, see [Goal](#goal-free-escape-by-translation)), within T = 198 actions.
 
 **Why it is hard.** The way out is a narrow tunnel in the 6-D configuration space SE(3):
 a coordinated sequence of translations *and* rotations with millimetre clearance (the
@@ -36,30 +36,134 @@ fetch it with sha256 checks; only poses and parameters are committed.
   5.8 µm. `unit_scale: 0.04` (tubes ≈ 2.5 m); the start pose round-trips to the `.cfg`.
 * Oracle (`solution/`): the authors' simplified 22-pose solution, densely re-validated
   in our simulator (28,189 states, 0 collisions) and replayed through the agent's rig:
-  separates in 79/198 actions, 0 violations, score 0.80. Watch it: `make view-alpha`.
+  free after 59/198 actions, 0 violations, score **0.851**. Watch it: `make view-alpha`.
 
-**Scoring** (`loophole/reward/literature_rewards.py: episode_score`). The verifier
-writes one float in [0, 1] to `/logs/verifier/reward.txt`:
+### Input space: what the agent observes
 
-| outcome | score |
+The agent is an off-the-shelf coding agent (OpenCode) talking to the simulator **only over
+MCP**. Its observations are tools. Observation tools are free; each action tool costs one
+action. Which observation tools exist is set by the task's **observation profile**
+(`observation.profile` in the sim config). The same actions on the same seed give the same
+score under every profile (tested).
+
+| tool | modality | returns | profiles |
+|---|---|---|---|
+| `render(view, azimuth, elevation, distance, lookat, modalities, width, height, depth_format)` | **vision** | PNG images: `rgb`, `depth` (8-bit "visual", or 16-bit millimetres "metric") and/or `segmentation` (background / tube A / tube B / handle), 64–1280 × 64–960 px, any viewpoint; plus a JSON caption with the **full camera model** (position, forward/up/right axes, fov, intrinsics f<sub>x</sub>, f<sub>y</sub>, c<sub>x</sub>, c<sub>y</sub>) | all |
+| `get_state()` | **proprioception** | pose of tube B (position + quaternion, in tube A's frame), the handle (holding what, where), the last action's outcome (executed translation/rotation, `blocked`, `clamped`), action budget, `done`/`success`, rig limits | all |
+| `get_contacts()` | **touch** | current A–B contacts: point, normal (into tube B), penetration depth, normal force; total contact force/torque; grip lag (how far the held tube trails the handle) | all |
+| `check_motion(...)` | planning query | dry run of `move` with identical clamping and kinematics: collision-free? which fraction is free? end pose | `planner` |
+| `check_poses(poses)` | planning query | collision-free flag for up to 256 absolute poses of tube B (a state-validity checker) | `planner` |
+| `get_geometry()` | planning query | triangle meshes of both tubes (body frames, metres) and their poses | `planner` |
+
+Profiles: **`sensors`** = vision + proprioception + touch (task `tasks/loophole-alpha`);
+**`planner`** = `sensors` + planning queries (task `tasks/loophole-alpha-planner`);
+**`full`** additionally shows privileged fields (goal test, cost-to-go progress, scene
+geometry) and is for debugging only. Under `sensors`, nothing about the goal, the
+distance between the tubes or the progress measure is shown (tested).
+
+Depth pixels back-project exactly to 3-D points (≤ 0.5 mm from the true surface, tested):
+`point = position + depth · (forward + (u + ½ − c_x)/f_x · right − (v + ½ − c_y)/f_y · up)`,
+with (u, v) = (column, row) from the top-left and depth measured along the optical axis.
+So an agent can do multi-view reconstruction or segmentation-guided pose estimation. The
+agent container has Python 3.11 with numpy, scipy, Pillow, OpenCV and a C/C++ compiler (no
+internet during the run), so it may write its own perception or planning code and call the
+MCP server from it. One Gemini 4 Carbon agent did exactly that, space-carving the tubes from
+52 renders in C++.
+
+### Output space: what the agent does
+
+| tool | effect |
 |---|---|
-| any penetration/tunnelling violation (episode ends immediately) | 0 |
-| solved (min distance > 0.4 m) | 1 − 0.5 · a/T, in [0.5, 1] |
-| unsolved | 0.3 · p, in [0, 0.3] |
+| `grab(handle=0, target="tube_b", point?)` | weld handle 0 to tube B (grasp point within 5 cm of the tube; default its reference point) |
+| `move(handle, dx, dy, dz, droll, dpitch, dyaw, frame)` | relative SE(3) motion of the handle and the held tube; translation clamped to 0.1 m, rotation (XYZ Euler about the grasp point, `world` or `local` axes) to 0.2 rad; executed at ≤ 0.1 m/s and 0.1 rad/s; stops early (`blocked`) when the tube is obstructed |
+| `release(handle)` | open the handle |
+| `wait(steps)` | 1–4000 physics substeps (1 ms) without moving |
 
-with `a` = actions used, `T` = max actions, and progress
-`p = clip(1 − best_ctg / start_ctg, 0, 1)`. `ctg` is the cost-to-go of a roadmap over the
-free configuration space (shortest collision-free path length to separation), matched only
-through roadmap nodes reachable by a collision-free straight segment; `best_ctg` only
-updates when the match holds for ≥ 3 consecutive actions. Every solve beats every
-non-solve; doing nothing scores 0; going back and forth cannot raise `best_ctg`.
+Formally the action space is A = {grab, release} × {0} ∪ {move} × B<sub>0.1</sub>(ℝ³) ×
+B<sub>0.2</sub>(so(3)) × {world, local} ∪ {wait} × {1, …, 4000}. Invalid arguments
+(NaN, ±inf, wrong types, out of range) are rejected before any physics and cost nothing.
+Nothing can pass through anything else: a per-substep audit (penetration > 4 mm,
+per-substep displacement > 3 mm, integrator divergence) ends the episode with score 0.
 
-**Training signals** (logged per action in the episode JSONL, never in the score):
-`cspace_tunnel` (primary, potential-based shaping Φ = −ctg with γ = 1 [NHR99]; its
-terminal is `episode_score`), `clearance_shaping` (potential-based clearance kernel adapted
-from IndustReal [TLA+23], weight 0) and `gauss_linking_diagnostic` (open-curve Gauss
-integral [KL00, RN11], logged next to cost-to-go, no reward). Citations, verified, are
-in [REFERENCES.md](REFERENCES.md).
+### Goal: free escape by translation
+
+Let q = (t, R) ∈ SE(3) be tube B's pose in tube A's frame, B(q) the region tube B
+occupies, and A tube A's region. The goal set is
+
+  G = { q : ∃ u ∈ S², ∀ s ≥ 0 : B(t + s·u, R) ∩ A = ∅ },
+
+tube B can be slid to infinity along some straight line without touching tube A. This is
+the removability-by-translation notion of assembly planning [WL94]. Unlike a distance
+threshold, it has no tunable target: it is exactly "no longer caged".
+
+*Implementation* (`sim/collision.py: escape_direction`): 64 fixed directions on a
+Fibonacci sphere. Each is swept from the current pose until the bounding spheres of the two
+tubes are disjoint, after which contact is impossible. Far from tube A the sweep jumps by
+the separation distance (conservative advancement [Mir96]: a translation shorter than the
+distance cannot touch), using a convex-chunk proxy whose distance is a lower bound. Near
+tube A it falls back to the simulator's exact penetration test every 4 mm. The check is
+**sound**: a reported direction is free (a dense 1 mm exact sweep confirms this in the
+tests). It is **conservative**: a direction that needs more than 20 cm of sliding contact
+is treated as blocked, which can only delay success. The check costs about 0.3 s per action
+and is re-run by the verifier.
+
+### Rewards: formal definitions, intuition, sources
+
+**Episode score: the only number the verifier writes** (`/logs/verifier/reward.txt`;
+`reward/literature_rewards.py: episode_score`). With a = actions used, T = 198, V = audit
+violations:
+
+| outcome | S | range |
+|---|---|---|
+| V > 0 (forced through; episode ends immediately) | 0 | 0 |
+| solved: q<sub>t</sub> ∈ G at some action t | 1 − α · a / T | [0.5, 1] |
+| unsolved | κ · p | [0, 0.3] |
+
+with α = 0.5, κ = 0.3 and progress p = clip(1 − c\* / c<sub>0</sub>, 0, 1). Here:
+* **c(q)**, the cost-to-go, is the length of the shortest collision-free path from q to
+  the separated set, estimated on a roadmap of N = 8044 free configurations and 60,260
+  collision-checked edges: c(q) = min<sub>n ∈ V(q)</sub> [ d(q, n) + ctg(n) ]. ctg(n) is
+  the Dijkstra distance from node n to the 847 roadmap nodes that are clearly apart
+  (minimum distance > 0.4 m). V(q) is the set of the 10
+  nearest nodes that q can reach by a collision-free straight segment, and
+  d(q₁, q₂) = ‖t₁ − t₂‖ + w · ∠(R₁ᵀR₂) with w = 1.54 m (tube B's radius).
+* **c\***, the best *held* cost-to-go, is min<sub>t</sub> max(c<sub>t</sub>, c<sub>t+1</sub>,
+  c<sub>t+2</sub>) over windows of 3 consecutive actions that all have a visible roadmap
+  node (`StableMin`). c<sub>0</sub> = c(q<sub>0</sub>) = 21.6.
+
+*Intuition.* Forcing the tubes together is worthless. Any solve beats any non-solve, and
+faster solves score more. A non-solve earns credit for how far along the shortest
+collision-free way out it got. Distance through a tube wall does not count: visibility
+blocks it. A lucky single reading does not count: it must be held for 3 actions. Wiggling
+does not count either: c\* only reaches a level after 3 actions at or below it. Doing
+nothing scores 0. The roadmap measures *progress along a way out* rather than "distance to
+one reference path", because a puzzle can have several homotopy classes of solutions
+[JSCP15]. Tunnel structure of C-space is the core difficulty of this puzzle [ZBKV20].
+
+**Training signals** (logged per action in the episode JSONL for RL / distillation; never
+part of S):
+
+1. `cspace_tunnel` (primary, weight 1). Potential-based shaping on the C-space navigation
+   function, Φ(q) = −c(q), γ = 1:
+   r<sub>t</sub> = (c(q<sub>t−1</sub>) − c(q<sub>t</sub>)) / c<sub>0</sub>, and its
+   terminal reward is exactly S. *Intuition:* a dense signal for "moved along the way out".
+   Potential-based shaping leaves optimal policies unchanged and telescopes, so going back
+   and forth nets nothing [NHR99]. Source of the tunnel view: [ZBKV20].
+2. `clearance_shaping` (weight 0, logged). Φ(s) = exp(−max(0, d<sub>sep</sub> − d(s)) / σ)
+   with d(s) the A–B minimum distance, d<sub>sep</sub> = 0.4 m, σ = 0.08 m:
+   r = Φ(s′) − Φ(s) − w<sub>pen</sub> · max(0, pen − 2 mm) − w<sub>act</sub> · (‖Δt‖² + 0.1 ‖Δθ‖²),
+   using the motion actually executed. *Intuition:* "more room is better, don't press,
+   don't flail". It is adapted from IndustReal's SDF-based dense reward [TLA+23] (built on
+   Factory [NSA+22]), which measures alignment with a goal pose. Clearance can grow while
+   the tubes stay caged, hence weight 0.
+3. `gauss_linking_diagnostic` (log only). The open-curve Gauss linking integral of the two
+   tube centre-lines, Lk = (1/4π) ∮∮ (r₁ − r₂) · (dr₁ × dr₂) / ‖r₁ − r₂‖³, computed with
+   the exact segment-pair formula [KL00] (background [RN11]). *Intuition:* how wound around
+   each other the tubes are. For open curves it is real-valued and changes under rotation
+   in place, so it is never rewarded. (Topological models of *string* puzzles: [PS02].)
+
+All citations were checked against their DOI, arXiv or publisher records; see
+[REFERENCES.md](REFERENCES.md).
 
 **Anti-exploit setup.** Harbor supports multi-container environments, so the MuJoCo MCP
 server runs in a **separate sidecar container** (`loophole-sim`). The agent's container
@@ -73,10 +177,12 @@ initial state and every per-action state hash. Nothing the agent writes is read.
 **One-command reproduction** (Docker + `uv tool install harbor`; the image build fetches
 the meshes):
 ```bash
-harbor run -p ./tasks/loophole-alpha -a oracle                       # reference solution
+harbor run -p ./tasks/loophole-alpha -a oracle                       # reference solution (0.851)
 harbor run -p ./tasks/loophole-alpha -a nop                          # do-nothing baseline
 harbor run -p ./tasks/loophole-alpha -a oracle --ae LOOPHOLE_SOLUTION=stop_early
 OPENAI_API_KEY=... harbor run -p ./tasks/loophole-alpha -a opencode -m openai/<model>
+harbor run -p ./tasks/loophole-alpha-planner -a opencode -m <model>  # + planning queries
+python scripts/sync_tasks.py --alpha                                 # regenerate both Alpha tasks
 ```
 
 > **Deprecated:** the procedural Alpha-*style* tubes (`loophole/puzzles/alpha/`,
@@ -114,8 +220,8 @@ Run the MCP server (streamable HTTP on :8000/mcp; admin options are CLI/env only
 make build && docker run --rm -p 8000:8000 -e LOOPHOLE_PUZZLE=alpha-medium loophole-sim:local
 ```
 
-MCP tools: `get_state`, `render` (PNG + caption; free), `grab`, `move`, `release`, `wait`
-(one action each). Every call is logged to `episode.jsonl`.
+MCP tools: observation tools per profile (see [Input space](#input-space-what-the-agent-observes);
+free), `grab`, `move`, `release`, `wait` (one action each). Every call is logged to `episode.jsonl`.
 
 Harbor (Docker + `uv tool install harbor`); every target builds the sim image first:
 

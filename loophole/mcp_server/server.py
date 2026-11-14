@@ -1,6 +1,10 @@
 """Agent-facing MCP server (FastMCP, streamable-http).
 
-Exposes only: get_state, render, grab, move, release, wait. Reset, puzzle
+Action tools: grab, move, release, wait. Observation tools depend on the
+configured observation profile (config.observation): `sensors` = get_state
+(proprioception), render (rgb / depth / segmentation cameras), get_contacts
+(touch); `planner` adds check_motion, check_poses, get_geometry; `full` also
+shows privileged goal/progress fields (debugging). Reset, puzzle
 selection and seeding are fixed at process start (CLI / env vars) and are never
 reachable over MCP. Every call is appended to the JSONL episode log.
 
@@ -33,19 +37,29 @@ from ..sim.rig import RigError
 
 log = logging.getLogger("loophole.mcp")
 
-INSTRUCTIONS = """\
+INSTRUCTIONS_ROPE = """\
 Loophole: a 3D disentanglement puzzle in a physics simulator.
 A rigid frame (fixed), a rope whose ends are anchored to the frame, and a free
 target piece. Free the target piece: carry it farther from every rope anchor
 than the rope could ever reach, and clear of the frame.
 
-Observation tools (free): get_state, render.
 Action tools (each costs one action from a fixed budget): grab, move, release, wait.
-You control up to two handles (0 and 1). A handle grabs one body (the target
-piece, or a rope segment) and moves it with bounded steps; motion stops early
-("blocked") when the held body is obstructed. Nothing can be pushed through
-anything else. The score is higher the fewer actions you use; failing scores 0.
-Coordinates are metres, world frame, z up.
+All other tools are free observations. You control up to two handles (0 and 1).
+A handle grabs one body (the target piece, or a rope segment) and moves it with
+bounded steps; motion stops early ("blocked") when the held body is obstructed.
+Nothing can be pushed through anything else. Coordinates are metres, world frame, z up.
+"""
+
+INSTRUCTIONS_SEPARATION = """\
+Loophole: a rigid two-piece disentanglement puzzle in a physics simulator.
+One piece is fixed; the other is free and can be grasped with handle 0. The
+puzzle is solved as soon as the free piece can slide away to infinity along
+some straight line without touching the fixed piece.
+
+Action tools (each costs one action from a fixed budget): grab, move, release, wait.
+All other tools are free observations: cameras (render), the robot's own state
+(get_state) and touch (get_contacts), plus planning queries if enabled.
+Nothing can be pushed through anything else. Coordinates are metres, world frame, z up.
 """
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
@@ -56,7 +70,7 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> F
     lock = threading.Lock()
     mcp = FastMCP(
         "loophole",
-        instructions=INSTRUCTIONS,
+        instructions=INSTRUCTIONS_SEPARATION if env.checker is not None else INSTRUCTIONS_ROPE,
         host=host,
         port=port,
         stateless_http=True,
@@ -71,35 +85,88 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> F
             except (RigError, EpisodeOver, ValueError, TypeError) as e:
                 raise ToolError(str(e)) from None
 
-    @mcp.tool(annotations=READ_ONLY)
-    def get_state() -> dict:
-        """Full simulator state as JSON: object poses, rope node positions (nodes[k] starts
-        segment k), anchors, holes, handle status, action count / budget, done flag,
-        goal distances, a static description of the frame, rig limits and (if enabled)
-        the topological crossing words. Does not cost an action."""
-        with lock:
-            env.log_observation("get_state", {})
-            return env.get_state()
+    tools = set(env.tools)
 
-    @mcp.tool(annotations=READ_ONLY)
+    def observe(name: str, args: dict, fn):
+        with lock:
+            env.log_observation(name, args)
+            try:
+                return fn()
+            except (RigError, EpisodeOver, ValueError, TypeError) as e:
+                raise ToolError(str(e)) from None
+
+    def register(name: str, fn, doc: str):
+        if name in tools:
+            fn.__doc__ = doc
+            mcp.tool(name=name, annotations=READ_ONLY)(fn)
+
+    def get_state() -> dict:
+        return observe("get_state", {}, env.get_state)
+
+    register("get_state", get_state, """Proprioception: the pose of each piece (position + quaternion w,x,y,z; world = the
+        fixed piece's frame), your handle (holding what, where), the outcome of your last action
+        (executed motion, blocked, clamped), the action budget, done/success, and the rig limits.
+        Free (no action cost).""" if not env.privileged else """Full simulator state as JSON (privileged
+        debugging profile): poses, handles, budget, goal metrics, progress, scene geometry. Free.""")
+
     def render(
         view: Annotated[Literal["iso", "front", "back", "side", "top"], Field(description="named preset camera")] = "iso",
         azimuth: Annotated[float | None, Field(description="degrees; overrides the preset")] = None,
         elevation: Annotated[float | None, Field(description="degrees, negative looks down")] = None,
-        distance: Annotated[float | None, Field(description="metres from lookat")] = None,
+        distance: Annotated[float | None, Field(description="metres from lookat, 0.05..20")] = None,
         lookat: Annotated[list[float] | None, Field(description="[x, y, z] point the camera looks at")] = None,
+        modalities: Annotated[list[Literal["rgb", "depth", "segmentation"]] | None,
+                              Field(description="images to return, default ['rgb']")] = None,
+        width: Annotated[int | None, Field(description="pixels, 64..1280 (default 480)")] = None,
+        height: Annotated[int | None, Field(description="pixels, 64..960 (default 360)")] = None,
+        depth_format: Annotated[Literal["visual", "metric"], Field(
+            description="visual: 8-bit grey, white = near; metric: 16-bit PNG in millimetres")] = "visual",
     ) -> list:
-        """Render the scene to a PNG image plus a one-line text caption. Camera moves
-        never cost actions. Colours: frame grey, rope orange, target blue,
-        handle 0 red, handle 1 green."""
-        with lock:
-            args = {"view": view, "azimuth": azimuth, "elevation": elevation, "distance": distance, "lookat": lookat}
-            env.log_observation("render", args)
-            try:
-                png, caption = env.render(view, azimuth, elevation, distance, lookat)
-            except ValueError as e:
-                raise ToolError(str(e)) from None
-        return [Image(data=png, format="png"), caption]
+        args = {"view": view, "azimuth": azimuth, "elevation": elevation, "distance": distance, "lookat": lookat,
+                "modalities": modalities, "width": width, "height": height, "depth_format": depth_format}
+        imgs, caption = observe("render", args, lambda: env.render_views(
+            view, azimuth, elevation, distance, lookat, modalities or ["rgb"], width, height, depth_format))
+        return [*(Image(data=png, format="png") for _, png in imgs), caption]
+
+    register("render", render, """Camera: render the scene from any viewpoint as PNG images (rgb, depth and/or
+        segmentation) plus a JSON caption with the full camera model (position, forward/up/right
+        axes, intrinsics fx fy cx cy), so pixels can be back-projected to 3-D points:
+        point = position + depth * (forward + (u+0.5-cx)/fx * right - (v+0.5-cy)/fy * up).
+        Fixed piece grey, free piece blue, handle red. Free (no action cost).""")
+
+    def get_contacts() -> dict:
+        return observe("get_contacts", {}, env.get_contacts)
+
+    register("get_contacts", get_contacts, """Touch: the contacts between the free piece and the fixed one
+        right now (position, normal pointing into the free piece, penetration depth, normal force),
+        the total contact force/torque, and how far the held piece lags its handle. Free.""")
+
+    def check_motion(
+        handle: Annotated[int, Field(description="handle index (must be holding the piece)")] = 0,
+        dx: float = 0.0, dy: float = 0.0, dz: float = 0.0,
+        droll: Annotated[float, Field(description="radians about x")] = 0.0,
+        dpitch: Annotated[float, Field(description="radians about y")] = 0.0,
+        dyaw: Annotated[float, Field(description="radians about z")] = 0.0,
+        frame: Annotated[Literal["world", "local"], Field(description="axes for the displacement / rotation")] = "world",
+    ) -> dict:
+        args = {"handle": handle, "dx": dx, "dy": dy, "dz": dz, "droll": droll, "dpitch": dpitch, "dyaw": dyaw, "frame": frame}
+        return observe("check_motion", args, lambda: env.check_motion(**args))
+
+    register("check_motion", check_motion, """Planning query: dry run of `move` with identical arguments, clamping
+        and kinematics. Reports whether the straight-line motion would be collision-free, how much of
+        it is free, and the resulting pose. Changes nothing and costs no action.""")
+
+    def check_poses(poses: Annotated[list[list[float]], Field(description="1..256 poses [x, y, z, qw, qx, qy, qz] of the free piece")]) -> dict:
+        return observe("check_poses", {"n": len(poses) if isinstance(poses, list) else None}, lambda: env.check_poses(poses))
+
+    register("check_poses", check_poses, """Planning query: for each absolute pose of the free piece, is it
+        collision-free? (A state-validity checker for your own motion planner.) Free.""")
+
+    def get_geometry() -> dict:
+        return observe("get_geometry", {}, env.get_geometry)
+
+    register("get_geometry", get_geometry, """Planning query: triangle meshes of both pieces in their own body
+        frames (metres) and their current poses. Large (~2-3k triangles per piece). Free.""")
 
     @mcp.tool(annotations=ACTION)
     def grab(

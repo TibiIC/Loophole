@@ -29,6 +29,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from loophole.config import load_config  # noqa: E402
 from loophole.planning.commands import path_to_commands  # noqa: E402
 from loophole.puzzles import paper_alpha as pa  # noqa: E402
 from loophole.puzzles.ompl_alpha import parse_cfg  # noqa: E402
@@ -47,6 +48,7 @@ ATTRIBUTION = ("Oracle = the published Alpha 1.0 solution of X. Zhang, R. Belfer
                "commands; no licence stated by the authors - see docs/HARNESS_NOTES.md.")
 TRAJ = ROOT / "loophole" / "reference" / "trajectories"
 NAME = "alpha-1.0-paper"
+TASK_CONFIG = ROOT / "loophole" / "configs" / "alpha_training.yaml"
 MAX_LIN, MAX_ANG = 0.1, 0.2  # per-move caps (velocity limits are what prevent tunnelling)
 
 
@@ -104,8 +106,14 @@ def main() -> None:
     print(f"replay: success={final['success']} actions={final['actions_used']}/{max_actions} score={final['score']:.3f} violations={final['violations']['count']}")
     if not final["success"] or final["violations"]["count"]:
         sys.exit("replay failed")
+    # score under the task's own config (escape goal: the episode ends as soon as tube_b can slide out)
+    task = replay(LoopholeEnv(p, config=load_config(TASK_CONFIG)), cmds)
+    print(f"task config: success={task['success']} actions={task['actions_used']} score={task['score']:.3f}")
+    if not task["success"] or task["violations"]["count"]:
+        sys.exit("replay under the task config failed")
     write_trajectory(TRAJ / f"{NAME}.jsonl", NAME, cmds, source="Zhang et al. 2020 supplementary: alpha-1.0.simplified.txt",
-                     meta={"expected_score": final["score"], "supp_sha256": SUPP_SHA256, "attribution": ATTRIBUTION})
+                     meta={"expected_score": task["score"], "expected_actions": task["actions_used"], "config": "loophole/configs/alpha_training.yaml",
+                           "distance_goal_score": final["score"], "supp_sha256": SUPP_SHA256, "attribution": ATTRIBUTION})
     rng = np.random.default_rng(1)
     se = [("grab", {"handle": 0, "target": p.target})] + [
         ("move", {"handle": 0, "dx": float(d[0]), "dy": float(d[1]), "dz": float(d[2])}) for d in rng.uniform(-0.03, 0.03, (5, 3))
@@ -114,7 +122,8 @@ def main() -> None:
     np.savez(pa.PUZZLE_OUT / f"{NAME}-reference.npz", path=path, poses_native=native, w=w, attribution=ATTRIBUTION)
     rep = {"source": "Zhang, Belfer, Kry, Vouga 2020 (supp-material/puzzles/alpha/alpha-1.0.simplified.txt)", "poses": len(path),
            "dense_states_checked": n, "invalid": bad, "reference_actions": final["actions_used"], "max_actions": max_actions,
-           "reference_score": final["score"]}
+           "reference_score": final["score"], "task_config": "loophole/configs/alpha_training.yaml",
+           "task_actions": task["actions_used"], "task_score": task["score"]}
     (pa.PUZZLE_OUT / f"{NAME}-build.json").write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep))
 

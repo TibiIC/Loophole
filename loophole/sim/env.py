@@ -23,7 +23,7 @@ from ..reward.roadmap import Roadmap
 from ..reward.topology import Disc, TopologyTracker
 from .audit import Auditor
 from .builder import BuiltModel, build_model
-from .collision import CollisionChecker
+from .collision import CollisionChecker, fibonacci_directions, interpolate
 from .rig import Rig, RigError
 from .spec import Puzzle, load_puzzle, resolve_puzzle, to_native
 
@@ -128,6 +128,12 @@ class LoopholeEnv:
         anchors = [] if rope is None else [rope.start] + ([rope.end] if rope.end is not None else [])
         self.anchors = [np.asarray(a, dtype=float) for a in anchors]
         self.checker = CollisionChecker(self.puzzle) if self.puzzle.goal.type == "separation" else None
+        self._escape_dirs = fibonacci_directions(self.cfg.goal.escape_directions) if self.checker is not None else None
+        self._escape_cache: tuple[bytes, np.ndarray | None] | None = None
+        self._escape_first: int | None = None
+        # planning queries need the rigid-pair collision checker (separation puzzles only)
+        planning = {"check_motion", "check_poses", "get_geometry"}
+        self.tools = [t for t in self.cfg.observation.tool_names() if self.checker is not None or t not in planning]
         # tube centre-lines (body frame) are tracked as curves by the topology diagnostics
         self.curves = {
             b.name: np.concatenate([np.asarray(g.points, float) for g in b.geoms if g.type == "tube"])
@@ -201,8 +207,16 @@ class LoopholeEnv:
     def goal_metrics(self) -> dict:
         if self.puzzle.goal.type == "separation":
             pose = self.target_pose()
+            if self.cfg.goal.criterion == "escape":
+                u = self.escape_direction(pose)
+                return {
+                    "criterion": "free escape by translation",
+                    "goal_reached": u is not None,
+                    "escape_direction": None if u is None else _r(u, 4),
+                }
             d_sep = self.puzzle.goal.d_sep
             return {
+                "criterion": "distance",
                 "target_min_distance_to_frame": round(self.checker.clearance(pose, 2 * d_sep), 5),
                 "required_separation": d_sep,
                 "goal_reached": self.checker.is_separated(pose),
@@ -220,6 +234,23 @@ class LoopholeEnv:
             "required_frame_distance": round(need_frame, 4),
             "goal_reached": bool(d_anchor > need_anchor and d_frame > need_frame),
         }
+
+    def escape_direction(self, pose: np.ndarray | None = None) -> np.ndarray | None:
+        """A direction along which the target slides to infinity untouched, or None (cached per pose)."""
+        pose = self.target_pose() if pose is None else np.asarray(pose, float)
+        key = pose.round(9).tobytes()
+        if self._escape_cache is None or self._escape_cache[0] != key:
+            u = self.checker.escape_direction(pose, self._escape_dirs, first=self._escape_first)
+            if u is not None:
+                self._escape_first = self.checker.escape_index
+            self._escape_cache = (key, u)
+        return self._escape_cache[1]
+
+    def min_distance(self) -> float | None:
+        """Minimum target-frame distance (analysis / training signal only; never shown in `sensors`)."""
+        if self.checker is None:
+            return None
+        return round(self.checker.clearance(self.target_pose(), max(0.8, 2 * self.puzzle.goal.d_sep)), 5)
 
     def _update_curves(self) -> None:
         if self.rope_node_bodies:
@@ -281,7 +312,9 @@ class LoopholeEnv:
             self.ctg, self._ctg_node = self.roadmap.cost_to_go(self.target_pose(), self.checker)
             self.ctg0 = self.best_ctg = self.ctg
         self._stable = StableMin(self.ctg0, hold=3)
-        self._last_min_distance = self.goal_metrics().get("target_min_distance_to_frame")
+        self._last_min_distance = self.min_distance()
+        self._escape_cache, self._escape_first = None, None
+        self._last_action = None
         self._last_rstate = self._reward_state()
         self.composer.reset(self._last_rstate)
         self.initial_hash = self.state_hash()
@@ -447,7 +480,7 @@ class LoopholeEnv:
             self._update_curves()
         fallback = self._update_cost_to_go()
         goal = self.goal_metrics()
-        self._last_min_distance = goal.get("target_min_distance_to_frame")
+        self._last_min_distance = self.min_distance()
         if self.audit.count > 0:
             self.success = False
             self.done, self.done_reason = True, "anti-tunnelling violation (episode failed)"
@@ -460,7 +493,7 @@ class LoopholeEnv:
         diag = self.diagnostics()
         info = {  # what dense reward components may read (all measured by the simulator)
             "goal": goal,
-            "min_distance": goal.get("target_min_distance_to_frame"),
+            "min_distance": self._last_min_distance,
             "last_penetration": self.audit.window_penetration,
             "args": norm,  # as requested (validated, but not clamped)
             "executed": self._executed_motion(),  # what the rig actually did (clamped, maybe blocked)
@@ -490,7 +523,8 @@ class LoopholeEnv:
                 # min distance, and the (flagged-off) progress potential hook
                 "rel_pose": _r(self.target_pose(), 6),
                 "rel_pose_native": None if self.puzzle.unit_scale == 1.0 else to_native(self.target_pose()[:3].tolist(), self.puzzle, 4) + _r(self.target_pose()[3:], 6),
-                "min_distance": goal.get("target_min_distance_to_frame"),
+                "min_distance": self._last_min_distance,
+                "escape_direction": goal.get("escape_direction"),
                 "progress_potential": progress_potential(self),
                 "diagnostics": diag,
                 "rewards": self.composer.last_step,  # per-component step rewards (training signal)
@@ -498,9 +532,14 @@ class LoopholeEnv:
                 "wall_time": time.time(),
             }
         )
+        executed = info["executed"]
+        self._last_action = {"i": self.actions_used, "tool": tool, "blocked": bool(result.get("blocked", False)),
+                             "clamped": result.get("clamped", []),
+                             "executed_translation_m": round(executed["translation"], 5),
+                             "executed_rotation_rad": round(executed["rotation"], 5)}
         if self.done:
             self.finalize()
-        return {
+        out = {
             **result,
             "action": self.actions_used,
             "actions_remaining": self.puzzle.max_actions - self.actions_used,
@@ -509,9 +548,15 @@ class LoopholeEnv:
             "success": self.success,
             "violations": self.audit.count,
             "target": self._target_summary(),
-            "goal": goal,
-            "progress": self.progress_summary(),
         }
+        if self.privileged:
+            out.update(goal=goal, progress=self.progress_summary())
+        return out
+
+    @property
+    def privileged(self) -> bool:
+        """`full` observation profile: goal metrics, progress and scene geometry are shown to the agent."""
+        return self.cfg.observation.profile == "full"
 
     def log_observation(self, tool: str, args: dict) -> None:
         self.log.write({"type": "observe", "tool": tool, "args": args, "i": self.actions_used, "wall_time": time.time()})
@@ -586,6 +631,44 @@ class LoopholeEnv:
         return out
 
     def get_state(self) -> dict:
+        """Proprioception (`sensors` / `planner` profiles) or the full privileged state (`full`)."""
+        return self.full_state() if self.privileged else self.proprioception()
+
+    def proprioception(self) -> dict:
+        """What a robot knows without looking: its own handle, the held piece's pose (from the
+        grasp), the action budget, the outcome of its last action, and its limits."""
+        d = self.data
+        objects = {}
+        for name in self.built.object_bodies:
+            bid = self.model.body(name).id
+            objects[name] = {"pos": _r(d.xpos[bid], 5), "quat": _r(d.xquat[bid], 5), "graspable": name in self.built.graspable}
+        return {
+            "puzzle": self.puzzle.name,
+            "frame": "world = the fixed piece's frame; metres, radians, quaternions w x y z",
+            "fixed": [b.name for b in self.puzzle.frame],
+            "objects": objects,
+            "handles": self.rig.status(),
+            "last_action": self._last_action,
+            "actions_used": self.actions_used,
+            "max_actions": self.puzzle.max_actions,
+            "actions_remaining": self.puzzle.max_actions - self.actions_used,
+            "done": self.done,
+            "done_reason": self.done_reason,
+            "success": self.success,
+            "violations": self.audit.count,
+            "limits": {
+                "max_linear_step_m": self.cfg.rig.max_linear_step,
+                "max_angular_step_rad": self.cfg.rig.max_angular_step,
+                "linear_speed_m_s": self.cfg.rig.linear_speed,
+                "angular_speed_rad_s": self.cfg.rig.angular_speed,
+                "workspace_min": self.cfg.rig.workspace_min,
+                "workspace_max": self.cfg.rig.workspace_max,
+                "grasp_tolerance_m": self.cfg.rig.grasp_tolerance,
+            },
+            "tools": self.tools,
+        }
+
+    def full_state(self) -> dict:
         d = self.data
         objects = {}
         for name in self.built.object_bodies:
@@ -644,14 +727,31 @@ class LoopholeEnv:
             state["topology"] = self.tracker.summary()
         return state
 
-    def render(self, view: str | None = None, azimuth=None, elevation=None, distance=None, lookat=None) -> tuple[bytes, str]:
+    def _seg_labels(self) -> np.ndarray:
+        """geom id -> segmentation label (0 background, 1 fixed piece, 2 free piece, 3 handle, 4 rope)."""
+        if getattr(self, "_seg_lut", None) is None:
+            m = self.model
+            frame = {m.body(b).id for b in self.built.frame_bodies}
+            objects = {m.body(b).id for b in self.built.object_bodies}
+            rope = set(self.rope_node_bodies)
+            lut = np.zeros(m.ngeom + 1, np.uint8)  # last entry: background (-1)
+            for g in range(m.ngeom):
+                bid = m.geom_bodyid[g]
+                name = m.body(bid).name
+                lut[g] = 1 if bid in frame else 2 if bid in objects else 4 if bid in rope else 3 if name.startswith("handle") else 0
+            self._seg_lut = lut
+        return self._seg_lut
+
+    def _camera(self, view, azimuth, elevation, distance, lookat):
         from .render import SceneRenderer
 
-        if self._renderer is None:
+        if self._renderer is None:  # default framing: the fixed piece and the free one at its start pose
             lo, hi = self.frame_aabb()
+            p, r = self.data.xpos[self.target_id], self.target_radius
+            lo, hi = np.minimum(lo, p - r), np.maximum(hi, p + r)
             center = (lo + hi) / 2
             span = float(np.max(hi - lo))
-            self._renderer = SceneRenderer(self.model, self.cfg.render.width, self.cfg.render.height, center, max(0.6, 1.1 * span))
+            self._renderer = SceneRenderer(self.model, self.cfg.render.width, self.cfg.render.height, center, max(0.6, 1.3 * span))
         for name, v in (("azimuth", azimuth), ("elevation", elevation), ("distance", distance)):
             if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or not np.isfinite(v)):
                 raise ValueError(f"{name} must be a finite number")
@@ -661,25 +761,205 @@ class LoopholeEnv:
             if not isinstance(lookat, (list, tuple)) or len(lookat) != 3 or not all(
                 isinstance(x, (int, float)) and not isinstance(x, bool) and np.isfinite(x) for x in lookat):
                 raise ValueError("lookat must be three finite numbers")
-        cam = self._renderer.camera(view, azimuth, elevation, distance, lookat)
-        png = self._renderer.render(self.data, cam)
+        return self._renderer.camera(view, azimuth, elevation, distance, lookat)
+
+    def render(self, view: str | None = None, azimuth=None, elevation=None, distance=None, lookat=None) -> tuple[bytes, str]:
+        """One RGB image + caption (kept for the viewer, scripts and tests)."""
+        imgs, caption = self.render_views(view, azimuth, elevation, distance, lookat)
+        return imgs[0][1], caption
+
+    def render_views(self, view: str | None = None, azimuth=None, elevation=None, distance=None, lookat=None,
+                     modalities=("rgb",), width: int | None = None, height: int | None = None,
+                     depth_format: str = "visual") -> tuple[list[tuple[str, bytes]], str]:
+        """Camera images: rgb, depth and/or segmentation (PNGs), plus a JSON caption with the full
+        camera model (intrinsics + pose) so pixels can be back-projected to 3-D points.
+
+        depth_format: "visual" = 8-bit greyscale, white = near, black = far (range in the caption);
+                      "metric" = 16-bit greyscale PNG in millimetres along the optical axis (0 = background).
+        segmentation: colour-coded labels (see caption: segmentation_labels).
+        """
+        from .render import SEG_COLOURS, depth_visual, encode_png, encode_png16
+
+        cam = self._camera(view, azimuth, elevation, distance, lookat)
+        mods = list(modalities) if modalities else ["rgb"]
+        if not set(mods) <= {"rgb", "depth", "segmentation"} or len(set(mods)) != len(mods):
+            raise ValueError("modalities: a list of distinct 'rgb', 'depth', 'segmentation'")
+        if depth_format not in ("visual", "metric"):
+            raise ValueError("depth_format must be 'visual' or 'metric'")
+        W = self.cfg.render.width if width is None else width
+        H = self.cfg.render.height if height is None else height
+        for name, v, hi in (("width", W, 1280), ("height", H, 960)):
+            if isinstance(v, bool) or not isinstance(v, int) or not 64 <= v <= hi:
+                raise ValueError(f"{name} must be an integer in [64, {hi}]")
+        arrays, camera = self._renderer.render_modalities(self.data, cam, mods, W, H)
+        images, info = [], {}
+        for mname in mods:
+            a = arrays[mname]
+            if mname == "rgb":
+                images.append(("rgb", encode_png(a)))
+            elif mname == "depth":
+                bg = a >= 0.999 * camera["zfar"]
+                fg = a[~bg]
+                if depth_format == "metric":
+                    mm = np.where(bg, 0, np.clip(np.round(a * 1000), 1, 65535)).astype(np.uint16)
+                    images.append(("depth", encode_png16(mm)))
+                    info["depth"] = {"format": "metric", "encoding": "16-bit greyscale PNG, millimetres along the optical axis, 0 = background"}
+                else:
+                    near = float(fg.min()) if fg.size else 0.0
+                    far = float(fg.max()) if fg.size else 1.0
+                    d = np.where(bg, np.inf, a)
+                    images.append(("depth", encode_png(depth_visual(d, near, far))))
+                    info["depth"] = {"format": "visual", "near_m": round(near, 4), "far_m": round(far, 4),
+                                     "encoding": "8-bit grey: depth = far - (grey / 255) * (far - near); black = background"}
+            else:
+                lut = self._seg_labels()
+                lab = lut[np.where(a < 0, len(lut) - 1, a)]
+                images.append(("segmentation", encode_png(SEG_COLOURS[lab])))
+                info["segmentation_labels"] = {"black": "background", "grey": self._piece_name(1), "blue": self._piece_name(2),
+                                               "red": "handle", "orange": "rope"}
         t = self._target_summary()
-        held = ", ".join(f"handle{h['id']}={'holding ' + h['holding'] if h['holding'] else 'empty'}" for h in self.rig.status())
-        extra = ""
-        if self.puzzle.goal.type == "separation":
-            g = self.goal_metrics()
-            prog = self.progress_summary()
-            extra = f" | min distance {g['target_min_distance_to_frame']:.3f} m (goal > {g['required_separation']} m)"
-            if prog and prog.get("progress") is not None:
-                extra += f" | progress {prog['progress']:.3f} (best {prog['best_progress']:.3f})"
-        caption = (
-            f"view={view or 'iso'} az={cam.azimuth:.0f} el={cam.elevation:.0f} dist={cam.distance:.2f} "
-            f"lookat={_r(cam.lookat, 3)} | {t['name']} at {t['pos']} quat {t['quat']}{extra} | {held} | "
-            f"actions {self.actions_used}/{self.puzzle.max_actions}"
-            f"{' | DONE: ' + str(self.done_reason) if self.done else ''}. "
-            + self._colour_legend()
-        )
-        return png, caption
+        cap = {
+            "view": view or "iso", "azimuth": round(cam.azimuth, 3), "elevation": round(cam.elevation, 3),
+            "distance": round(cam.distance, 4), "lookat": _r(cam.lookat, 4), "images": [k for k, _ in images],
+            "camera": camera, **info,
+            "colours": self._colour_legend(),
+            "actions": f"{self.actions_used}/{self.puzzle.max_actions}",
+        }
+        if self.done:
+            cap["done"] = self.done_reason
+        if self.privileged:
+            cap["target"] = t
+            cap["goal"] = self.goal_metrics()
+            cap["progress"] = self.progress_summary()
+        return images, json.dumps(cap, separators=(",", ":"))
+
+    def _piece_name(self, label: int) -> str:
+        if label == 1:
+            return ", ".join(self.built.frame_bodies) + " (fixed)"
+        return ", ".join(self.built.object_bodies) + " (free)"
+
+    # ------------------------------------------------------------ touch
+    def get_contacts(self, max_contacts: int = 64) -> dict:
+        """Touch: current contacts between the held/free piece and everything else, with normals,
+        penetration (negative distance) and normal force; plus the total contact wrench on the
+        free piece and how far the piece lags its handle (a strain gauge in the grip)."""
+        m, d = self.model, self.data
+        targets = {m.body(b).id for b in self.built.object_bodies}
+        out, F, T = [], np.zeros(3), np.zeros(3)
+        f6 = np.zeros(6)
+        tpos = d.xpos[self.target_id]
+        for i in range(d.ncon):
+            c = d.contact[i]
+            b1, b2 = m.geom_bodyid[c.geom1], m.geom_bodyid[c.geom2]
+            if (b1 in targets) == (b2 in targets):
+                continue
+            mujoco.mj_contactForce(m, d, i, f6)
+            n = np.asarray(c.frame[:3], float)  # from geom1 to geom2
+            if b1 in targets:
+                n = -n  # report normals pointing from the other body into the free piece
+            other = b2 if b1 in targets else b1
+            fn = float(f6[0])
+            F += fn * n
+            T += np.cross(np.asarray(c.pos) - tpos, fn * n)
+            out.append({"pos": _r(c.pos, 5), "normal_into_free_piece": _r(n, 4), "distance_m": round(float(c.dist), 6),
+                        "normal_force": round(fn, 5), "with": m.body(other).name})
+        out.sort(key=lambda e: (e["distance_m"], -e["normal_force"]))
+        lags = []
+        for h in self.rig.handles:
+            if h.body is not None:
+                lags.append({"handle": h.idx, "lag_m": round(float(np.linalg.norm(d.mocap_pos[h.mocap_id] - self.rig.grasp_point_world(h))), 6)})
+        return {
+            "n_contacts": len(out),
+            "in_contact": any(e["distance_m"] <= 0 for e in out),
+            "contacts": out[:max_contacts],
+            "note": "distance_m < 0 = touching (penetration depth); > 0 = within the contact margin, not touching yet",
+            "total_contact_force": _r(F, 5),
+            "total_contact_torque_about_origin": _r(T, 5),
+            "grip_lag": lags,
+            "last_action": self._last_action,
+        }
+
+    # ------------------------------------------------------------ planner queries (`planner` profile)
+    def check_poses(self, poses: list) -> dict:
+        """Collision-free test of up to 256 absolute poses [x y z qw qx qy qz] of the free piece."""
+        if not isinstance(poses, (list, tuple)) or not 1 <= len(poses) <= 256:
+            raise ValueError("poses: a list of 1..256 poses [x, y, z, qw, qx, qy, qz]")
+        P = []
+        for q in poses:
+            if not isinstance(q, (list, tuple)) or len(q) != 7 or not all(isinstance(x, (int, float)) and not isinstance(x, bool) and np.isfinite(x) for x in q):
+                raise ValueError("each pose must be 7 finite numbers [x, y, z, qw, qx, qy, qz]")
+            if np.linalg.norm(q[3:]) < 1e-9:
+                raise ValueError("quaternion must be non-zero")
+            P.append(np.asarray(q, float))
+        return {"valid": [self.checker.is_valid(q) for q in P]}
+
+    def check_motion(self, handle: int = 0, dx=0.0, dy=0.0, dz=0.0, droll=0.0, dpitch=0.0, dyaw=0.0, frame: str = "world") -> dict:
+        """Dry run of `move` with the same clamping and kinematics: is the straight-line motion of
+        the held piece collision-free? Does not change the simulation or cost an action."""
+        from .geometry import quat_conj, quat_mul, quat_slerp, quat_to_mat
+
+        args = self._normalise("move", {"handle": handle, "dx": dx, "dy": dy, "dz": dz, "droll": droll, "dpitch": dpitch, "dyaw": dyaw, "frame": frame})
+        h = self.rig._handle(args["handle"])
+        if h.body is None:
+            raise RigError(f"handle {h.idx} is not holding anything")
+        req = self.rig.clamp_request(h.idx, [args["dx"], args["dy"], args["dz"]], [args["droll"], args["dpitch"], args["dyaw"]], args["frame"])
+        bid = self.model.body(h.body).id
+        ph, qh = req["p0"], req["q0"]
+        Rh = quat_to_mat(qh)
+        t_rel = Rh.T @ (self.data.xpos[bid] - ph)
+        q_rel = quat_mul(quat_conj(qh), self.data.xquat[bid])
+
+        def body_pose(f):
+            p = req["p0"] + f * (req["p1"] - req["p0"])
+            q = quat_slerp(req["q0"], req["q1"], f)
+            return np.concatenate([p + quat_to_mat(q) @ t_rel, quat_mul(q, q_rel)])
+
+        start, end = body_pose(0.0), body_pose(1.0)
+        w = self.target_radius
+        from .collision import pose_metric
+
+        n = max(1, int(np.ceil(float(pose_metric(start, end, w)) / 0.002)))
+        free_frac = 1.0
+        for i in range(1, n + 1):
+            if not self.checker.is_valid(body_pose(i / n)):
+                free_frac = (i - 1) / n
+                break
+        return {"free": free_frac == 1.0, "free_fraction": round(free_frac, 4), "clamped": req["clamped"],
+                "end_pose": _r(end, 6), "resolution_m": 0.002,
+                "note": "exact collision test of the held piece against the fixed one along the move's path"}
+
+    def get_geometry(self) -> dict:
+        """Triangle meshes of every piece in its own body frame (simulator units), plus current poses."""
+        import trimesh
+
+        if getattr(self, "_geometry", None) is None:
+            from .geometry import quat_from_euler_xyz  # noqa: F401
+            out = {}
+            for b in self.puzzle.frame + self.puzzle.objects:
+                verts, faces = [], []
+                for g in b.geoms:
+                    if g.type != "mesh":
+                        continue
+                    if g.path.startswith("paper:"):
+                        from ..puzzles.paper_alpha import resolve_mesh_path as res
+                    elif g.path.startswith("ompl:"):
+                        from ..puzzles.ompl_alpha import resolve_mesh_path as res
+                    else:
+                        def res(r):
+                            return Path(self.puzzle.source_path).parent / r
+                    mesh = trimesh.load(res(g.path), force="mesh")
+                    mesh.apply_scale(np.asarray(g.scale, float))
+                    if any(g.euler):
+                        mesh.apply_transform(trimesh.transformations.euler_matrix(*np.radians(g.euler), axes="rxyz"))  # MuJoCo eulerseq "xyz" = intrinsic
+                    mesh.apply_translation(np.asarray(g.pos, float))
+                    faces.append(np.asarray(mesh.faces) + sum(len(v) for v in verts))
+                    verts.append(np.asarray(mesh.vertices))
+                if verts:
+                    out[b.name] = {"vertices": _r(np.vstack(verts), 6), "faces": np.vstack(faces).astype(int).tolist()}
+            self._geometry = out
+        poses = {name: _r(np.concatenate([self.data.xpos[self.model.body(name).id], self.data.xquat[self.model.body(name).id]]), 6)
+                 for name in self._geometry}
+        return {"frame": "each mesh in its body frame; world point = pos + R(quat) @ vertex", "meshes": self._geometry, "poses": poses}
 
     def _estimate_tube_radius(self) -> float | None:
         """Tube radius from mesh volume and centre-line length (V = pi r^2 L), simulator units."""
@@ -737,10 +1017,10 @@ class LoopholeEnv:
         return {"translation": dp, "rotation": dr}
 
     def _colour_legend(self) -> str:
-        parts = ["Colours: frame grey"]
+        parts = [f"Colours: {', '.join(self.built.frame_bodies)} (fixed) grey"]
         if self.built.rope is not None:
             parts.append("rope orange")
-        parts.append("target blue")
+        parts.append(f"{', '.join(self.built.object_bodies)} (free) blue")
         parts += [f"handle{h} {c}" for h, c in zip(range(len(self.rig.handles)), ("red", "green"))]
         return ", ".join(parts) + "."
 
