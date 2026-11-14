@@ -1,0 +1,18 @@
+{
+ "out": "docs/media/clip-rattrap-failure",
+ "seconds": 7.47,
+ "s_per_action": 0.25,
+ "actions": [
+  45,
+  72
+ ],
+ "blocked_in_clip": 11,
+ "blocked_in_run": 47,
+ "run_actions": 357,
+ "final": {
+  "score": 0.0,
+  "success": false,
+  "actions_used": 357,
+  "violation": false
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "out": "docs/media/clip-alpha-reference",
+ "seconds": 10.67,
+ "fast_s_per_action": 0.1,
+ "slow_s_per_action": 0.35,
+ "slow_window": [
+  43,
+  56
+ ],
+ "actions": 59
+}
