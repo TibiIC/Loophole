@@ -132,3 +132,17 @@ def test_every_solve_beats_every_non_solve_on_a_grid():
     ep.solved = True
     assert ep.score() == 0.0
     assert min(solves) == pytest.approx(0.5) and max(non) == pytest.approx(0.3) and min(solves) > max(non)
+
+
+@needs_file
+@pytest.mark.skipif(not __import__("os").environ.get("RATTRAP_SLOW"), reason="full-budget random walk (~45 min): RATTRAP_SLOW=1")
+@pytest.mark.parametrize("seed", [0, 1, 2])
+def test_random_agent_to_the_full_budget_earns_almost_nothing(seed):
+    """The adversarial probe: random grabs, moves and releases until the episode ends (T actions unless it is
+    solved or crashes). Partial credit must stay near zero."""
+    from loophole.puzzles.rattrap.random_agent import run
+
+    r = run(seed)
+    print(r)
+    assert not r["solved"]
+    assert r["checkpoints_reached"] <= 1 and r["score"] <= 0.3 / 20 + 1e-9

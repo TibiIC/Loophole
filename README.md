@@ -229,11 +229,22 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
 * **Reference solve:** a human teleoperated solve (an exact replay ends free). Its faithful
   conversion to agent commands takes 284 actions, so the oracle scores 0.833.
 
-**Agents** (`scripts/agent_rattrap.py`: in-process, OpenAI-compatible function calling, one
-episode per model):
+**Baselines** (in-process, no Docker; after `make dev`):
 
 ```bash
-PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek   # kimi, nemotron, gemini-4-carbon-text
+make rattrap-oracle   # the reference solve as agent commands: solved in 284 actions, p = 1, score 0.833
+make rattrap-noop     # no action: score 0
+make rattrap-random   # random grabs / moves / releases to the full budget: p stays at 0
+```
+
+**Agents.** Both harnesses offer the same tools, scene text and scoring
+(`loophole/puzzles/rattrap/agent_tools.py`):
+
+```bash
+# OpenAI-compatible function calling (Verda: DeepSeek, Kimi, Nemotron; keys in .env)
+PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
+# OpenCode with a native provider, over MCP (OpenCode's own tools disabled), as for Alpha
+.venv/bin/python scripts/opencode_rattrap.py --model google/gemini-4-carbon --runs 3
 ```
 
 <!-- rattrap-results:start -->

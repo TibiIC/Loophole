@@ -8,12 +8,13 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean
+.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random
 
 help:
 	@echo "make build                         build the simulator / verifier image"
 	@echo "make reference | noop | stop-early run the oracle / baselines through Harbor"
 	@echo "make agent MODEL=<provider/model> [AGENT=opencode] [RUNS=3]"
+	@echo "make rattrap-oracle | rattrap-noop | rattrap-random   Rat Trap baselines (in-process)"
 	@echo "make eval MODEL=<provider/model>   oracle + RUNS opencode runs + noop + stop-early -> runs/<ts>/summary.md"
 	@echo "make dev && make test              local venv + pytest"
 
@@ -64,6 +65,14 @@ stop-early: build
 # API keys from the environment; a local .env (gitignored) is sourced if present.
 eval: build
 	set -a; [ -f .env ] && . ./.env; set +a; HARBOR=$(HARBOR) .venv/bin/python scripts/eval.py --model $(MODEL) --runs $(RUNS)
+
+# Rat Trap (in-process, no Docker): the oracle (reference solve), noop and a random agent, scored by the real reward
+rattrap-oracle:
+	PYTHONPATH=$(CURDIR) .venv/bin/python scripts/rattrap_baselines.py oracle
+rattrap-noop:
+	PYTHONPATH=$(CURDIR) .venv/bin/python scripts/rattrap_baselines.py noop
+rattrap-random:
+	PYTHONPATH=$(CURDIR) .venv/bin/python scripts/rattrap_baselines.py random --seed $(or $(SEED),0)
 
 view:
 	$(HARBOR) view $(JOBS)
