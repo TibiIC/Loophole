@@ -14,7 +14,7 @@ import numpy as np
 from .reward import RatTrapEpisode
 
 MM = 1000.0
-STRIDE = 6  # cord nodes shown in get_state: every 6th
+STRIDE = 1  # cord nodes shown in get_state: all of them (runs before 2026-11-14 23:00 showed every 6th)
 
 
 def mm(v) -> list:
@@ -62,7 +62,7 @@ get_state / render are free. Plan, then act. The string cannot pass through the 
 
 
 TOOLS = [
-    {"type": "function", "function": {"name": "get_state", "description": "Current state: string nodes (every 6th, mm), grippers, mouse, actions left.",
+    {"type": "function", "function": {"name": "get_state", "description": "Current state: every string node (mm), grippers, mouse, actions left.",
                                       "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {"name": "grab", "description": "Close a gripper on the string at a node index.",
                                       "parameters": {"type": "object", "properties": {"handle": {"type": "integer", "enum": [0, 1]}, "node": {"type": "integer"}},

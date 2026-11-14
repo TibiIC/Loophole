@@ -92,7 +92,7 @@ def build(out: Path, sparse: bool = False, label: str = "", host: str = "0.0.0.0
 
     @mcp.tool()
     async def get_state(ctx: Context) -> str:
-        """Current state: string nodes (every 6th, mm), grippers, mouse, actions left. Free (no action)."""
+        """Current state: every string node (mm), grippers, mouse, actions left. Free (no action)."""
         return await acall("get_state", {}, ctx)
 
     @mcp.tool()

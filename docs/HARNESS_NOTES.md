@@ -53,6 +53,28 @@ with the puzzle. Each is fixed or excluded. `scripts/harness_audit.py` scans eve
   The launcher now disables only tools OpenCode 1.19.5 knows.
 * No run showed permission denials or unknown-tool calls by the agent.
 
+## Rat Trap: what the agent has, against what the human reference had
+
+The Rat Trap reference is Tibi's own solve, recorded and replayed (docs/RATTRAP_DESIGN.md). The human and the agent
+did not work through the same interface, and that asymmetry is real.
+
+* **The human** used an interactive 3D viewer (MuJoCo's, rotate and zoom at will) with continuous control: the hand
+  moved every physics step (100,336 steps, 37 grab/release cycles).
+* **The agent** has:
+  * the full geometry in the instruction: every part's position and size, the named passages with their centres and
+    axes, the cord's length and radius, the mouse and its node, the start configuration;
+  * free state queries: `get_state` returns **every** cord node (143) plus the grippers and the mouse, at no action
+    cost. Runs started before 2026-11-14 23:00 saw every 6th node; that reduction is gone;
+  * discrete, capped moves (≤ 30 mm per call, halting when blocked). The reference shows these suffice: converted to
+    them, the human solve takes 284 actions, a third of the budget;
+  * a route-independent success test: the frozen cord slides free in a straight line. The partial credit follows the
+    reference route's checkpoints, but a solve is a solve by any route.
+* **Images: OpenCode does not forward MCP images to Gemini.**
+  * This is a harness limitation, not a design choice. On Alpha, Gemini agents worked around it by fetching PNGs over
+    raw HTTP.
+  * The Rat Trap MCP tools are text only, so every model gets the same information.
+  * In our own function-calling harness, Nemotron (a vision model) also received rendered images; it did no better.
+
 ## Task and puzzle
 
 The submission tasks are `tasks/loophole-alpha`, **Alpha 1.0** (two identical interlocked
