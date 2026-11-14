@@ -1,0 +1,8 @@
+{
+ "model": "gemini/gemini-4-carbon",
+ "runs": 3,
+ "task": "./tasks/loophole-alpha",
+ "harbor": "/Users/tg4018/.local/bin/harbor",
+ "commit": "8538d63269b4bacf933633c283a510b2dd19cddc",
+ "dirty": false
+}

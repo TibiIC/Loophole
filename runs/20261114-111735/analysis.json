@@ -1,0 +1,121 @@
+{
+ "oracle": [
+  {
+   "trial": "loophole-alpha__fVDVriY",
+   "score": 0.85101,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": 1,
+   "actions": 59,
+   "calls": {
+    "grab": 1,
+    "move": 58
+   },
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.7197466837137229
+  }
+ ],
+ "noop": [
+  {
+   "trial": "loophole-alpha__pjvF4jM",
+   "score": 0.0,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": 1,
+   "actions": 0,
+   "calls": {},
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ],
+ "stop-early": [
+  {
+   "trial": "loophole-alpha__H67A5CT",
+   "score": 0.0,
+   "success": false,
+   "reason": "stopped by agent/harness",
+   "log_consistent": 1,
+   "actions": 6,
+   "calls": {
+    "grab": 1,
+    "move": 5
+   },
+   "observations": {},
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ],
+ "opencode": [
+  {
+   "trial": "loophole-alpha__AbJs9Px",
+   "score": 0.883838,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": 1,
+   "actions": 46,
+   "calls": {
+    "grab": 1,
+    "move": 45
+   },
+   "observations": {
+    "get_contacts": 45,
+    "render": 53,
+    "get_state": 93
+   },
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  },
+  {
+   "trial": "loophole-alpha__qxQuETk",
+   "score": 0.823232,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": 1,
+   "actions": 70,
+   "calls": {
+    "grab": 1,
+    "move": 69
+   },
+   "observations": {
+    "get_contacts": 70,
+    "render": 37,
+    "get_state": 73
+   },
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.701349015484785
+  },
+  {
+   "trial": "loophole-alpha__sbMy6Ld",
+   "score": 0.886364,
+   "success": true,
+   "reason": "solved",
+   "log_consistent": 1,
+   "actions": 45,
+   "calls": {
+    "grab": 1,
+    "move": 44
+   },
+   "observations": {
+    "get_contacts": 43,
+    "render": 31,
+    "get_state": 89
+   },
+   "rejected": 0,
+   "blocked": 0,
+   "c0": 21.60665698080951,
+   "progress": 0.0
+  }
+ ]
+}

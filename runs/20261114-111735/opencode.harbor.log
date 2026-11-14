@@ -1,0 +1,34 @@
+  3/3 Mean: 0.864 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1:14:02 0:00:00
+adhoc • opencode • gemini-4-carbon
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      3 │          3 │ 0.864 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━━━┳━━━━━━━┓
+┃ Reward   ┃ Count ┃
+┡━━━━━━━━━━╇━━━━━━━┩
+│ 0.886364 │     1 │
+│ 0.823232 │     1 │
+│ 0.883838 │     1 │
+└──────────┴───────┘
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Exception                 ┃ Count ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ NonZeroAgentExitCodeError │     2 │
+│ ApiRateLimitError         │     1 │
+└───────────────────────────┴───────┘
+
+Job Info
+Total runtime: 1h 14m 2s
+Results written to 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-openco
+de/result.json
+Inspect results by running `harbor view 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs`
+Share results by running `harbor upload 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-openco
+de`
+

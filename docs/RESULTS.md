@@ -6,18 +6,25 @@ trajectories and verifier reports are in `runs/`.
 
 ## Headline
 
-* **A Gemini 4 Carbon agent (OpenCode) solved Alpha 1.0** from the canonical start in 64
-  actions (score 0.838), slightly better than the published solution as executed by our rig
-  (79 actions, 0.801 under the same rules). OpenCode did not pass the rendered images to the
-  model (see `docs/HARNESS_NOTES.md`). The agent did computer vision in code instead:
-  1. fetched PNGs over raw HTTP and decoded them with its own decoder;
-  2. space-carved both tubes from 50+ calibrated renders (C++);
-  3. planned a 6-DOF path on the reconstruction's distance field;
-  4. verified and smoothed the path offline;
-  5. executed 63 moves, none of them blocked.
-* Across 3 runs: **0.326 ± 0.449**, solved 1/3. One run ended early on a Gemini API error.
-  The third reached 46 % of the way out by trial and error (0.139, partial credit).
-* Baselines: noop 0, stop-early 0. Oracle 0.801 (old goal) / 0.851 (free-escape goal).
+* **Redesigned task** (`tasks/loophole-alpha`: `sensors` profile, free-escape goal, no
+  progress or distance in the observations), run `20261114-111735`:
+  * Gemini 4 Carbon (OpenCode) **solved Alpha 1.0 in 3/3 runs**, **0.864 ± 0.036**: 45, 46 and
+    70 actions.
+  * Oracle 0.851 (59 actions), noop 0, stop-early 0.
+  * All three logs were verified bit-exactly by Harbor's verifier.
+  * The two best runs score above the oracle. docs/ANOMALY.md diagnoses why: perception
+    (metric depth + segmentation → point clouds → ICP), then their own C++ planner, then
+    open-loop execution. Their paths are 2.4–2.7× shorter in SE(3) than the published one.
+    There was no search on any progress signal (none is exposed) and no probing: 0 reversals,
+    0 blocked moves.
+* **Original interface** (min distance > 0.4 m goal, progress exposed), run `20261114-080705`:
+  0.326 ± 0.449, solved 1/3.
+  * One run (0.838) decoded the PNGs itself, space-carved both tubes from 50+ renders and
+    planned in C++.
+  * One run did finite-difference descent on the exposed cost-to-go and failed (0.139).
+  * One run ended on a Gemini API error.
+* OpenCode does not forward MCP images to `gemini-4-carbon`. All agents did their vision in
+  code (HARNESS_NOTES.md).
 
 ## What the plots show
 
@@ -31,6 +38,31 @@ trajectories and verifier reports are in `runs/`.
     roadmap near the start would reduce it (see EXPLOITS.md, residual notes).
 * **Call mix**: the solver spent 329 renders on perception before acting; the trial-and-error
   agent used few renders and many state reads; the third agent used 194 renders and never acted.
+
+## Run `20261114-111735`: `gemini/gemini-4-carbon` (OpenCode), task `tasks/loophole-alpha`
+
+| run | trial | score | solved | actions | blocked moves | renders | get_state | progress (held) | outcome |
+|---|---|---|---|---|---|---|---|---|---|
+| oracle | loophole-alpha__fVDVriY | 0.851 | yes | 59 | 0 | 0 | 0 | 0.720 | solved |
+| noop | loophole-alpha__pjvF4jM | 0.000 | no | 0 | 0 | 0 | 0 | 0.000 | stopped by agent/harness |
+| stop-early | loophole-alpha__H67A5CT | 0.000 | no | 6 | 0 | 0 | 0 | 0.000 | stopped by agent/harness |
+| opencode | loophole-alpha__AbJs9Px | 0.884 | yes | 46 | 0 | 53 | 93 | 0.000 | solved |
+| opencode | loophole-alpha__qxQuETk | 0.823 | yes | 70 | 0 | 37 | 73 | 0.701 | solved |
+| opencode | loophole-alpha__sbMy6Ld | 0.886 | yes | 45 | 0 | 31 | 89 | 0.000 | solved |
+
+OpenCode `gemini/gemini-4-carbon`: **0.864 ± 0.036** (n = 3, mean ± sd), solved 3/3.
+
+![20261114-111735-progress](media/20261114-111735-progress.png)
+![20261114-111735-calls](media/20261114-111735-calls.png)
+
+
+Free-escape goal, `sensors` profile. Scored by Harbor's own verifier; every log is consistent.
+"progress (held)" is 0 for the two fastest runs: they took routes the roadmap does not cover,
+and freed tube B without ever being near the published path. qxQuETk followed essentially the
+published route (path length 16.05 vs the oracle's 15.92; held progress 0.70 vs 0.72). The
+best run as a 2-up video with replay checks and an escape demonstration:
+`docs/media/gemini-v2-sbMy6Ld.mp4` (contact sheet `gemini-v2-sbMy6Ld.sheet.png`, checks
+`gemini-v2-sbMy6Ld.check.json`).
 
 ## Run `20261114-080705`: `gemini/gemini-4-carbon` (OpenCode), task `tasks/loophole-alpha`
 
@@ -71,8 +103,7 @@ profile (`tasks/loophole-alpha-planner`). Scored by Harbor's own verifier. "prog
 for the oracle is 0.72 because the episode ends as soon as tube B is free, before the
 roadmap's separated nodes are reached.
 
-## Next run
+## Next
 
-`make eval MODEL=gemini/gemini-4-carbon` on the redesigned `tasks/loophole-alpha` (and the
-planner variant) is the comparison that matters: same agent, no privileged progress signal,
-vision through `render` with depth, segmentation and camera models.
+* The agent beats the oracle on the redesigned task. That is the subject of the current brief
+  (docs/ANOMALY.md: fair efficiency metric, budget, harder variants).

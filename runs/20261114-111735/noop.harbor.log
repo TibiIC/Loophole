@@ -1,0 +1,25 @@
+Agent 'nop' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+  1/1 Mean: 0.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:00:26 0:00:00
+adhoc • nop
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      1 │          0 │ 0.000 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━┳━━━━━━━┓
+┃ Reward ┃ Count ┃
+┡━━━━━━━━╇━━━━━━━┩
+│ 0.0    │     1 │
+└────────┴───────┘
+
+Job Info
+Total runtime: 26s
+Results written to 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-noop/r
+esult.json
+Inspect results by running `harbor view 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs`
+Share results by running `harbor upload 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-noop`
+

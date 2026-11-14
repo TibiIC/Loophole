@@ -1,0 +1,26 @@
+Agent 'oracle' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+  1/1 Mean: 0.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:00:32 0:00:00
+adhoc • oracle
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      1 │          0 │ 0.000 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━┳━━━━━━━┓
+┃ Reward ┃ Count ┃
+┡━━━━━━━━╇━━━━━━━┩
+│ 0.0    │     1 │
+└────────┴───────┘
+
+Job Info
+Total runtime: 32s
+Results written to 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-stop-e
+arly/result.json
+Inspect results by running `harbor view 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs`
+Share results by running `harbor upload 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-stop-e
+arly`
+

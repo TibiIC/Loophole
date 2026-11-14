@@ -1,0 +1,53 @@
+{
+    "id": "1f6fab23-a092-462d-b571-365e0b86daa6",
+    "started_at": "2026-11-14T11:22:06.197319",
+    "updated_at": "2026-11-14T12:36:09.130549",
+    "finished_at": "2026-11-14T12:36:09.130549",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 3,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__gemini-4-carbon__adhoc": {
+                "n_trials": 3,
+                "n_errors": 3,
+                "metrics": [
+                    {
+                        "mean": 0.8644780000000001
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.886364": [
+                            "loophole-alpha__sbMy6Ld"
+                        ],
+                        "0.823232": [
+                            "loophole-alpha__qxQuETk"
+                        ],
+                        "0.883838": [
+                            "loophole-alpha__AbJs9Px"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "NonZeroAgentExitCodeError": [
+                        "loophole-alpha__sbMy6Ld",
+                        "loophole-alpha__AbJs9Px"
+                    ],
+                    "ApiRateLimitError": [
+                        "loophole-alpha__qxQuETk"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 22240758,
+        "n_cache_tokens": 20833954,
+        "n_output_tokens": 244221,
+        "cost_usd": null
+    }
+}

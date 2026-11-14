@@ -1,0 +1,39 @@
+{
+    "id": "df439feb-5a11-47f4-bcbf-4b23c9686aff",
+    "started_at": "2026-11-14T11:17:41.086485",
+    "updated_at": "2026-11-14T11:20:36.768689",
+    "finished_at": "2026-11-14T11:20:36.768689",
+    "n_total_trials": 1,
+    "stats": {
+        "n_completed_trials": 1,
+        "n_errored_trials": 0,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "oracle__adhoc": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.85101
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.85101": [
+                            "loophole-alpha__fVDVriY"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        },
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null
+    }
+}

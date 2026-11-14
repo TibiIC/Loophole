@@ -1,0 +1,14 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__H67A5CT",
+    "trials_dir": "/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-111735-stop-early",
+    "agent": {
+        "name": "oracle",
+        "env": {
+            "LOOPHOLE_SOLUTION": "stop_early"
+        }
+    },
+    "job_id": "2fdd5bfe-d596-414c-b98e-2bb625e8b893"
+}
