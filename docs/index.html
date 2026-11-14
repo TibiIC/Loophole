@@ -17,7 +17,10 @@
       --secondary-line: #d3e0fb;
       --accent: #2b5cff;      /* 10 */
       --accent-strong: #1a44d6;
+      --theme-color: var(--accent);   /* Docsify's own accent, e.g. the GitHub corner */
     }
+    .github-corner svg { fill: var(--accent); color: #ffffff; }
+    .github-corner:hover svg { fill: var(--accent-strong); }
     html, body { background: var(--base); color: var(--text); }
     body { -webkit-font-smoothing: antialiased; }
 
@@ -127,6 +130,7 @@
 
     window.$docsify = {
       name: 'Loophole',
+      repo: 'TibiIC/Loophole',
       loadSidebar: true,
       plugins: [resultsTable],
     };
