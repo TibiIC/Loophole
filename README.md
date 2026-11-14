@@ -81,6 +81,13 @@ OPENAI_API_KEY=... harbor run -p ./tasks/loophole-alpha -a opencode -m openai/<m
 > `tasks/loophole-alpha-{easy,medium,hard}`) are not the real Alpha geometry. They are
 > kept for reference and tests but are no longer the active task.
 
+### Model API keys (for `-a opencode`)
+
+Harbor forwards `GEMINI_API_KEY` / `GOOGLE_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY`
+(models `gemini/<id>`) or `OPENAI_API_KEY` (models `openai/<id>`) from your shell.
+Keep keys out of the repo, e.g. in `~/.loophole.env` (chmod 600), then
+`source ~/.loophole.env && harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/<id>`.
+
 ## Quick start
 
 ```bash
@@ -154,6 +161,11 @@ make eval MODEL=...                                                     # all of
 
 | Component | Status | Notes |
 |---|---|---|
+| **Canonical Alpha 1.5 task `tasks/loophole-alpha`** | done | harbor: oracle **0.876**, nop **0**, stop-early **0** (runs/harbor/) |
+| Canonical geometry pipeline (fetch, Assimp frame, face-wedge hulls) | done | OMPL's own path collision-free; hull error 0.15 mm vs 1.8 mm clearance |
+| Canonical oracle (RRT-Connect, 20 min box) | done | uniform sampling failed in 20 min; orientation-focused solved in 406 s |
+| Real model run (`-a opencode`) | not started | waiting for an API key (see "Model API keys") |
+| Canonical Alpha 1.2 / 1.0 | not started | `write_puzzle("1.2")` + `build_alpha_ompl.py --variant 1.2` |
 | Alpha geometry generator (3 clearances) | done | `make alpha` regenerates; `alpha-medium` is the MVP variant |
 | Sim: fixed A / free B, gravity off, frictionless, capsule-chain collision | done | |
 | Grab handle, velocity-capped moves, stall on contact | done | `rig.num_handles: 1` for Alpha |

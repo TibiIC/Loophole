@@ -1,0 +1,20 @@
+  1/1 Mean: 0.876 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:03:23 0:00:00
+adhoc • oracle
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      1 │          0 │ 0.876 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━━━┳━━━━━━━┓
+┃ Reward   ┃ Count ┃
+┡━━━━━━━━━━╇━━━━━━━┩
+│ 0.876437 │     1 │
+└──────────┴───────┘
+
+Job Info
+Total runtime: 3m 23s
+Results written to jobs/canon-oracle/result.json
+Inspect results by running `harbor view jobs`
+Share results by running `harbor upload jobs/canon-oracle`
+

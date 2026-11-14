@@ -1,0 +1,43 @@
+{
+ "reward": 0.876437,
+ "success": 1,
+ "actions_used": 86,
+ "violations": 0,
+ "log_consistent": 1,
+ "sidecar_agrees": 1,
+ "reason": "solved",
+ "final": {
+  "type": "final",
+  "puzzle": "alpha-1.5",
+  "score": 0.876437,
+  "success": true,
+  "actions_used": 86,
+  "max_actions": 348,
+  "done_reason": "solved",
+  "violations": {
+   "count": 0,
+   "max_penetration": 0.0,
+   "records": []
+  },
+  "breakdown": {
+   "base": {
+    "weight": 1.0,
+    "step_sum": 0.0,
+    "terminal": 0.8764367816091954
+   }
+  },
+  "final_state_hash": "8b1940178b1c4c8c649da69c2e80811790d30fc4145e614aff7e39f6c41c30e9",
+  "topology": null,
+  "goal": {
+   "target_min_distance_to_frame": 0.40979,
+   "required_separation": 0.4,
+   "goal_reached": true
+  },
+  "cost_to_go": {
+   "start": null,
+   "final": null,
+   "best": null,
+   "fallbacks": 0
+  }
+ }
+}

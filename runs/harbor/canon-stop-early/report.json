@@ -1,0 +1,43 @@
+{
+ "reward": 0.0,
+ "success": 0,
+ "actions_used": 6,
+ "violations": 0,
+ "log_consistent": 1,
+ "sidecar_agrees": 1,
+ "reason": "stopped by agent/harness",
+ "final": {
+  "type": "final",
+  "puzzle": "alpha-1.5",
+  "score": 0.0,
+  "success": false,
+  "actions_used": 6,
+  "max_actions": 348,
+  "done_reason": "stopped by agent/harness",
+  "violations": {
+   "count": 0,
+   "max_penetration": 0.0,
+   "records": []
+  },
+  "breakdown": {
+   "base": {
+    "weight": 1.0,
+    "step_sum": 0.0,
+    "terminal": 0.0
+   }
+  },
+  "final_state_hash": "8c33065efa5a0bf098943f5ed02e2b1e60e1aef46bc16d966be2aa5a4d91ed3d",
+  "topology": null,
+  "goal": {
+   "target_min_distance_to_frame": 0.04117,
+   "required_separation": 0.4,
+   "goal_reached": false
+  },
+  "cost_to_go": {
+   "start": null,
+   "final": null,
+   "best": null,
+   "fallbacks": 0
+  }
+ }
+}

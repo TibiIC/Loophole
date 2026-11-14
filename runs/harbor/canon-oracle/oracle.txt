@@ -1,0 +1,1713 @@
+[0] grab {"handle": 0, "target": "tube_b"} -> {
+  "handle": 0,
+  "grasped": "tube_b",
+  "grasp_point": [
+    -0.2191,
+    -0.0411,
+    -0.1414
+  ],
+  "action": 1,
+  "actions_remaining": 347,
+  "done": false,
+  "done_reason": null,
+  "success": false,
+  "violations": 0,
+  "target": {
+    "name": "tube_b",
+    "pos": [
+      -0.2191,
+      -0.041
+[1] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.21957,
+    -0.01715,
+    -0.13208
+  ],
+  "handle_quat": [
+    0.99902,
+    -0.02342,
+    -0.03734,
+    -0.00359
+  ],
+  "grasp_point": 
+[2] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22004,
+    0.00679,
+    -0.12276
+  ],
+  "handle_quat": [
+    0.99609,
+    -0.0468,
+    -0.07461,
+    -0.00717
+  ],
+  "grasp_point": [
+
+[3] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22051,
+    0.03074,
+    -0.11344
+  ],
+  "handle_quat": [
+    0.99121,
+    -0.07009,
+    -0.11173,
+    -0.01073
+  ],
+  "grasp_point": [
+[4] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22099,
+    0.05469,
+    -0.10411
+  ],
+  "handle_quat": [
+    0.98438,
+    -0.09324,
+    -0.14863,
+    -0.01428
+  ],
+  "grasp_point": [
+[5] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22146,
+    0.07863,
+    -0.09479
+  ],
+  "handle_quat": [
+    0.97563,
+    -0.11621,
+    -0.18525,
+    -0.0178
+  ],
+  "grasp_point": [
+
+[6] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22193,
+    0.10258,
+    -0.08547
+  ],
+  "handle_quat": [
+    0.96498,
+    -0.13895,
+    -0.22149,
+    -0.02128
+  ],
+  "grasp_point": [
+[7] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.2224,
+    0.12653,
+    -0.07615
+  ],
+  "handle_quat": [
+    0.95243,
+    -0.16142,
+    -0.25731,
+    -0.02472
+  ],
+  "grasp_point": [
+
+[8] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22287,
+    0.15048,
+    -0.06683
+  ],
+  "handle_quat": [
+    0.93802,
+    -0.18357,
+    -0.29262,
+    -0.02811
+  ],
+  "grasp_point": [
+[9] move {"handle": 0, "dx": -0.0004713942642032349, "dy": 0.023946990813035918, "dz": 0.009321375557175628, "droll": -0.04668332015294582, "dpitch": -0.07484633119234997, "dyaw": -0.0054331276936673695, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.22334,
+    0.17442,
+    -0.05751
+  ],
+  "handle_quat": [
+    0.92178,
+    -0.20536,
+    -0.32736,
+    -0.03145
+  ],
+  "grasp_point": [
+[10] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.23642,
+    0.20907,
+    -0.06244
+  ],
+  "handle_quat": [
+    0.91156,
+    -0.19263,
+    -0.36316,
+    -0.00847
+  ],
+  "grasp_point": [
+[11] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.24949,
+    0.24372,
+    -0.06738
+  ],
+  "handle_quat": [
+    0.89945,
+    -0.1795,
+    -0.3982,
+    0.01453
+  ],
+  "grasp_point": [
+  
+[12] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.26257,
+    0.27837,
+    -0.07231
+  ],
+  "handle_quat": [
+    0.88547,
+    -0.166,
+    -0.43241,
+    0.0375
+  ],
+  "grasp_point": [
+   
+[13] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.27564,
+    0.31302,
+    -0.07725
+  ],
+  "handle_quat": [
+    0.86966,
+    -0.15215,
+    -0.46572,
+    0.06039
+  ],
+  "grasp_point": [
+
+[14] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.28872,
+    0.34767,
+    -0.08218
+  ],
+  "handle_quat": [
+    0.85204,
+    -0.13798,
+    -0.49807,
+    0.08315
+  ],
+  "grasp_point": [
+
+[15] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.30179,
+    0.38232,
+    -0.08712
+  ],
+  "handle_quat": [
+    0.83265,
+    -0.12353,
+    -0.52939,
+    0.10574
+  ],
+  "grasp_point": [
+
+[16] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.31487,
+    0.41697,
+    -0.09205
+  ],
+  "handle_quat": [
+    0.81153,
+    -0.10883,
+    -0.5596,
+    0.12812
+  ],
+  "grasp_point": [
+ 
+[17] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.32794,
+    0.45162,
+    -0.09699
+  ],
+  "handle_quat": [
+    0.78873,
+    -0.09389,
+    -0.58866,
+    0.15022
+  ],
+  "grasp_point": [
+
+[18] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.34102,
+    0.48627,
+    -0.10193
+  ],
+  "handle_quat": [
+    0.76429,
+    -0.07877,
+    -0.61649,
+    0.17202
+  ],
+  "grasp_point": [
+
+[19] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.35409,
+    0.52092,
+    -0.10686
+  ],
+  "handle_quat": [
+    0.73827,
+    -0.06347,
+    -0.64304,
+    0.19346
+  ],
+  "grasp_point": [
+
+[20] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.36716,
+    0.55557,
+    -0.1118
+  ],
+  "handle_quat": [
+    0.71071,
+    -0.04805,
+    -0.66826,
+    0.21449
+  ],
+  "grasp_point": [
+ 
+[21] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.38024,
+    0.59023,
+    -0.11673
+  ],
+  "handle_quat": [
+    0.68168,
+    -0.03253,
+    -0.69209,
+    0.23508
+  ],
+  "grasp_point": [
+
+[22] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.39331,
+    0.62488,
+    -0.12167
+  ],
+  "handle_quat": [
+    0.65123,
+    -0.01694,
+    -0.71449,
+    0.25519
+  ],
+  "grasp_point": [
+
+[23] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.40639,
+    0.65953,
+    -0.1266
+  ],
+  "handle_quat": [
+    0.61943,
+    -0.00131,
+    -0.7354,
+    0.27476
+  ],
+  "grasp_point": [
+  
+[24] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.41946,
+    0.69418,
+    -0.13154
+  ],
+  "handle_quat": [
+    0.58635,
+    0.01432,
+    -0.75478,
+    0.29376
+  ],
+  "grasp_point": [
+ 
+[25] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.43254,
+    0.72883,
+    -0.13647
+  ],
+  "handle_quat": [
+    0.55204,
+    0.02991,
+    -0.7726,
+    0.31216
+  ],
+  "grasp_point": [
+  
+[26] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.44561,
+    0.76348,
+    -0.14141
+  ],
+  "handle_quat": [
+    0.5166,
+    0.04545,
+    -0.78881,
+    0.3299
+  ],
+  "grasp_point": [
+   
+[27] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.45869,
+    0.79813,
+    -0.14634
+  ],
+  "handle_quat": [
+    0.48008,
+    0.06089,
+    -0.80339,
+    0.34696
+  ],
+  "grasp_point": [
+ 
+[28] move {"handle": 0, "dx": -0.013074739407612931, "dy": 0.03465017440624551, "dz": -0.004935320921673494, "droll": -9.871924802733416e-05, "dpitch": -0.06407973009569122, "dyaw": 0.06480760129155146, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.47176,
+    0.83278,
+    -0.15128
+  ],
+  "handle_quat": [
+    0.44256,
+    0.07621,
+    -0.8163,
+    0.3633
+  ],
+  "grasp_point": [
+   
+[29] move {"handle": 0, "dx": 0.02272895842024437, "dy": 0.02568389919437484, "dz": -0.0216495557279364, "droll": -0.026358633538824363, "dpitch": 0.0009437312564693144, "dyaw": 0.04856209424265064, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.44903,
+    0.85846,
+    -0.17293
+  ],
+  "handle_quat": [
+    0.4347,
+    0.09022,
+    -0.80928,
+    0.38466
+  ],
+  "grasp_point": [
+  
+[30] move {"handle": 0, "dx": 0.02272895842024437, "dy": 0.02568389919437484, "dz": -0.0216495557279364, "droll": -0.026358633538824363, "dpitch": 0.0009437312564693144, "dyaw": 0.04856209424265064, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.4263,
+    0.88414,
+    -0.19458
+  ],
+  "handle_quat": [
+    0.4265,
+    0.10416,
+    -0.80164,
+    0.40573
+  ],
+  "grasp_point": [
+   
+[31] move {"handle": 0, "dx": 0.02272895842024437, "dy": 0.02568389919437484, "dz": -0.0216495557279364, "droll": -0.026358633538824363, "dpitch": 0.0009437312564693144, "dyaw": 0.04856209424265064, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.40358,
+    0.90983,
+    -0.21623
+  ],
+  "handle_quat": [
+    0.41798,
+    0.11803,
+    -0.79339,
+    0.42649
+  ],
+  "grasp_point": [
+ 
+[32] move {"handle": 0, "dx": 0.02272895842024437, "dy": 0.02568389919437484, "dz": -0.0216495557279364, "droll": -0.026358633538824363, "dpitch": 0.0009437312564693144, "dyaw": 0.04856209424265064, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.38085,
+    0.93551,
+    -0.23788
+  ],
+  "handle_quat": [
+    0.40914,
+    0.1318,
+    -0.78453,
+    0.44692
+  ],
+  "grasp_point": [
+  
+[33] move {"handle": 0, "dx": 0.02272895842024437, "dy": 0.02568389919437484, "dz": -0.0216495557279364, "droll": -0.026358633538824363, "dpitch": 0.0009437312564693144, "dyaw": 0.04856209424265064, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.35812,
+    0.9612,
+    -0.25953
+  ],
+  "handle_quat": [
+    0.39999,
+    0.14547,
+    -0.77508,
+    0.46701
+  ],
+  "grasp_point": [
+  
+[34] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.40048,
+    0.97469,
+    -0.26502
+  ],
+  "handle_quat": [
+    0.40004,
+    0.14898,
+    -0.76951,
+    0.475
+  ],
+  "grasp_point": [
+   
+[35] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.44285,
+    0.98818,
+    -0.27051
+  ],
+  "handle_quat": [
+    0.40005,
+    0.15248,
+    -0.76385,
+    0.48294
+  ],
+  "grasp_point": [
+ 
+[36] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.48522,
+    1.00167,
+    -0.276
+  ],
+  "handle_quat": [
+    0.40002,
+    0.15595,
+    -0.75812,
+    0.49084
+  ],
+  "grasp_point": [
+   
+[37] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.52758,
+    1.01516,
+    -0.28149
+  ],
+  "handle_quat": [
+    0.39994,
+    0.15941,
+    -0.7523,
+    0.49867
+  ],
+  "grasp_point": [
+  
+[38] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.56995,
+    1.02865,
+    -0.28698
+  ],
+  "handle_quat": [
+    0.39982,
+    0.16286,
+    -0.7464,
+    0.50646
+  ],
+  "grasp_point": [
+  
+[39] move {"handle": 0, "dx": -0.042365864134222116, "dy": 0.013491817258053004, "dz": -0.005489727998180667, "droll": -0.014766487132840038, "dpitch": 0.0055874056631187545, "dyaw": 0.013367358075911774, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.61231,
+    1.04215,
+    -0.29246
+  ],
+  "handle_quat": [
+    0.39966,
+    0.16628,
+    -0.74043,
+    0.51419
+  ],
+  "grasp_point": [
+ 
+[40] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.63772,
+    1.02613,
+    -0.2589
+  ],
+  "handle_quat": [
+    0.39923,
+    0.17915,
+    -0.73029,
+    0.52459
+  ],
+  "grasp_point": [
+  
+[41] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.66313,
+    1.01011,
+    -0.22533
+  ],
+  "handle_quat": [
+    0.39865,
+    0.19195,
+    -0.71989,
+    0.53479
+  ],
+  "grasp_point": [
+ 
+[42] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.68853,
+    0.9941,
+    -0.19176
+  ],
+  "handle_quat": [
+    0.39792,
+    0.20467,
+    -0.70921,
+    0.54478
+  ],
+  "grasp_point": [
+  
+[43] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.71394,
+    0.97808,
+    -0.1582
+  ],
+  "handle_quat": [
+    0.39704,
+    0.21732,
+    -0.69826,
+    0.55458
+  ],
+  "grasp_point": [
+  
+[44] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.73935,
+    0.96207,
+    -0.12463
+  ],
+  "handle_quat": [
+    0.39602,
+    0.22989,
+    -0.68706,
+    0.56416
+  ],
+  "grasp_point": [
+ 
+[45] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.76476,
+    0.94605,
+    -0.09106
+  ],
+  "handle_quat": [
+    0.39484,
+    0.24237,
+    -0.67559,
+    0.57353
+  ],
+  "grasp_point": [
+ 
+[46] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.79016,
+    0.93003,
+    -0.0575
+  ],
+  "handle_quat": [
+    0.39351,
+    0.25476,
+    -0.66387,
+    0.58269
+  ],
+  "grasp_point": [
+  
+[47] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.81557,
+    0.91402,
+    -0.02393
+  ],
+  "handle_quat": [
+    0.39204,
+    0.26705,
+    -0.6519,
+    0.59162
+  ],
+  "grasp_point": [
+  
+[48] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.84098,
+    0.898,
+    0.00964
+  ],
+  "handle_quat": [
+    0.39042,
+    0.27925,
+    -0.63968,
+    0.60034
+  ],
+  "grasp_point": [
+    
+[49] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.86639,
+    0.88198,
+    0.04321
+  ],
+  "handle_quat": [
+    0.38865,
+    0.29134,
+    -0.62722,
+    0.60882
+  ],
+  "grasp_point": [
+  
+[50] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.89179,
+    0.86597,
+    0.07677
+  ],
+  "handle_quat": [
+    0.38674,
+    0.30331,
+    -0.61453,
+    0.61708
+  ],
+  "grasp_point": [
+  
+[51] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.9172,
+    0.84995,
+    0.11034
+  ],
+  "handle_quat": [
+    0.38468,
+    0.31518,
+    -0.6016,
+    0.62511
+  ],
+  "grasp_point": [
+    
+[52] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.94261,
+    0.83394,
+    0.14391
+  ],
+  "handle_quat": [
+    0.38247,
+    0.32692,
+    -0.58845,
+    0.6329
+  ],
+  "grasp_point": [
+   
+[53] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.96802,
+    0.81792,
+    0.17747
+  ],
+  "handle_quat": [
+    0.38012,
+    0.33855,
+    -0.57508,
+    0.64045
+  ],
+  "grasp_point": [
+  
+[54] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.99342,
+    0.8019,
+    0.21104
+  ],
+  "handle_quat": [
+    0.37763,
+    0.35004,
+    -0.56149,
+    0.64776
+  ],
+  "grasp_point": [
+   
+[55] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -1.01883,
+    0.78589,
+    0.24461
+  ],
+  "handle_quat": [
+    0.375,
+    0.3614,
+    -0.54769,
+    0.65483
+  ],
+  "grasp_point": [
+    -
+[56] move {"handle": 0, "dx": -0.0254073269424266, "dy": -0.016016209422253902, "dz": 0.033567104352286194, "droll": -0.015120354787568227, "dpitch": 0.017476237365702897, "dyaw": 0.031043731687500672, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -1.04424,
+    0.76987,
+    0.27818
+  ],
+  "handle_quat": [
+    0.37222,
+    0.37263,
+    -0.53368,
+    0.66165
+  ],
+  "grasp_point": [
+  
+[57] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -1.01673,
+    0.74284,
+    0.30352
+  ],
+  "handle_quat": [
+    0.40872,
+    0.36642,
+    -0.52478,
+    0.65061
+  ],
+  "grasp_point": [
+  
+[58] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.98923,
+    0.71581,
+    0.32887
+  ],
+  "handle_quat": [
+    0.44457,
+    0.35962,
+    -0.51505,
+    0.63855
+  ],
+  "grasp_point": [
+  
+[59] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.96172,
+    0.68877,
+    0.35422
+  ],
+  "handle_quat": [
+    0.47972,
+    0.35227,
+    -0.50452,
+    0.62549
+  ],
+  "grasp_point": [
+  
+[60] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.93422,
+    0.66174,
+    0.37957
+  ],
+  "handle_quat": [
+    0.51412,
+    0.34436,
+    -0.49319,
+    0.61144
+  ],
+  "grasp_point": [
+  
+[61] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.90671,
+    0.63471,
+    0.40491
+  ],
+  "handle_quat": [
+    0.54772,
+    0.3359,
+    -0.48108,
+    0.59643
+  ],
+  "grasp_point": [
+   
+[62] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.87921,
+    0.60768,
+    0.43026
+  ],
+  "handle_quat": [
+    0.58045,
+    0.32692,
+    -0.46822,
+    0.58049
+  ],
+  "grasp_point": [
+  
+[63] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.85171,
+    0.58064,
+    0.45561
+  ],
+  "handle_quat": [
+    0.61227,
+    0.31743,
+    -0.45462,
+    0.56363
+  ],
+  "grasp_point": [
+  
+[64] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.8242,
+    0.55361,
+    0.48096
+  ],
+  "handle_quat": [
+    0.64313,
+    0.30744,
+    -0.44031,
+    0.54589
+  ],
+  "grasp_point": [
+   
+[65] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.7967,
+    0.52658,
+    0.5063
+  ],
+  "handle_quat": [
+    0.67297,
+    0.29696,
+    -0.42531,
+    0.52729
+  ],
+  "grasp_point": [
+    
+[66] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.76919,
+    0.49955,
+    0.53165
+  ],
+  "handle_quat": [
+    0.70176,
+    0.28602,
+    -0.40964,
+    0.50786
+  ],
+  "grasp_point": [
+  
+[67] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.74169,
+    0.47252,
+    0.557
+  ],
+  "handle_quat": [
+    0.72945,
+    0.27463,
+    -0.39332,
+    0.48763
+  ],
+  "grasp_point": [
+    
+[68] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.71418,
+    0.44548,
+    0.58235
+  ],
+  "handle_quat": [
+    0.75599,
+    0.2628,
+    -0.37639,
+    0.46664
+  ],
+  "grasp_point": [
+   
+[69] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.68668,
+    0.41845,
+    0.60769
+  ],
+  "handle_quat": [
+    0.78134,
+    0.25057,
+    -0.35886,
+    0.44491
+  ],
+  "grasp_point": [
+  
+[70] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.65917,
+    0.39142,
+    0.63304
+  ],
+  "handle_quat": [
+    0.80546,
+    0.23794,
+    -0.34077,
+    0.42248
+  ],
+  "grasp_point": [
+  
+[71] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.63167,
+    0.36439,
+    0.65839
+  ],
+  "handle_quat": [
+    0.82832,
+    0.22493,
+    -0.32215,
+    0.39939
+  ],
+  "grasp_point": [
+  
+[72] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.60416,
+    0.33735,
+    0.68374
+  ],
+  "handle_quat": [
+    0.84987,
+    0.21158,
+    -0.30302,
+    0.37567
+  ],
+  "grasp_point": [
+  
+[73] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.57666,
+    0.31032,
+    0.70908
+  ],
+  "handle_quat": [
+    0.87009,
+    0.19788,
+    -0.28341,
+    0.35137
+  ],
+  "grasp_point": [
+  
+[74] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.54916,
+    0.28329,
+    0.73443
+  ],
+  "handle_quat": [
+    0.88895,
+    0.18388,
+    -0.26336,
+    0.3265
+  ],
+  "grasp_point": [
+   
+[75] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.52165,
+    0.25626,
+    0.75978
+  ],
+  "handle_quat": [
+    0.9064,
+    0.16959,
+    -0.24289,
+    0.30113
+  ],
+  "grasp_point": [
+   
+[76] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.49415,
+    0.22922,
+    0.78513
+  ],
+  "handle_quat": [
+    0.92243,
+    0.15504,
+    -0.22204,
+    0.27528
+  ],
+  "grasp_point": [
+  
+[77] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.46664,
+    0.20219,
+    0.81047
+  ],
+  "handle_quat": [
+    0.93701,
+    0.14024,
+    -0.20084,
+    0.249
+  ],
+  "grasp_point": [
+    
+[78] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.43914,
+    0.17516,
+    0.83582
+  ],
+  "handle_quat": [
+    0.95012,
+    0.12521,
+    -0.17933,
+    0.22233
+  ],
+  "grasp_point": [
+  
+[79] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.41163,
+    0.14813,
+    0.86117
+  ],
+  "handle_quat": [
+    0.96174,
+    0.11,
+    -0.15754,
+    0.19531
+  ],
+  "grasp_point": [
+    -
+[80] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.38413,
+    0.12109,
+    0.88652
+  ],
+  "handle_quat": [
+    0.97184,
+    0.09461,
+    -0.13549,
+    0.16798
+  ],
+  "grasp_point": [
+  
+[81] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.35662,
+    0.09406,
+    0.91186
+  ],
+  "handle_quat": [
+    0.98042,
+    0.07907,
+    -0.11324,
+    0.14039
+  ],
+  "grasp_point": [
+  
+[82] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.32912,
+    0.06703,
+    0.93721
+  ],
+  "handle_quat": [
+    0.98745,
+    0.0634,
+    -0.09081,
+    0.11258
+  ],
+  "grasp_point": [
+   
+[83] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.30161,
+    0.04,
+    0.96256
+  ],
+  "handle_quat": [
+    0.99294,
+    0.04764,
+    -0.06823,
+    0.08459
+  ],
+  "grasp_point": [
+    -
+[84] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.27411,
+    0.01296,
+    0.98791
+  ],
+  "handle_quat": [
+    0.99686,
+    0.0318,
+    -0.04555,
+    0.05647
+  ],
+  "grasp_point": [
+   
+[85] move {"handle": 0, "dx": 0.027504584928261258, "dy": -0.027032369012595463, "dz": 0.025347469671237223, "droll": -0.033128285681783706, "dpitch": 0.04466137826321022, "dyaw": -0.0572803494566942, "frame": "world"} -> {
+  "handle": 0,
+  "holding": "tube_b",
+  "requested_fraction_executed": 1.0,
+  "blocked": false,
+  "blocked_reason": null,
+  "clamped": [],
+  "handle_pos": [
+    -0.2466,
+    -0.01407,
+    1.01325
+  ],
+  "handle_quat": [
+    0.99921,
+    0.01591,
+    -0.02279,
+    0.02826
+  ],
+  "grasp_point": [
+  
+{"action": 86, "done": true, "done_reason": "solved", "success": true, "violations": 0}
