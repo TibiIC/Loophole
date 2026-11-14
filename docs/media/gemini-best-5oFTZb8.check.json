@@ -1,0 +1,20 @@
+{
+ "initial_state_matches_log": true,
+ "max_pose_deviation_from_log_m": 4.973823302112379e-07,
+ "outcome_mismatches": [],
+ "max_penetration_m": 0.0,
+ "blocked_moves": 0,
+ "min_distance_m": 0.00235,
+ "audit_violations": 0,
+ "score": 0.838384,
+ "success": true,
+ "actions": 64,
+ "done_reason": "solved",
+ "goal": {
+  "criterion": "distance",
+  "target_min_distance_to_frame": 0.48038,
+  "required_separation": 0.4,
+  "goal_reached": true
+ },
+ "logged_final_score": 0.838384
+}
