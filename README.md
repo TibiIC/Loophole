@@ -7,6 +7,23 @@ moves tube B with a grab handle and must separate them. The agent only talks to 
 simulator over MCP (sidecar container), so it never sees the simulator, solver or
 reference.
 
+## The two tasks and where their reference solutions come from
+
+| Task | Reference (`solution/reference.jsonl`) | Provenance | Solver anywhere in the pipeline? |
+|---|---|---|---|
+| `tasks/loophole-rattrap`: the Rat Trap | 284 fixed commands | **A human solve.** Tibi's teleoperated solve, recorded in our simulator (`loophole/reference/rattrap-solve.jsonl`), converted once into agent commands and committed. | **None**, not at runtime, offline or as a fallback. |
+| `tasks/loophole-alpha`: Alpha 1.0 | 59 fixed commands | **A published, planner-generated path.** The solution path of Zhang et al. 2020 ([ZBKV20]), produced by their C-space tunnel-discovery planning pipeline, taken from their supplementary data (`alpha-1.0.simplified.txt`), converted once into agent commands and committed. | None of ours at runtime. The path was computed by the paper authors' planner, not by us. |
+
+For both, the "oracle" is Harbor's name for the agent that replays `solution/`; it searches
+for nothing. The difference matters: the Rat Trap shows a human can solve the environment as
+built, while the Alpha reference shows the authors' planner's path is feasible in our
+simulator.
+
+Our own RRT-Connect planner (`loophole/planning/`) produced references only for the
+procedural Alpha variants (`alpha-easy` / `medium` / `hard`, not submitted) and for an
+earlier OMPL.app Alpha 1.5 task (superseded). An attempt to plan an independent Alpha 1.0
+reference did not succeed, so none is committed.
+
 ## The Alpha puzzle task (`tasks/loophole-alpha`): Alpha 1.0
 
 **What the agent must do.** Two identical rigid tubes, each bent into an alpha, are
@@ -247,8 +264,12 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
   while cable-routing RL uses staged subtasks with geometric success tests (SILO,
   arXiv:2607.04616). Our own topological word / Przytycki–Sikora norm turned out unsound
   here and is kept as a logged diagnostic only.
-* **Reference solve:** a human teleoperated solve (an exact replay ends free). Its faithful
-  conversion to agent commands takes 284 actions, so the oracle scores 0.833.
+* **Reference solve: a human solve, recorded and replayed.**
+  * `solution/reference.jsonl` is a fixed, committed list of 284 commands, derived from
+    Tibi's own teleoperated solve, recorded in this simulator.
+  * There is **no solver, planner or search anywhere in the Rat Trap pipeline**: not at
+    runtime, not offline, not as a fallback.
+  * Replayed, it solves in 284 actions, so the oracle scores 0.833.
 
 **Through Harbor** (`tasks/loophole-rattrap`, the same structure as the Alpha task):
 * a sim sidecar serves the MCP tools;
@@ -379,11 +400,13 @@ make eval MODEL=...                                                     # all of
 
 | Component | Status | Notes |
 |---|---|---|
-| **Canonical Alpha 1.5 task `tasks/loophole-alpha`** | done | harbor: oracle **0.876**, nop **0**, stop-early **0** (runs/harbor/) |
+| **Alpha 1.0 task `tasks/loophole-alpha`** (Zhang et al. 2020) | done | oracle = the authors' published path, **0.851**; nop **0**; stop-early **0** |
+| **Rat Trap task `tasks/loophole-rattrap`** | done | oracle = Tibi's recorded human solve, **0.833**; nop **0**; random agent **0** (docs/RATTRAP_DESIGN.md) |
+| *Earlier:* Alpha 1.5 task on OMPL.app geometry | superseded | its oracle was our own RRT-Connect plan (0.876); replaced by Alpha 1.0 |
 | Canonical geometry pipeline (fetch, Assimp frame, face-wedge hulls) | done | OMPL's own path collision-free; hull error 0.15 mm vs 1.8 mm clearance |
-| Canonical oracle (RRT-Connect, 20 min box) | done | uniform sampling failed in 20 min; orientation-focused solved in 406 s |
-| Real model run (`-a opencode`) | not started | waiting for an API key (see "Model API keys") |
-| Canonical Alpha 1.2 / 1.0 | not started | `write_puzzle("1.2")` + `build_alpha_ompl.py --variant 1.2` |
+| *Earlier:* Alpha 1.5 oracle by our RRT-Connect (20 min box) | superseded | uniform sampling failed in 20 min; orientation-focused solved in 406 s |
+| Real model runs (`-a opencode`) | done | Alpha: Gemini 4 Carbon solves (docs/RESULTS.md); Rat Trap: README results table |
+| Alpha 1.2 on OMPL.app geometry | not planned | Alpha 1.0 (Zhang et al.) is the task |
 | Alpha geometry generator (3 clearances) | done | `make alpha` regenerates; `alpha-medium` is the MVP variant |
 | Sim: fixed A / free B, gravity off, frictionless, capsule-chain collision | done | |
 | Grab handle, velocity-capped moves, stall on contact | done | `rig.num_handles: 1` for Alpha |

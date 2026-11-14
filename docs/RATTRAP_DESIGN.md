@@ -6,6 +6,24 @@ Code: `loophole/puzzles/rattrap/` (`reward.py`, `checkpoints.py`). Reference:
 `rattrap-checkpoints.npz`. Built by `scripts/build_rattrap_reference.py`. Every dimension in
 `rattrap.yaml` is still provisional.
 
+## The reference is a human solve, recorded and replayed
+
+* **What it is.** `tasks/loophole-rattrap/solution/reference.jsonl` is a fixed, committed list of 284 commands.
+  * It is derived from Tibi's own teleoperated solve, recorded in this simulator (`loophole/reference/rattrap-solve.jsonl`).
+  * It was converted once into agent commands (`loophole/reference/rattrap-solve.commands.jsonl`), as described
+    under "Reference solve and conversion fidelity".
+* **No solver.** There is no solver, planner or search anywhere in the Rat Trap pipeline: not at runtime, not
+  offline, not as a fallback. Harbor's "oracle" agent only replays `solution/`; it searches for nothing.
+* **What depends on it.** The checkpoints (`rattrap-checkpoints.npz`) are states of that same recorded run, and ε
+  and T were calibrated on it.
+* **What the agent can see of it:** nothing. The agent container holds none of `solution/`, the recording, the
+  checkpoint file or anything derived from them; the MCP tools expose none of it. This is tested statically
+  (`test_rattrap_isolation.py`) and live (`loophole/harbor_probe.py`; docs/EXPLOITS.md).
+* **The contrast with Alpha.** Alpha's reference has a different provenance: the solution path published by
+  Zhang et al. 2020, produced by their C-space planning pipeline, converted once and committed. Neither task runs a
+  solver, but the Rat Trap's reference shows a *human* can solve the environment as built, while Alpha's shows that
+  a *planner's* path is feasible in our simulator.
+
 ## Score (the verifier's one float)
 
 | Outcome | Score |
