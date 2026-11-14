@@ -136,7 +136,7 @@ ended on the release defect, the harness truncation bug or a revoked API key are
 | right diagnosis, local execution | Kimi K3 Pro, round 2 | 852 (budget) | 0.27 | 13 | 168 | 0.16 | 0 | 0 | 63.4 mm | release (55 of 138), then redirect (33), other gripper (32) |
 | right diagnosis, local execution | Kimi K3 Pro, round 1 | 357 (turn cap) | 0.19 | 21 | 55 | 0.17 | 0 | 0 | 70.1 mm | redirect, reverse, release |
 | explicit topology, then quitting | DeepSeek V4.1 Flash, round 2 | 493 (gave up) | 0.17 | 38 | 117 | 0.51 | 0 | 0 | 88.1 mm | release, redirect (state checked more often than the others) |
-| explicit topology, then quitting | DeepSeek V4.1 Flash, round 1 | 322 (turn cap) | 0.25 | 10 | 78 | 0.46 | 0 | 0 | 97.7 mm | release (27 of 41) |
+| explicit topology, then quitting | DeepSeek V4.1 Flash, round 1 | 322 (turn cap) | 0.25 | 10 | 78 | 0.46 | 0 | 0 | 97.7 mm | release (27 of 42) |
 | acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 2 | 248 (model stopped) | 0.30 | 19 | 27 | 0.25 | 0 | 0 | not computed | redirect, then look and release |
 | acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 0 | 298 (API key revoked) | 0.37 | 12 | 43 | 0.28 | 0 | 0 | not computed | redirect, then reverse, then look and release |
 
