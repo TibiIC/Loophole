@@ -12,3 +12,9 @@ MUJOCO_LOG.TXT
 .env*
 .alpha_paper/
 .view_cache/
+# never commit: local environments, macOS metadata, licensed meshes and anything derived from them
+.venv
+.DS_Store
+.alpha_paper
+.ompl_alpha
+.mesh_cache
