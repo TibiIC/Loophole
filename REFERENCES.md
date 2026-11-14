@@ -85,6 +85,26 @@ marked `[unverified]`. How each is used is noted in brackets.
   puzzles in this repo; not a model of the Alpha puzzle, whose two open pieces are
   topologically unlinked from the start: the obstruction is geometric.]*
 
+## Shared, unpublished work
+
+- **[HO26]** A colleague's disentanglement RL environment, `puzzle-handoff-v1`
+  (package `disentanglement_env` 0.1.0, export manifest dated 2026-11-14), shared with us
+  privately. **No licence is stated**; the archive is not in this repository or its history.
+  Their puzzle is a rigid closed ring threaded on a static bent wire with a stopper: the same
+  puzzle family as our Rat Trap, but with a rigid wire instead of a deformable cord, so the
+  configuration space is 6-D rather than ~180-D. It is adapter-compatible with our rig because,
+  like Alpha, it is a single 6-DoF rigid body against a fully static obstacle.
+  *[Adapted, with credit in each docstring: (1) the potential-based shaping scaffold
+  `lam * (gamma * Phi(s') - Phi(s))` with Phi forced to 0 on termination and kept at
+  time-limit truncation (`core.py`, `step` / `potential`), now
+  `loophole.reward.components.PotentialShaping`; (2) the squared orientation-alignment term
+  and `local_tangent` (`core.py`, `potential_terms` / `local_tangent`), generalised as
+  `loophole.reward.alignment.AperturePassageAlignment`; (3) the `motion_safe` swept-motion
+  certificate (recursive bisection against `|dp|/2 + r_out |rv|/2`), now
+  `loophole.sim.certify`. Not adopted: their Euclidean distance-to-goal potential (their
+  3-seed, 100k-step test gave 0/300 successes with either reward), their 13-dimensional
+  observation, and their reject-the-whole-action semantics.]*
+
 ## Corrections to earlier drafts
 
 - [ZBKV20] is Article **104**, not 100.

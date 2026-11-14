@@ -121,6 +121,7 @@ class LoopholeEnv:
         self.data = mujoco.MjData(self.model)
         self._eq_data0 = self.model.eq_data.copy()
         self.audit = Auditor(self.model, self.built, self.cfg.audit)
+        self.certifier = None  # optional swept-motion certificate (enable_motion_certificate), alongside the audit
         self.rig = Rig(
             self.model, self.data, self.built, self.cfg.rig, self._substep,
             strain=lambda: (self.audit.last_penetration, self.audit.last_anchor_drift),
@@ -268,9 +269,23 @@ class LoopholeEnv:
         mujoco.mj_step(self.model, self.data)
         self.substeps += 1
         self.audit.check(self.data, self.substeps)
+        if self.certifier is not None:
+            self.certifier.after_substep(self.substeps)
         if self.cfg.topology.enabled and self.tracker.discs:
             self._update_discs()
             self.tracker.update_target(self.data.xpos[self.target_id])
+
+    def enable_motion_certificate(self, slack: float | None = None, max_depth: int = 12):
+        """Certify every substep interval of the target's rigid motion (sim/certify.py), alongside the penetration
+        audit. Off by default and outside the config, so evaluation logs and scores are unchanged; uncertified
+        intervals are tallied in `self.certifier.log`, not counted as violations."""
+        if self.checker is None:
+            raise ValueError("motion certificate needs a separation puzzle with a collision checker")
+        from .certify import RigidMotionCertifier
+
+        self.certifier = RigidMotionCertifier(self, slack=slack, max_depth=max_depth)
+        self.certifier.prime()
+        return self.certifier
 
     def state_hash(self) -> str:
         buf = np.empty(mujoco.mj_stateSize(self.model, STATE_SIG))
@@ -309,6 +324,8 @@ class LoopholeEnv:
         settle_violations = self.audit.check(d, 0)
         self.audit.reset()
         self.audit.prime(d)
+        if self.certifier is not None:
+            self.certifier.prime()
         d.time = 0.0
         self.actions_used = 0
         self.done = False

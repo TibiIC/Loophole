@@ -48,6 +48,15 @@ test = AlphaEnv(mode="eval")                            # the canonical start, n
 * **Reward** = the config's per-step training signal (`cspace_tunnel`, potential-based, so
   there-and-back nets zero; `clearance_shaping` at weight 0). `terminated` = free or
   violation; `truncated` = action budget (198).
+* **Shaping scaffold** (`loophole.reward.components.PotentialShaping`, every potential component):
+  F = λ(γ·Φ̄(s′) − Φ(s)) with Φ̄ = 0 once the episode has *terminated* (free or a violation:
+  absorbing) and Φ kept at *truncation* (the budget: bootstrap V(s′) there). The configs use
+  γ = 1, λ = 1. With γ < 1 (set it to the learner's discount, e.g. 0.99) only the *discounted*
+  shaping return is path-independent (γᵀΦ̄(s_T) − Φ(s₀)); an undiscounted sum then pays
+  (1 − γ)|Φ| per step for standing still. **The step reward is shaping only, and the score is
+  kept separate** (`info["score"]`, the verifier's value). Because Φ̄ = 0 at every terminal state,
+  the shaping return of *any* terminated episode is −Φ(s₀), crash and solve alike: add the task
+  reward (`info["score"]` at the last step) to the shaping when training, or a violation ties a solve.
 * `reset(options=…)`: `start`, `curriculum_distance`, `curriculum_source`, `log_path`.
 
 ### Start-state distribution (`loophole/training/starts.py`)

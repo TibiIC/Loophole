@@ -51,6 +51,7 @@ class RatTrapSim:
                 self.part_of_geom[g] = "cord"
         self.cord_geoms = {g: int(m.geom(g).name.split("_")[1]) for g, p in self.part_of_geom.items() if p == "cord"}
         self.max_penetration = 0.0
+        self.certifier = None  # optional swept-motion certificate (certify.CordMotionCertifier), alongside the audit
         self._renderer = None
         self.reset(check_route=check_route)
 
@@ -81,6 +82,8 @@ class RatTrapSim:
     def _substep(self) -> None:
         mujoco.mj_step(self.model, self.data)
         self.max_penetration = max(self.max_penetration, self.deepest())
+        if self.certifier is not None:
+            self.certifier.after_substep()
 
     def reset(self, check_route: bool = True) -> None:
         m, d = self.model, self.data
@@ -94,6 +97,8 @@ class RatTrapSim:
         if check_route:
             self.assert_no_penetration("route (after settling)")
         self.max_penetration = 0.0
+        if getattr(self, "certifier", None) is not None:
+            self.certifier.prime()
 
     def assert_no_penetration(self, when: str) -> None:
         """Fail loudly, naming the segment and the part, if the cord penetrates anything (route is wrong)."""

@@ -10,8 +10,14 @@ Score (verifier side only; one float in [0, 1]):
                                                            -> 1 - alpha * a / T          in [1 - alpha, 1]
     unsolved                                               -> cap * p,  p = clip(1 - min_t ||w_t|| / ||w_0||, 0, 1)
 with alpha = 0.5 and cap = 0.3 < 1 - alpha, so any solve beats any non-solve.
-Training shaping (never scored): gamma * Phi(s') - Phi(s), potential-based (Ng, Harada & Russell, ICML 1999), so it
-telescopes: moving a piece of cord in and out of a hole nets zero.
+Training shaping (never scored; kept apart from the score exactly as for Alpha): every potential goes through
+loophole.reward.components.PotentialShaping, lam * (gamma * Phi_bar(s') - Phi(s)) with Phi_bar = 0 once the episode has
+terminated (solved, or a violation) and Phi kept at the action-budget truncation (potential-based: Ng, Harada &
+Russell, ICML 1999; the terminal / truncation rule after REFERENCES.md [HO26]). With gamma = 1 it telescopes: moving
+a piece of cord in and out of a hole nets zero. Optional extra potentials: AperturePassageAlignment terms for the
+ring and the two holes (rattrap.yaml `shaping_alignment`; weight 0 = logged only).
+Anti-tunnelling: the per-substep penetration audit, plus (rattrap.yaml `certify_motion`) the swept-motion
+certificate of certify.CordMotionCertifier: "log" records uncertified substeps, "enforce" also makes them violations.
 """
 
 from __future__ import annotations
@@ -21,6 +27,8 @@ import math
 import mujoco
 import numpy as np
 
+from ...reward.alignment import AperturePassageAlignment
+from ...reward.components import PotentialShaping, RewardState
 from ...sim.collision import fibonacci_directions
 from ...sim.geometry import frame_from_x, quat_mul
 from .build import build
@@ -149,6 +157,30 @@ class FrozenEscape:
         return None
 
 
+class NormPotential(PotentialShaping):
+    """Phi = -||w||, the P&S norm of the cord's word (an unreachable word: a very low, arbitrary potential)."""
+
+    name = "rattrap_norm"
+
+    def __init__(self, spec: RatTrapSpec, gamma: float = 1.0, lam: float = 1.0):
+        super().__init__(gamma=gamma, lam=lam)
+        self.spec = spec
+
+    def phi(self, s: RewardState) -> float:
+        nrm = word_norm(s.topology_word, self.spec)
+        return -nrm if nrm < INF else -1e6
+
+
+def shaping_components(spec: RatTrapSpec) -> list[PotentialShaping]:
+    g, lam = float(spec["shaping_gamma"]), float(spec.raw.get("shaping_lambda", 1.0))
+    comps: list[PotentialShaping] = [NormPotential(spec, gamma=g, lam=lam)]
+    for a in spec.raw.get("shaping_alignment") or []:
+        comps.append(AperturePassageAlignment(f"disc:{a['disc']}", "cord", gate_distance=float(a["gate_distance"]),
+                                              weight=float(a["weight"]), tangent_length_scale=float(a.get("tangent_length_scale", 0.01)),
+                                              closed_passer=bool(spec["cord_closed"]), gamma=g, lam=lam, label=a["disc"]))
+    return comps
+
+
 class RatTrapEpisode:
     """One scored episode: discrete commands through the rig; word, norm, violations and success after each action."""
 
@@ -168,6 +200,30 @@ class RatTrapEpisode:
         self.solved = False
         self.done = False
         self.shaping_total = 0.0
+        self.shaping = shaping_components(spec)
+        self._geom = any(isinstance(c, AperturePassageAlignment) for c in self.shaping)
+        mode = str(spec.raw.get("certify_motion", "off"))
+        if mode not in ("off", "log", "enforce"):
+            raise ValueError(f"certify_motion must be off, log or enforce (got {mode!r})")
+        self.certify = mode
+        if mode != "off":
+            from .certify import CordMotionCertifier
+
+            self.sim.certifier = CordMotionCertifier(self.sim, escape=self.escape)
+            self.sim.certifier.prime()
+        self._rs = self._state(self.word0)
+
+    def _state(self, word: str) -> RewardState:
+        geometry = None
+        if self._geom:
+            geometry = {"cord": self.sim.node_positions(),
+                        **{f"disc:{d.name}": {"center": d.origin, "normal": d.normal} for d in self.discs}}
+        return RewardState(puzzle="rattrap", actions_used=self.actions, max_actions=self.T, success=self.solved,
+                           violations=int(self.violation), done=self.done, topology_word=word, geometry=geometry)
+
+    @property
+    def uncertified(self) -> int:
+        return 0 if self.sim.certifier is None else self.sim.certifier.log.failed
 
     def word(self) -> str:
         return read_word(self.sim.node_positions(), self.discs, self.closed)
@@ -181,28 +237,36 @@ class RatTrapEpisode:
         if tool == "grab_node":
             self.sim.grab_node(a["handle"], a["node"])
         elif tool == "move":
-            self.sim.move(a["handle"], [a["dx"], a["dy"], a["dz"]])
+            mv = self.sim.move(a["handle"], [a["dx"], a["dy"], a["dz"]])
         elif tool == "release":
             self.sim.release(a["handle"])
         else:
             raise ValueError(f"unknown command {tool!r}")
         self.actions += 1
-        prev = self.norms[-1]
         w = self.word()
         nrm = word_norm(w, self.spec)
         self.norms.append(nrm)
-        if self.sim.max_penetration > self.spec["penetration_tolerance"]:
+        if self.sim.max_penetration > self.spec["penetration_tolerance"] or (self.certify == "enforce" and self.uncertified):
             self.violation, self.done = True, True
         elif self.escape.escape_direction(self.sim.node_positions()) is not None:
             self.solved, self.done = True, True
         elif self.actions >= self.T:
             self.done = True
         out = {"word": w, "norm": nrm, "done": self.done, "solved": self.solved, "violation": self.violation}
-        if self.training:  # potential-based shaping, training only
-            g = float(self.spec["shaping_gamma"])
-            sh = g * self.phi(nrm) - self.phi(prev)
+        if tool == "move":
+            out.update(blocked=mv.get("blocked"), blocked_reason=mv.get("blocked_reason"), executed_fraction=mv.get("requested_fraction_executed"))
+        if self.certify != "off":
+            out["uncertified_substeps"] = self.uncertified
+        cur = self._state(w)
+        if self.training:  # potential-based shaping, training only (never part of the score)
+            parts = {c.name: c.step(self._rs, cur, {}) for c in self.shaping}
+            sh = float(sum(parts.values()))
             self.shaping_total += sh
             out["shaping"] = sh
+            out["shaping_parts"] = parts
+            if self._geom:
+                out["alignment"] = {c.name: c.last_terms for c in self.shaping if isinstance(c, AperturePassageAlignment)}
+        self._rs = cur
         return out
 
     def progress(self) -> float:

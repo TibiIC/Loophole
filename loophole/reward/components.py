@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Any, Mapping
 
 from ..config import RewardConfig
 from .topology import get_goal_distance
@@ -36,6 +37,17 @@ class RewardState:
     best_cost_to_go: float | None = None  # minimum reached so far in the episode
     stable_best_cost_to_go: float | None = None  # minimum level held for `hold` consecutive visible matches
     min_distance: float | None = None  # min distance target-frame (separation puzzles), for clearance shaping
+    geometry: Mapping[str, Any] | None = None  # named measured geometry (aperture centres / axes, cord nodes) for shaping
+
+    @property
+    def terminated(self) -> bool:
+        """The episode ended inside the MDP: solved, or failed by a violation (an absorbing state)."""
+        return bool(self.success or self.violations > 0)
+
+    @property
+    def truncated(self) -> bool:
+        """The episode was cut off from outside (action budget, or the agent / harness stopped): not absorbing."""
+        return bool(self.done and not self.terminated)
 
 
 class RewardComponent(ABC):
@@ -52,6 +64,59 @@ class RewardComponent(ABC):
 
     @abstractmethod
     def terminal(self, final: RewardState, info: dict) -> float: ...
+
+
+class PotentialShaping(RewardComponent):
+    """Potential-based shaping, the single code path for every potential component:
+
+        F(s, s') = lam * (gamma * Phi_bar(s') - Phi(s)),   Phi_bar(s') = 0 if s' is terminal, else Phi(s')
+
+    Terminal (absorbing) states, i.e. solved or failed by a violation, get potential 0 [NHR99]: their value is 0
+    after the transition, whatever Phi would say about them. A time-limit truncation (the action budget, or an
+    external stop) is not absorbing, so Phi(s') is kept there and a learner that bootstraps V(s') at the cut-off
+    sees the same shaped returns as without the limit. Then, for any gamma, the discounted shaping return of an
+    episode is gamma^T Phi_bar(s_T) - Phi(s_0): it depends only on where the episode starts and ends, so loops,
+    oscillation and standing still gain nothing over each other.
+
+    `gamma` must equal the learner's discount for the policy-invariance guarantee. With gamma < 1 and Phi < 0,
+    standing still earns (1 - gamma) |Phi| per step in an *undiscounted* sum; only the discounted sum is invariant.
+
+    Shaping is a training signal only: `terminal()` is 0, and an episode score never depends on gamma, lam or
+    Phi_bar (scores are computed from the final state by the scoring components, as for Alpha).
+
+    Subclasses define `phi(state) -> float | None` (None: unavailable at this state, so no shaping this step).
+
+    Provenance: the gamma / lam scaffold and the terminal-vs-truncation rule are adapted from a colleague's
+    ring-on-wire disentanglement environment (puzzle-handoff-v1, `DisentanglementPuzzle.step` / `potential`;
+    shared with us, no licence stated; REFERENCES.md [HO26]). Their defaults: lam = 1, gamma = 0.99.
+    """
+
+    name = "potential_shaping"
+
+    def __init__(self, gamma: float = 0.99, lam: float = 1.0, **kw):
+        super().__init__(gamma=gamma, lam=lam, **kw)
+        if not (0.0 < gamma <= 1.0 and lam >= 0.0):
+            raise ValueError("need 0 < gamma <= 1 and lam >= 0")
+        self.gamma = float(gamma)
+        self.lam = float(lam)
+        self.last_potentials: tuple[float | None, float | None] = (None, None)
+
+    def phi(self, s: RewardState) -> float | None:
+        raise NotImplementedError
+
+    def reset(self, initial: RewardState) -> None:
+        pass
+
+    def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
+        before = self.phi(prev)
+        after = 0.0 if cur.terminated else self.phi(cur)
+        self.last_potentials = (before, after)
+        if before is None or after is None:
+            return 0.0
+        return float(self.lam * (self.gamma * after - before))
+
+    def terminal(self, final: RewardState, info: dict) -> float:
+        return 0.0
 
 
 class BaseReward(RewardComponent):
@@ -82,66 +147,59 @@ class BaseReward(RewardComponent):
         return 1.0 - self.alpha * frac
 
 
-class TopologyShaping(RewardComponent):
-    """Potential-based shaping F = gamma * Phi(s') - Phi(s) with Phi = -goal_distance.
+class TopologyShaping(PotentialShaping):
+    """Potential-based shaping (PotentialShaping) with Phi = -goal_distance / d0.
 
-    Normalised by the initial goal distance so the shaping total lies in
-    [-1, 1]; with gamma = 1 it telescopes to (d0 - d_T) / d0, so oscillating
-    across a hole earns nothing. (gamma < 1 with a negative potential would
-    *reward* standing still, so keep gamma = 1 unless you shift Phi.)
+    Normalised by the initial goal distance d0, so the shaping return lies in [-1, 1]; with gamma = 1 it
+    telescopes, so oscillating across a hole earns nothing. Its terminal value (which counts towards the score
+    when the component is in the score) is the topological progress (d0 - d_T) / d0 of the final state, and 0
+    after a violation; it does not depend on gamma or on the terminal rule of the step shaping. (Before the
+    PotentialShaping refactor it was the undiscounted sum of the step rewards: equal for gamma = 1 except after a
+    violation, which used to keep the progress made before it.)
     """
 
     name = "topology_shaping"
 
-    def __init__(self, gamma: float = 1.0, **kw):
-        super().__init__(gamma=gamma, **kw)
-        self.gamma = gamma
+    def __init__(self, gamma: float = 1.0, lam: float = 1.0, **kw):
+        super().__init__(gamma=gamma, lam=lam, **kw)
         self._d0 = 1
-        self._sum = 0.0
+        self._start = 0.0
 
-    def _phi(self, s: RewardState) -> float:
-        return -float(get_goal_distance(s.puzzle)(s.topology_word))
+    def _dist(self, s: RewardState) -> float:
+        return float(get_goal_distance(s.puzzle)(s.topology_word))
+
+    def phi(self, s: RewardState) -> float:
+        return -self._dist(s) / self._d0
 
     def reset(self, initial: RewardState) -> None:
-        self._d0 = max(1, int(get_goal_distance(initial.puzzle)(initial.topology_word)))
-        self._sum = 0.0
-
-    def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
-        if cur.violations > 0:
-            return 0.0
-        r = (self.gamma * self._phi(cur) - self._phi(prev)) / self._d0
-        self._sum += r
-        return r
+        self._start = self._dist(initial)
+        self._d0 = max(1, int(self._start))
 
     def terminal(self, final: RewardState, info: dict) -> float:
-        return self._sum  # the telescoped shaping counts towards the episode score
+        if final.violations > 0:
+            return 0.0
+        return (self._start - self._dist(final)) / self._d0  # the gamma = 1 telescoped progress, from the endpoints
 
 
-class CostToGoShaping(RewardComponent):
-    """Dense potential-based shaping on the roadmap navigation function.
+class CostToGoShaping(PotentialShaping):
+    """Dense potential-based shaping on the roadmap navigation function (via PotentialShaping).
 
-    Phi(q) = -cost_to_go(q); step reward (gamma * Phi(q') - Phi(q)) / ctg(start).
-    With gamma = 1 it telescopes, so going back and forth earns nothing. Its
-    terminal value is 0: it shapes per-step rewards (training signal) but the
-    episode score's progress credit comes from `progress`.
+    Phi(q) = -cost_to_go(q) / ctg(start). With gamma = 1 it telescopes, so going back and forth earns nothing.
+    Its terminal value is 0: it shapes per-step rewards (training signal) but the episode score's progress
+    credit comes from `progress`.
     """
 
     name = "cost_to_go_shaping"
 
-    def __init__(self, gamma: float = 1.0, **kw):
-        super().__init__(gamma=gamma, **kw)
-        self.gamma = gamma
+    def __init__(self, gamma: float = 1.0, lam: float = 1.0, **kw):
+        super().__init__(gamma=gamma, lam=lam, **kw)
+        self._c0 = 1.0
 
     def reset(self, initial: RewardState) -> None:
         self._c0 = initial.start_cost_to_go or 1.0
 
-    def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
-        if cur.violations > 0 or cur.cost_to_go is None or prev.cost_to_go is None:
-            return 0.0
-        return (prev.cost_to_go - self.gamma * cur.cost_to_go) / self._c0
-
-    def terminal(self, final: RewardState, info: dict) -> float:
-        return 0.0
+    def phi(self, s: RewardState) -> float | None:
+        return None if s.cost_to_go is None else -float(s.cost_to_go) / self._c0
 
 
 class ProgressCredit(RewardComponent):
@@ -258,7 +316,7 @@ class RewardComposer:
     @classmethod
     def from_config(cls, cfg: RewardConfig) -> "RewardComposer":
         if any(c.enabled and c.type not in REGISTRY for c in cfg.components):
-            from . import literature_rewards  # noqa: F401  (registers its components)
+            from . import alignment, literature_rewards  # noqa: F401  (register their components)
         entries, in_score = [], []
         for c in cfg.components:
             if c.enabled:

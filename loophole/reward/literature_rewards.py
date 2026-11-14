@@ -56,7 +56,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from .components import RewardComponent, RewardState, register_component
+from .components import PotentialShaping, RewardComponent, RewardState, register_component
 
 ALPHA = 0.5  # time penalty weight for solves
 PROGRESS_CAP = 0.3  # maximum score of a non-solve (must stay below 1 - ALPHA)
@@ -81,7 +81,7 @@ def episode_score(final: RewardState, alpha: float = ALPHA, progress_cap: float 
 # ==============================================================================
 # 1. C-space tunnel potential (primary component)
 # ==============================================================================
-class CSpaceTunnelPotentialReward(RewardComponent):
+class CSpaceTunnelPotentialReward(PotentialShaping):
     """Potential-based shaping on the C-space navigation function, Phi(q) = -ctg(q).
 
     The Alpha puzzle's way out is a narrow tunnel in the 6-D configuration space
@@ -92,19 +92,19 @@ class CSpaceTunnelPotentialReward(RewardComponent):
     1.5 puzzle presents two homotopy classes of solution paths [JSCP15, Sec. 6]; a
     navigation function credits progress along any of them.
 
-    step:     F = gamma * Phi(q') - Phi(q) = (ctg(q) - gamma * ctg(q')) / ctg(q0), gamma = 1.
-              Potential-based shaping preserves optimal policies [NHR99] and telescopes,
-              so oscillating earns nothing.
-    terminal: exactly episode_score(final).
+    step:     F = lam * (gamma * Phi_bar(q') - Phi(q)), Phi = -ctg / ctg(q0), gamma = 1, lam = 1, through
+              PotentialShaping: Phi_bar = 0 once the episode has terminated (solved or a violation), Phi kept at
+              truncation. Potential-based shaping preserves optimal policies [NHR99] and telescopes, so
+              oscillating earns nothing.
+    terminal: exactly episode_score(final) (never the shaping).
     """
 
     name = "cspace_tunnel"
 
-    def __init__(self, gamma: float = 1.0, alpha: float = ALPHA, progress_cap: float = PROGRESS_CAP, **kw: Any):
-        super().__init__(gamma=gamma, alpha=alpha, progress_cap=progress_cap, **kw)
+    def __init__(self, gamma: float = 1.0, alpha: float = ALPHA, progress_cap: float = PROGRESS_CAP, lam: float = 1.0, **kw: Any):
+        super().__init__(gamma=gamma, lam=lam, alpha=alpha, progress_cap=progress_cap, **kw)
         if not (0 <= alpha < 1 and 0 <= progress_cap < 1 - alpha):
             raise ValueError("need 0 <= alpha < 1 and progress_cap < 1 - alpha (every solve beats every non-solve)")
-        self.gamma = float(gamma)
         self.alpha = float(alpha)
         self.progress_cap = float(progress_cap)
         self._c0 = 1.0
@@ -112,10 +112,8 @@ class CSpaceTunnelPotentialReward(RewardComponent):
     def reset(self, initial: RewardState) -> None:
         self._c0 = initial.start_cost_to_go if initial.start_cost_to_go and initial.start_cost_to_go > 1e-9 else 1.0
 
-    def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
-        if cur.cost_to_go is None or prev.cost_to_go is None:
-            return 0.0
-        return float((prev.cost_to_go - self.gamma * cur.cost_to_go) / self._c0)
+    def phi(self, s: RewardState) -> float | None:
+        return None if s.cost_to_go is None else -float(s.cost_to_go) / self._c0
 
     def terminal(self, final: RewardState, info: dict) -> float:
         return episode_score(final, self.alpha, self.progress_cap)
@@ -124,7 +122,7 @@ class CSpaceTunnelPotentialReward(RewardComponent):
 # ==============================================================================
 # 2. Clearance shaping (training only)
 # ==============================================================================
-class ClearanceShapingReward(RewardComponent):
+class ClearanceShapingReward(PotentialShaping):
     """Potential-based clearance shaping, adapted from IndustReal's SDF-based dense reward.
 
     Inspired by [TLA+23] (built on [NSA+22]). Note the difference: IndustReal's SDF
@@ -134,7 +132,8 @@ class ClearanceShapingReward(RewardComponent):
     distance is the *clearance between the two tubes*:
 
         Phi(s) = exp(-max(0, d_sep - d(s)) / sigma)        d(s): min distance A-B
-        r      = gamma * Phi(s') - Phi(s) - w_pen * max(0, pen - pen_thr) - w_act * |a|^2
+        r      = lam * (gamma * Phi_bar(s') - Phi(s)) - w_pen * max(0, pen - pen_thr) - w_act * |a|^2
+        (the first term through PotentialShaping: Phi_bar = 0 after termination, Phi kept at truncation)
         (|a|: the executed handle motion - translation^2 + 0.1 * rotation^2 - not the raw request)
 
     Potential-based, so doing nothing (or returning to the same pose) earns 0 from the
@@ -146,12 +145,11 @@ class ClearanceShapingReward(RewardComponent):
     name = "clearance_shaping"
 
     def __init__(self, d_sep: float = 0.4, sigma_dist: float = 0.08, gamma: float = 1.0, w_penetration: float = 50.0,
-                 w_action: float = 0.05, penetration_threshold: float = 0.002, **kw: Any):
-        super().__init__(d_sep=d_sep, sigma_dist=sigma_dist, gamma=gamma, w_penetration=w_penetration,
+                 w_action: float = 0.05, penetration_threshold: float = 0.002, lam: float = 1.0, **kw: Any):
+        super().__init__(gamma=gamma, lam=lam, d_sep=d_sep, sigma_dist=sigma_dist, w_penetration=w_penetration,
                          w_action=w_action, penetration_threshold=penetration_threshold, **kw)
         self.d_sep = float(d_sep)
         self.sigma = float(sigma_dist)
-        self.gamma = float(gamma)
         self.w_pen = float(w_penetration)
         self.w_act = float(w_action)
         self.pen_thr = float(penetration_threshold)
@@ -161,11 +159,8 @@ class ClearanceShapingReward(RewardComponent):
             return 0.0
         return math.exp(-max(0.0, self.d_sep - float(s.min_distance)) / self.sigma)
 
-    def reset(self, initial: RewardState) -> None:
-        pass
-
     def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
-        shaping = self.gamma * self.phi(cur) - self.phi(prev)
+        shaping = super().step(prev, cur, info)
         pen = max(0.0, float(info.get("last_penetration", 0.0) or 0.0) - self.pen_thr)
         ex = info.get("executed") or {}  # the motion the rig actually executed (clamped), never raw requests
         act = float(ex.get("translation", 0.0)) ** 2 + 0.1 * float(ex.get("rotation", 0.0)) ** 2

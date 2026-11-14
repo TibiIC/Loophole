@@ -149,5 +149,16 @@ topology_alphabet:
 max_actions: 400            # T: action budget (placeholder until a recorded solve sets the scale)
 score_alpha: 0.5            # solved -> 1 - alpha * a / T
 score_progress_cap: 0.3     # unsolved -> cap * p, p = 1 - min_t ||w_t|| / ||w_0||
-shaping_gamma: 1.0          # training shaping gamma * Phi(s') - Phi(s), Phi = -||w||
+shaping_gamma: 1.0          # training shaping lam * (gamma * Phi_bar(s') - Phi(s)), Phi = -||w|| (Phi_bar = 0 once terminated);
+                            # gamma must equal the learner's discount (e.g. 0.99) for policy invariance
+shaping_lambda: 1.0
+# AperturePassageAlignment potentials (training shaping only): -w exp(-(d/sigma)^2) max(0, 1 - (n . tau)^2) for the cord
+# near a topology disc (n = the disc's axis, tau = the cord's local tangent there). weight 0 = computed and logged only.
+shaping_alignment:
+  - {disc: ring, weight: 0.0, gate_distance: 0.02}
+  - {disc: hole_upper, weight: 0.0, gate_distance: 0.01}
+  - {disc: hole_lower, weight: 0.0, gate_distance: 0.01}
+# Swept-motion certificate of the cord between substeps (loophole/puzzles/rattrap/certify.py), alongside the
+# penetration audit: off | log (count uncertified substeps) | enforce (an uncertified substep is a violation).
+certify_motion: log
 escape_directions: 64       # free-escape test of the frozen cord assembly (Fibonacci sphere)
