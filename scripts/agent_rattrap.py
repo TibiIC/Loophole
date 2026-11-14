@@ -2,11 +2,12 @@
 """Let an LLM agent try the Rat Trap: in-process simulator, OpenAI-compatible function calling, no Harbor / Docker.
 
     PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek [--max-minutes 90]
-    models: deepseek, kimi, nemotron (Verda endpoints; keys from the main repo's .env, never printed)
+    models: deepseek, kimi, nemotron (Verda endpoints), gemini-4-carbon (Google's OpenAI-compatible endpoint); keys from the main repo's .env, never printed)
 
-The fastest route to agents on this environment, for a first look; not the evaluation harness. Reward: the
-trivial one, solved (the frozen cord, mouse included, slides off the structure: reward.FrozenEscape) ->
-1 - 0.5 a / T, anything else 0, any penetration beyond tolerance 0 (score_progress_cap = 0).
+In-process, not the Harbor harness. Reward: the Rat Trap score (docs/RATTRAP_DESIGN.md): solved (the frozen cord,
+mouse included, slides off the structure: reward.FrozenEscape) -> 1 - 0.5 a / T; unsolved -> 0.3 * p, p = checkpoints of
+the reference solve reached in order / K; any penetration beyond tolerance -> 0. --sparse: the first round's
+solved-or-0 reward (score_progress_cap = 0).
 Writes runs/rattrap-agents/<model>-<time>/: transcript.jsonl (every request / reply / tool result),
 commands.jsonl (the simulator commands, replayable with teleop.replay), result.json, final.png.
 """
@@ -37,6 +38,14 @@ MODELS = {
     "kimi": dict(base="https://inference.verda.com/v1", model="kimi-k3-1-pro", key="KIMI_AI_API_KEY", vision=False),
     "nemotron": dict(base="https://containers.datacrunch.io/nemotron-3-5-super-vl-b300/v1", model="nemotron-3.5-super-vl",
                      key="NVIDIA_NEMOTRON_AI_API_KEY", vision=True),
+    "gemini-4-carbon": dict(base="https://generativelanguage.googleapis.com/v1beta/openai", model="gemini-4-carbon",
+                            key="GOOGLE_GENERATIVE_AI_API_KEY", vision=True, max_tokens=32768,
+                            extra={"reasoning_effort": "medium"}),  # unbounded, it thinks past 32k tokens and answers nothing
+    # with an image in context Gemini 4 Carbon reasons past 32k tokens and returns nothing (even at medium effort): text only
+    "gemini-4-carbon-text": dict(base="https://generativelanguage.googleapis.com/v1beta/openai", model="gemini-4-carbon",
+                                 key="GOOGLE_GENERATIVE_AI_API_KEY", vision=False, max_tokens=32768,
+                                 # reasoning_effort is ignored: it then thinks 32k tokens per turn and answers nothing
+                                 extra={"extra_body": {"google": {"thinking_config": {"thinking_budget": 4096}}}}),
 }
 ENV_FILES = [ROOT / ".env", ROOT.parent / "Loophole" / ".env"]
 MM = 1000.0
@@ -89,8 +98,9 @@ running out over the front of the base into a wide loop in front of the frame.
 
 GOAL: free the string loop (with the mouse) completely from the wooden structure. It counts as solved when the loop,
 frozen in its current shape, could slide away to infinity in some straight direction without touching anything.
-Checked automatically after every action. Score: solved -> 1 - 0.5 * actions / {ep.T}; not solved -> 0. Pressing the
-string into the wood (more than {r['penetration_tolerance'] * MM:.0f} mm) ends the episode with 0.
+Checked automatically after every action. Score: solved -> 1 - 0.5 * actions / {ep.T}; not solved -> {r['score_progress_cap']:g} x the
+fraction of the milestones of a reference solution you reached, in order (0 if none). Pressing the string into the
+wood (more than {r['penetration_tolerance'] * MM:.0f} mm) ends the episode with 0.
 
 TOOLS: two grippers (handle 0 and 1). grab(handle, node) takes the string at a node; move(handle, dx, dy, dz) moves
 that gripper by up to 30 mm per call (the string follows; the motion stops early if blocked); release(handle).
@@ -117,11 +127,11 @@ RENDER = {"type": "function", "function": {"name": "render", "description": "Ima
 
 
 class Harness:
-    def __init__(self, spec, ep: RatTrapEpisode, out: Path, vision: bool):
+    def __init__(self, spec, ep: RatTrapEpisode, out: Path, vision: bool, overrides: dict):
         self.spec, self.ep, self.out, self.vision = spec, ep, out, vision
         self.held = {0: None, 1: None}
         self.cmds = open(out / "commands.jsonl", "w", buffering=1)
-        self.cmds.write(json.dumps({"type": "header", "spec": "rattrap.yaml", "overrides": {"score_progress_cap": 0.0}}) + "\n")
+        self.cmds.write(json.dumps({"type": "header", "spec": "rattrap.yaml", "overrides": overrides}) + "\n")
         self.gave_up = False
 
     def state(self) -> dict:
@@ -211,8 +221,9 @@ def trim(msgs: list, budget_chars: int) -> list:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", choices=sorted(MODELS), required=True)
-    ap.add_argument("--max-minutes", type=float, default=90.0)
-    ap.add_argument("--max-turns", type=int, default=400)
+    ap.add_argument("--max-minutes", type=float, default=180.0)
+    ap.add_argument("--max-turns", type=int, default=1000)
+    ap.add_argument("--sparse", action="store_true", help="solved-or-0 (the first round's reward)")
     ap.add_argument("--context-chars", type=int, default=150_000)
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
@@ -220,9 +231,10 @@ def main() -> None:
     key = load_key(m["key"])
     out = a.out or ROOT / "runs" / "rattrap-agents" / f"{a.model}-{time.strftime('%Y%m%d-%H%M%S')}"
     out.mkdir(parents=True, exist_ok=True)
-    spec = load_spec(overrides={"score_progress_cap": 0.0})
+    overrides = {"score_progress_cap": 0.0} if a.sparse else {}
+    spec = load_spec(overrides=overrides)
     ep = RatTrapEpisode(spec)
-    hz = Harness(spec, ep, out, m["vision"])
+    hz = Harness(spec, ep, out, m["vision"], overrides)
     tools = TOOLS + ([RENDER] if m["vision"] else [])
     msgs = [{"role": "system", "content": scene_text(spec, ep)},
             {"role": "user", "content": "Begin. Call get_state first" + (" and render" if m["vision"] else "") + ", then work towards freeing the loop."}]
@@ -232,7 +244,7 @@ def main() -> None:
     try:
         while not (ep.done or hz.gave_up) and turns < a.max_turns and time.time() - t0 < a.max_minutes * 60:
             turns += 1
-            body = {"model": m["model"], "messages": trim(msgs, a.context_chars), "tools": tools, "tool_choice": "auto", "max_tokens": 8192}
+            body = {"model": m["model"], "messages": trim(msgs, a.context_chars), "tools": tools, "tool_choice": "auto", "max_tokens": m.get("max_tokens", 8192), **m.get("extra", {})}
             for attempt in range(4):
                 try:
                     r = client.post(f"{m['base']}/chat/completions", json=body)
@@ -249,7 +261,8 @@ def main() -> None:
             for k in usage:
                 usage[k] += int((resp.get("usage") or {}).get(k) or 0)
             msg = resp["choices"][0]["message"]
-            log.write(json.dumps({"type": "reply", "turn": turns, "t": round(time.time() - t0, 1), "message": msg, "usage": resp.get("usage")}) + "\n")
+            log.write(json.dumps({"type": "reply", "turn": turns, "t": round(time.time() - t0, 1), "message": msg, "usage": resp.get("usage"),
+                                  "finish_reason": resp["choices"][0].get("finish_reason")}) + "\n")
             calls = msg.get("tool_calls") or []
             msgs.append({"role": "assistant", "content": msg.get("content") or "", **({"tool_calls": calls} if calls else {})})
             if not calls:
@@ -283,6 +296,8 @@ def main() -> None:
         err = traceback.format_exc()
     result = {"model": a.model, "model_id": m["model"], "score": ep.score() if not err or ep.actions else 0.0, "solved": ep.solved,
               "violation": ep.violation, "actions": ep.actions, "max_actions": ep.T, "turns": turns, "gave_up": hz.gave_up,
+              "reward": "sparse" if a.sparse else "checkpoints", "progress": ep.progress(),
+              "checkpoints_reached": None if ep.tracker is None else ep.tracker.k, "checkpoints": None if ep.tracker is None else ep.tracker.cps.K,
               "word": ep.word(), "uncertified_substeps": ep.uncertified, "minutes": round((time.time() - t0) / 60, 1), "usage": usage,
               "end": "solved" if ep.solved else "violation" if ep.violation else "budget" if ep.done else "gave up" if hz.gave_up
               else "error" if err else "stopped talking" if nudges > 3 else "time/turn limit", "error": err}

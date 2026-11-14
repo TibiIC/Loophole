@@ -85,6 +85,30 @@ marked `[unverified]`. How each is used is noted in brackets.
   puzzles in this repo; not a model of the Alpha puzzle, whose two open pieces are
   topologically unlinked from the start: the obstruction is geometric.]*
 
+## Rope and cable manipulation (Rat Trap reward design)
+
+Checked on 2026-11-14 against the arXiv listings and the RSS proceedings / CMU RI listing.
+
+- **[MB24]** Peter Mitrano, Dmitry Berenson. *The Grasp Loop Signature: A Topological
+  Representation for Manipulation Planning with Ropes and Cables.* ICRA 2024.
+  [arXiv:2403.01611](https://arxiv.org/abs/2403.01611)
+  *[Topological representation for rope / cable manipulation, used to guide planning, not as a
+  reward. Cited in docs/RATTRAP_DESIGN.md.]*
+
+- **[BLK11]** Subhrajit Bhattacharya, Maxim Likhachev, Vijay Kumar. *Identification and
+  Representation of Homotopy Classes of Trajectories for Search-based Path Planning in 3D.*
+  Robotics: Science and Systems VII (RSS 2011), pp. 9–16.
+  [roboticsproceedings.org/rss07/p02](https://www.roboticsproceedings.org/rss07/p02.html)
+  *[The h-signature lineage: homotopy-class invariants for planning.]*
+
+- **[TXR+26]** Stone Tao, Jie Xu, Hesam Rabeti, Yashraj Narang, Yijie Guo, Iretiayo Akinola.
+  *SILO: Simulation-in-the-Loop Sim-to-Real Transfer for Multi-Stage Cable Routing.*
+  [arXiv:2607.04616](https://arxiv.org/abs/2607.04616) (July 2026)
+  *[§4.2: the multi-harness task is split into single-harness subtasks with a geometric success
+  test (the two cable links nearest the gripper within a radius of the harness centre); within a
+  stage the reward is dense proximity plus grasp / success indicators. The basis for our staged
+  checkpoint progress.]*
+
 ## Shared, unpublished work
 
 - **[HO26]** A colleague's disentanglement RL environment, `puzzle-handoff-v1`

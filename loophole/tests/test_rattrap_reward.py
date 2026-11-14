@@ -1,4 +1,4 @@
-"""Rat Trap reward: P&S norm potential, frozen-shape free escape, scoring (verifier side), shaping (training only)."""
+"""Rat Trap reward: frozen-shape free escape, scoring (verifier side), shaping (training only); the P&S norm as a diagnostic."""
 
 from pathlib import Path
 
@@ -47,8 +47,12 @@ def test_score_ranges():
     ep = RatTrapEpisode(SPEC)
     ep.solved, ep.actions = True, ep.T
     worst_solve = ep.score()
-    ep.solved, ep.norms = False, [ep.norm0, 0.0]  # the best possible unsolved progress
-    best_unsolved = ep.score()
+    ep.solved = False
+    if ep.tracker is not None:
+        ep.tracker.k = ep.tracker.cps.K  # the best possible unsolved progress: every checkpoint reached
+        best_unsolved = ep.score()
+    else:
+        best_unsolved = float(SPEC["score_progress_cap"])
     assert worst_solve == pytest.approx(0.5) and best_unsolved == pytest.approx(0.3) and worst_solve > best_unsolved
 
 
@@ -62,9 +66,10 @@ def test_penetration_scores_zero():
 
 
 def test_oscillation_through_a_hole_earns_nothing():
-    """A strand node pushed back through the frame opening and out again: the word is unchanged, so the potential-based
-    shaping nets zero and the progress (min ||w_t||) does not move."""
+    """A strand node pushed back through the frame opening and out again: the potential-based shaping telescopes to
+    Phi(end) - Phi(start), which is ~0 because the cord ends near where it started, and no checkpoint is reached."""
     ep = RatTrapEpisode(SPEC, training=True)
+    phi0 = ep._rs.geometry["checkpoint_potential"]
     P = ep.sim.node_positions()
     k = int(np.argmin(np.linalg.norm(P - np.array([0.04, -0.05, 0.0222]), axis=1)))  # on the right strand, in front
     ep.act("grab_node", {"handle": 0, "node": k})
@@ -73,9 +78,11 @@ def test_oscillation_through_a_hole_earns_nothing():
         out = ep.act("move", {"handle": 0, "dx": d[0], "dy": d[1], "dz": d[2]})
         words.append(out["word"])
         assert not out["violation"]
-    assert ep.shaping_total == pytest.approx(0.0, abs=1e-9)
+    if phi0 is not None:
+        assert ep.shaping_total == pytest.approx(ep._rs.geometry["checkpoint_potential"] - phi0, abs=1e-9)  # telescopes
+        assert abs(ep.shaping_total) < 0.5  # well under one checkpoint's worth
     assert ep.progress() == 0.0 and ep.score() == 0.0
-    assert set(words) == {ep.word0}  # a bight through a hole and back reduces away
+    assert set(words) == {ep.word0}  # diagnostics: a bight through a hole and back reduces away
 
 
 @pytest.mark.skipif(not SOLVE.exists(), reason="no recorded solve yet (scripts/teleop_rattrap.py)")
@@ -87,7 +94,9 @@ def test_recorded_solve_scores_highest():
         if ep.done:
             break
         ep.act(tool, a)
-    assert ep.solved and ep.score() >= 0.5
-    # ||w_t|| along the solve: report where it is not non-increasing (the doc explains each such step)
-    rises = [i for i in range(1, len(ep.norms)) if ep.norms[i] > ep.norms[i - 1]]
-    print(f"norm sequence changes: {[(i, ep.norms[i]) for i in range(1, len(ep.norms)) if ep.norms[i] != ep.norms[i - 1]]}; rises at {rises}")
+    assert ep.solved and not ep.violation and ep.score() >= 0.5
+    assert ep.progress() == 1.0  # every checkpoint of the reference reached, in order, before it came free
+    assert ep.score() > float(SPEC["score_progress_cap"])  # above any non-solve
+    # diagnostics only: the word empties long before the cord is free (docs/RATTRAP_DESIGN.md)
+    empties = next((i for i, n in enumerate(ep.norms) if n == 0), None)
+    print(f"oracle: {ep.actions} actions, score {ep.score():.4f}; ||w|| first 0 after action {empties}")

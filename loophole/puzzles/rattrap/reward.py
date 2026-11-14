@@ -1,21 +1,20 @@
-"""Rat Trap reward: Przytycki-Sikora norm of the cord's word, and the frozen-shape free-escape success test.
-
-State: the freely (cyclically, for the closed loop) reduced word w of signed disc crossings (topology.py).
-Potential: Phi(s) = -||w||, the norm of Przytycki & Sikora (arXiv:math/0007134, Theorem 3.2) with the
-generators declared passable in the YAML (norm.py). ||w|| is the minimal number of hole passes that undo w.
+"""Rat Trap reward: ordered checkpoint matching against the reference solve, and the frozen-shape free-escape test.
 
 Score (verifier side only; one float in [0, 1]):
     a violation (any contact pressed deeper than penetration_tolerance) -> 0, the episode ends
     solved (the frozen cord assembly can slide to infinity along one of `escape_directions` directions)
                                                            -> 1 - alpha * a / T          in [1 - alpha, 1]
-    unsolved                                               -> cap * p,  p = clip(1 - min_t ||w_t|| / ||w_0||, 0, 1)
-with alpha = 0.5 and cap = 0.3 < 1 - alpha, so any solve beats any non-solve.
+    unsolved                                               -> cap * p,   p = k_reached / K
+with alpha = 0.5 and cap = 0.3 < 1 - alpha, so any solve beats any non-solve. p counts the checkpoints of the reference
+solve reached in order (checkpoints.py: max per-node displacement < eps, strictly increasing times).
 Training shaping (never scored; kept apart from the score exactly as for Alpha): every potential goes through
 loophole.reward.components.PotentialShaping, lam * (gamma * Phi_bar(s') - Phi(s)) with Phi_bar = 0 once the episode has
 terminated (solved, or a violation) and Phi kept at the action-budget truncation (potential-based: Ng, Harada &
-Russell, ICML 1999; the terminal / truncation rule after REFERENCES.md [HO26]). With gamma = 1 it telescopes: moving
-a piece of cord in and out of a hole nets zero. Optional extra potentials: AperturePassageAlignment terms for the
+Russell, ICML 1999; the terminal / truncation rule after REFERENCES.md [HO26]). The potential is the checkpoint one,
+Phi = -[(K - k) + min(1, d(x, c_{k+1}) / D_{k+1})]. Optional extra potentials: AperturePassageAlignment terms for the
 ring and the two holes (rattrap.yaml `shaping_alignment`; weight 0 = logged only).
+Diagnostics only (logged, never scored or shaped; UNSOUND as a progress measure, see docs/RATTRAP_DESIGN.md): the word
+w of signed disc crossings (topology.py) and its Przytycki-Sikora norm ||w|| (norm.py).
 Anti-tunnelling: the per-substep penetration audit, plus (rattrap.yaml `certify_motion`) the swept-motion
 certificate of certify.CordMotionCertifier: "log" records uncertified substeps, "enforce" also makes them violations.
 """
@@ -32,6 +31,7 @@ from ...reward.components import PotentialShaping, RewardState
 from ...sim.collision import fibonacci_directions
 from ...sim.geometry import frame_from_x, quat_mul
 from .build import build
+from .checkpoints import DEFAULT_FILE, Checkpoints, CheckpointTracker
 from .norm import INF, norm
 from .sim import RatTrapSim
 from .spec import RatTrapSpec
@@ -157,23 +157,19 @@ class FrozenEscape:
         return None
 
 
-class NormPotential(PotentialShaping):
-    """Phi = -||w||, the P&S norm of the cord's word (an unreachable word: a very low, arbitrary potential)."""
+class CheckpointPotential(PotentialShaping):
+    """Phi = -[(K - k) + min(1, d(x, c_{k+1}) / D_{k+1})] (checkpoints.CheckpointTracker.potential), precomputed by the
+    episode for each state (it depends on the checkpoints reached so far, part of the episode state)."""
 
-    name = "rattrap_norm"
+    name = "rattrap_checkpoints"
 
-    def __init__(self, spec: RatTrapSpec, gamma: float = 1.0, lam: float = 1.0):
-        super().__init__(gamma=gamma, lam=lam)
-        self.spec = spec
-
-    def phi(self, s: RewardState) -> float:
-        nrm = word_norm(s.topology_word, self.spec)
-        return -nrm if nrm < INF else -1e6
+    def phi(self, s: RewardState) -> float | None:
+        return None if s.geometry is None else s.geometry.get("checkpoint_potential")
 
 
 def shaping_components(spec: RatTrapSpec) -> list[PotentialShaping]:
     g, lam = float(spec["shaping_gamma"]), float(spec.raw.get("shaping_lambda", 1.0))
-    comps: list[PotentialShaping] = [NormPotential(spec, gamma=g, lam=lam)]
+    comps: list[PotentialShaping] = [CheckpointPotential(gamma=g, lam=lam)]
     for a in spec.raw.get("shaping_alignment") or []:
         comps.append(AperturePassageAlignment(f"disc:{a['disc']}", "cord", gate_distance=float(a["gate_distance"]),
                                               weight=float(a["weight"]), tangent_length_scale=float(a.get("tangent_length_scale", 0.01)),
@@ -182,9 +178,10 @@ def shaping_components(spec: RatTrapSpec) -> list[PotentialShaping]:
 
 
 class RatTrapEpisode:
-    """One scored episode: discrete commands through the rig; word, norm, violations and success after each action."""
+    """One scored episode: discrete commands through the rig; checkpoints, violations and success after each action
+    (word and norm as diagnostics)."""
 
-    def __init__(self, spec: RatTrapSpec, training: bool = False, sim: RatTrapSim | None = None):
+    def __init__(self, spec: RatTrapSpec, training: bool = False, sim: RatTrapSim | None = None, checkpoints: Checkpoints | None = None):
         self.spec = spec
         self.sim = sim or RatTrapSim(spec)
         self.discs = build_discs(spec)
@@ -200,6 +197,8 @@ class RatTrapEpisode:
         self.solved = False
         self.done = False
         self.shaping_total = 0.0
+        self.cps = checkpoints if checkpoints is not None else load_checkpoints(spec)
+        self.tracker = CheckpointTracker(self.cps) if self.cps is not None else None
         self.shaping = shaping_components(spec)
         self._geom = any(isinstance(c, AperturePassageAlignment) for c in self.shaping)
         mode = str(spec.raw.get("certify_motion", "off"))
@@ -214,10 +213,10 @@ class RatTrapEpisode:
         self._rs = self._state(self.word0)
 
     def _state(self, word: str) -> RewardState:
-        geometry = None
+        nodes = self.sim.node_positions()
+        geometry = {"checkpoint_potential": None if self.tracker is None else self.tracker.potential(nodes)}
         if self._geom:
-            geometry = {"cord": self.sim.node_positions(),
-                        **{f"disc:{d.name}": {"center": d.origin, "normal": d.normal} for d in self.discs}}
+            geometry.update({"cord": nodes, **{f"disc:{d.name}": {"center": d.origin, "normal": d.normal} for d in self.discs}})
         return RewardState(puzzle="rattrap", actions_used=self.actions, max_actions=self.T, success=self.solved,
                            violations=int(self.violation), done=self.done, topology_word=word, geometry=geometry)
 
@@ -227,9 +226,6 @@ class RatTrapEpisode:
 
     def word(self) -> str:
         return read_word(self.sim.node_positions(), self.discs, self.closed)
-
-    def phi(self, nrm: float) -> float:
-        return -nrm if nrm < INF else -1e6  # an unreachable state: an (arbitrary) very low potential
 
     def act(self, tool: str, a: dict) -> dict:
         if self.done:
@@ -243,7 +239,9 @@ class RatTrapEpisode:
         else:
             raise ValueError(f"unknown command {tool!r}")
         self.actions += 1
-        w = self.word()
+        if self.tracker is not None:
+            self.tracker.update(self.sim.node_positions())
+        w = self.word()  # diagnostics only
         nrm = word_norm(w, self.spec)
         self.norms.append(nrm)
         if self.sim.max_penetration > self.spec["penetration_tolerance"] or (self.certify == "enforce" and self.uncertified):
@@ -252,7 +250,8 @@ class RatTrapEpisode:
             self.solved, self.done = True, True
         elif self.actions >= self.T:
             self.done = True
-        out = {"word": w, "norm": nrm, "done": self.done, "solved": self.solved, "violation": self.violation}
+        out = {"done": self.done, "solved": self.solved, "violation": self.violation,
+               "checkpoints_reached": None if self.tracker is None else self.tracker.k, "word": w, "norm": nrm}
         if tool == "move":
             out.update(blocked=mv.get("blocked"), blocked_reason=mv.get("blocked_reason"), executed_fraction=mv.get("requested_fraction_executed"))
         if self.certify != "off":
@@ -270,9 +269,8 @@ class RatTrapEpisode:
         return out
 
     def progress(self) -> float:
-        if not self.norm0 or self.norm0 == INF:
-            return 0.0
-        return float(min(1.0, max(0.0, 1.0 - min(self.norms) / self.norm0)))
+        """p = checkpoints reached in order / K (0 without a checkpoint file)."""
+        return 0.0 if self.tracker is None else self.tracker.progress()
 
     def score(self) -> float:
         if self.violation:
@@ -280,6 +278,18 @@ class RatTrapEpisode:
         if self.solved:
             return 1.0 - float(self.spec["score_alpha"]) * min(self.actions, self.T) / self.T
         return float(self.spec["score_progress_cap"]) * self.progress()
+
+
+def load_checkpoints(spec: RatTrapSpec) -> Checkpoints | None:
+    """The reference solve's checkpoints (rattrap.yaml `checkpoints_file`, relative to loophole/reference/), or None."""
+    name = spec.raw.get("checkpoints_file")
+    path = DEFAULT_FILE if not name else DEFAULT_FILE.parent / name
+    if not path.exists():
+        return None
+    cps = Checkpoints.load(path)
+    if cps.states.ndim != 3 or cps.states.shape[1:] != cps.start.shape:
+        raise ValueError(f"{path}: malformed checkpoint file")
+    return cps
 
 
 def check_passability(spec: RatTrapSpec) -> list[str]:

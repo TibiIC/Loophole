@@ -204,6 +204,53 @@ set -a; source .env; set +a
 harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon
 ```
 
+## The Rat Trap: a cord-and-frame puzzle
+
+A closed string loop, with a mouse bead tied on, starts wrapped around a dowel of a wooden
+frame. The frame has posts, dowels through holes, a ring and a sphere. The agent frees the
+loop with two grippers: `grab(node)`, `move(dx, dy, dz)` (at most 30 mm per call, halting when
+blocked) and `release`, in MuJoCo with an inextensible capsule-chain cord.
+Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisional.
+
+**Reward** (full derivation, evidence and sources: [docs/RATTRAP_DESIGN.md](docs/RATTRAP_DESIGN.md)):
+* **Violation → 0.** Any contact pressed deeper than 1 mm ends the episode.
+* **Solved → 1 − 0.5·a/T**, T = 852. Solved means the frozen cord, mouse included, can slide
+  free in a straight line.
+* **Unsolved → 0.3·p**, where p is the fraction of the 20 checkpoints of a reference solve
+  reached in order. A checkpoint is reached when the max per-node displacement is under
+  ε = 16.6 mm, calibrated on the reference.
+* **Training shaping** is potential-based on the checkpoint index plus the distance to the
+  next checkpoint, and is never scored.
+* **Why staged geometric milestones:** in the rope and cable literature, topological
+  signatures guide planning (Bhattacharya et al., RSS 2011; Mitrano & Berenson, ICRA 2024),
+  while cable-routing RL uses staged subtasks with geometric success tests (SILO,
+  arXiv:2607.04616). Our own topological word / Przytycki–Sikora norm turned out unsound
+  here and is kept as a logged diagnostic only.
+* **Reference solve:** a human teleoperated solve (an exact replay ends free). Its faithful
+  conversion to agent commands takes 284 actions, so the oracle scores 0.833.
+
+**Agents** (`scripts/agent_rattrap.py`: in-process, OpenAI-compatible function calling, one
+episode per model):
+
+```bash
+PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek   # kimi, nemotron, gemini-4-carbon-text
+```
+
+<!-- rattrap-results:start -->
+| Round | Model (provider) | Reward | Score | Solved | Actions used (of T) | Checkpoints reached | Ended by |
+|---|---|---|---|---|---|---|---|
+| 1 | DeepSeek V4.1 Flash (Verda) | sparse (T = 400) | 0.0 | no | 322 / 400 | n/a | 400-turn cap |
+| 1 | Kimi K3 Pro (Verda) | sparse (T = 400) | 0.0 | no | 357 / 400 | n/a | 400-turn cap |
+| 1 | Nemotron 3.5 Super VL (Verda, with images) | sparse (T = 400) | 0.0 | no | 343 / 400 | n/a | 400-turn cap |
+| 1 | Gemini 4 Carbon (Google, OpenAI-compatible API) | sparse (T = 400) | 0.0 | no | 0 / 400 | n/a | returned only empty replies¹ |
+
+¹ Through Google's OpenAI-compatible endpoint, Gemini 4 Carbon spends the whole output budget
+(32k tokens) on hidden reasoning after the first tool result and returns nothing. This happens
+with or without images, and `reasoning_effort` and `thinking_budget` are both ignored. It
+solves Alpha through OpenCode's native Google provider, so this is a harness/API issue, not a
+verdict on the model.
+<!-- rattrap-results:end -->
+
 ## Quick start
 
 ```bash

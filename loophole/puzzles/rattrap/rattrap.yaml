@@ -146,10 +146,11 @@ topology_alphabet:
 # clearance table (aperture: the clearance-table row of the hole; null = a frame-opening region, wide open).
 
 # --- reward (verifier-side score; shaping is training-only) -------------------------------------------
-max_actions: 400            # T: action budget (placeholder until a recorded solve sets the scale)
+max_actions: 852            # T = 3 x the oracle's 284 actions (the faithful conversion of the recorded solve; Alpha: 198 for 59)
 score_alpha: 0.5            # solved -> 1 - alpha * a / T
-score_progress_cap: 0.3     # unsolved -> cap * p, p = 1 - min_t ||w_t|| / ||w_0||
-shaping_gamma: 1.0          # training shaping lam * (gamma * Phi_bar(s') - Phi(s)), Phi = -||w|| (Phi_bar = 0 once terminated);
+score_progress_cap: 0.3     # unsolved -> cap * p, p = checkpoints of the reference solve reached in order / K
+checkpoints_file: rattrap-checkpoints.npz   # loophole/reference/; built by scripts/build_rattrap_reference.py
+shaping_gamma: 1.0          # training shaping lam * (gamma * Phi_bar(s') - Phi(s)), Phi = the checkpoint potential (Phi_bar = 0 once terminated);
                             # gamma must equal the learner's discount (e.g. 0.99) for policy invariance
 shaping_lambda: 1.0
 # AperturePassageAlignment potentials (training shaping only): -w exp(-(d/sigma)^2) max(0, 1 - (n . tau)^2) for the cord
