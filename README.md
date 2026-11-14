@@ -29,6 +29,7 @@ MCP tools: `get_state`, `render` (PNG + caption; free), `grab`, `move`, `release
 Harbor (Docker + `uv tool install harbor`); every target builds the sim image first:
 
 ```bash
+# all Alpha tasks: add HARBOR_FLAGS via `harbor run -p tasks -i 'loophole-alpha-*' ...`, or one task:
 make reference  TASKS=tasks/loophole-alpha-medium                       # oracle replays the stored reference
 make agent      TASKS=tasks/loophole-alpha-medium MODEL=anthropic/claude-sonnet-5 [AGENT=opencode] [RUNS=3]
 make noop       TASKS=tasks/loophole-alpha-medium                       # built-in `nop` agent
@@ -88,11 +89,11 @@ make eval MODEL=...                                                     # all of
 | MVP reward + independent replay verifier | done | |
 | Tests: start valid, no tunnelling at max speed, noop = 0, teleport-apart = success | done | `tests/test_alpha.py` |
 | `scripts/demo.py` | done | |
-| Harbor task `tasks/loophole-alpha-medium` | in progress | generated, lint-clean; Harbor run not yet re-verified for Alpha |
+| Harbor tasks `tasks/loophole-alpha-{easy,medium,hard}` | done | harbor: oracle 0.938 / 0.903 / 0.935, nop 0, stop-early 0 (all logs independently replayed) |
 | RRT-Connect reference (`loophole/planning/`, `scripts/build_alpha.py`) | done | all 3 variants: dense-valid, replays to separation (easy 15 / medium 29 / hard 26 actions) |
 | Cost-to-go roadmap reward (`reward/roadmap.py`) | in progress | ~8k nodes / ~67k edges per variant, ctg monotone along the reference, wall guard tested; behind `reward.roadmap` (off by default) |
 | Topological diagnostics (linking integral, loop words) | in progress | logged per action; `scripts/episode_report.py` plots them |
-| Alpha easy / hard variants | in progress | generated, not yet exposed as tasks |
+| Alpha easy / hard variants | done | gap clearance 12 / 6 / 3 mm; start ctg 1.12 / 2.60 / 2.42 |
 | Rope puzzles (easy/medium/hard) + Harbor tasks | done | earlier milestones; oracle 0.82 / nop 0 / stop-early 0 via Harbor |
 | Pose stream / recorder / replay | done | |
 | Canonical OMPL comparison (`make fetch-alpha`) | done | local only, never committed |
@@ -102,10 +103,10 @@ make eval MODEL=...                                                     # all of
 1. **Roadmap reward**: flip `reward.roadmap` on for the Alpha tasks once an agent run
    confirms the progress signal is useful; optionally switch the reference to the roadmap
    shortest path (`build_alpha.reference_from_roadmap`).
-2. **Reference solution**: commit regenerated reference + stop-early trajectories for
-   every variant; verify `harbor run -a oracle` on the Alpha task(s).
-3. **Harbor tasks**: `tasks/loophole-alpha-{easy,medium,hard}` via `scripts/sync_tasks.py`;
-   run reference / agent / nop / stop-early.
+2. **Agent runs**: `make agent TASKS=tasks MODEL=...` on the Alpha tasks; check whether
+   OpenCode passes MCP images to the model (the text state is sufficient on its own).
+3. **Roadmap reward in tasks**: `python scripts/sync_tasks.py --roadmap-reward` wires
+   `reward.roadmap` into both the sim sidecar and the verifier.
 4. **More variants**: clearance ladder via `generate.py VARIANTS`; check difficulty with planning time.
 5. Rope puzzles: keep as a second track (already working end to end).
 

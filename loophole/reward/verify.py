@@ -49,9 +49,10 @@ def verify_episode(log_path: str | Path, puzzle: str, seed: int = 0, config_path
     if int(header.get("seed", -1)) != seed:
         return _zero("episode used an unexpected seed")
     cfg = load_config(config_path)
-    if header.get("config") != json.loads(json.dumps(effective_config(cfg, pz).model_dump())):
+    eff = effective_config(cfg, pz)
+    if header.get("config") != json.loads(json.dumps(eff.model_dump())):
         return _zero("episode used a different environment configuration")
-    rm = Roadmap.for_puzzle(pz) if pz.goal.type == "separation" else None
+    rm = Roadmap.for_puzzle(pz) if (pz.goal.type == "separation" and eff.reward.roadmap) else None
     if header.get("roadmap_sha256") != (rm.sha256 if rm else None):
         return _zero("episode used a different cost-to-go roadmap")
 

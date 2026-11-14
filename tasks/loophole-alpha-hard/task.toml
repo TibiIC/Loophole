@@ -1,0 +1,46 @@
+schema_version = "1.4"
+# The sim sidecar's episode directory is collected after the agent phase and handed
+# to the separate verifier, which replays it from scratch.
+artifacts = [{ source = "/var/loophole/episode", destination = "episode", service = "loophole-sim" }]
+
+[task]
+name = "loophole/alpha-hard"
+authors = [{ name = "Loophole team" }]
+description = "Two identical alpha-shaped tubes are interlocked: each loop threads the other. Tube A is fixed; separate tube B from it."
+keywords = ["mujoco", "physics", "spatial-reasoning", "disentanglement-puzzle", "mcp"]
+
+[metadata]
+difficulty = "hard"
+category = "spatial-reasoning"
+max_actions = 200
+
+[agent]
+timeout_sec = 3600.0
+
+[verifier]
+timeout_sec = 600.0
+env = { LOOPHOLE_PUZZLE = "alpha-hard", LOOPHOLE_SEED = "0" }
+
+# Runs inside the sim sidecar after the agent container is stopped: ends the
+# episode and writes the final record next to the log.
+[[verifier.collect]]
+service = "loophole-sim"
+command = "python -m loophole.mcp_server.finalize"
+timeout_sec = 120.0
+
+# Separate verifier built from tests/docker-compose.yaml: the same sim image (which
+# bakes the verifier in at /tests), no network.
+[verifier.environment]
+network_mode = "no-network"
+cpus = 2
+memory_mb = 4096
+
+[environment]
+build_timeout_sec = 1800.0
+cpus = 2
+memory_mb = 4096
+
+[[environment.mcp_servers]]
+name = "loophole"
+transport = "streamable-http"
+url = "http://loophole-sim:8000/mcp"

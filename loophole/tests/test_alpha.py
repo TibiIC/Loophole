@@ -120,3 +120,14 @@ def test_unit_scale_roundtrip(tmp_path):
     p = load_puzzle(f)
     assert p.objects[0].pos == pytest.approx((-0.2191, -0.1111, -0.1414)) and p.goal.d_sep == pytest.approx(0.05)
     assert to_native(list(p.objects[0].pos), p) == [-21.91, -11.11, -14.14]
+
+
+def test_verifier_accepts_default_alpha_episode(tmp_path):
+    """Regression (found by a Harbor oracle run): with the roadmap flag off the verifier
+    must not expect a roadmap even though the puzzle ships one."""
+    from loophole.reward.verify import verify_episode
+
+    log = tmp_path / "episode.jsonl"
+    final = replay(LoopholeEnv(PUZZLE, log_path=log), load_trajectory(TRAJ / f"{PUZZLE}.jsonl"))
+    res = verify_episode(log, PUZZLE)
+    assert res["log_consistent"] == 1 and res["success"] == 1 and res["reward"] == pytest.approx(final["score"])
