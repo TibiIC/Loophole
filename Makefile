@@ -8,7 +8,7 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks reference agent noop stop-early eval view clean
+.PHONY: help build dev test tasks alpha fetch-alpha reference agent noop stop-early eval view clean
 
 help:
 	@echo "make build                         build the simulator / verifier image"
@@ -25,6 +25,15 @@ dev:
 
 test:
 	.venv/bin/python -m pytest -q
+
+# regenerate the Alpha-style puzzles, plans and roadmaps (offline, ~10 min; outputs are committed)
+alpha:
+	.venv/bin/python -m loophole.puzzles.alpha.generate
+	.venv/bin/python scripts/build_alpha.py
+
+# LOCAL ONLY: canonical OMPL.app Alpha meshes for comparison (Rice licence: never committed or shipped)
+fetch-alpha:
+	scripts/fetch_alpha.sh
 
 # regenerate trajectories + Harbor task dirs from puzzles/ and the scripted references
 tasks:

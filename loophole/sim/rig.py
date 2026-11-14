@@ -81,7 +81,7 @@ class Rig:
         self.substep = substep
         self.handles = [Handle(h, int(model.body_mocapid[model.body(f"handle{h}").id])) for h in range(built.num_handles)]
         self.weld_ids = {k: model.equality(n).id for k, n in built.weld_names.items()}
-        self.rope_bodies = built.rope.body_names
+        self.rope_bodies = built.rope.body_names if built.rope is not None else []
         self._park = [data.mocap_pos[h.mocap_id].copy() for h in self.handles]
 
     # ---------------------------------------------------------------- helpers
@@ -113,12 +113,12 @@ class Rig:
 
     def resolve_target(self, target: str, point=None, segment=None) -> tuple[str, np.ndarray | None]:
         """Map a user target (+ optional point/segment) to a graspable body name."""
-        rope = self.built.rope.name
+        rope = self.built.rope.name if self.built.rope is not None else None
         graspable = set(self.built.graspable)
         t = str(target).strip()
-        if t.startswith(rope + ":"):
+        if rope and t.startswith(rope + ":"):
             t, segment = rope, t.split(":", 1)[1]
-        if t == rope:
+        if rope and t == rope:
             if segment is not None:
                 try:
                     k = int(segment)
@@ -136,7 +136,8 @@ class Rig:
         else:
             body = t
         if body not in graspable:
-            raise RigError(f"{target!r} is not graspable; graspable: {sorted(set(self.built.object_bodies) & graspable)} or '{rope}' with a segment")
+            extra = f" or '{rope}' with a segment" if rope else ""
+            raise RigError(f"{target!r} is not graspable; graspable: {sorted(set(self.built.object_bodies) & graspable)}{extra}")
         return body, (None if point is None else np.asarray(point, dtype=float))
 
     # ---------------------------------------------------------------- actions

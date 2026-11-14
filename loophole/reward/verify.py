@@ -18,7 +18,8 @@ import json
 import sys
 from pathlib import Path
 
-from ..config import load_config
+from ..config import effective_config, load_config
+from .roadmap import Roadmap
 from ..sim.env import PHYSICS_TOOLS, LoopholeEnv
 from ..sim.spec import load_puzzle, resolve_puzzle
 
@@ -48,8 +49,11 @@ def verify_episode(log_path: str | Path, puzzle: str, seed: int = 0, config_path
     if int(header.get("seed", -1)) != seed:
         return _zero("episode used an unexpected seed")
     cfg = load_config(config_path)
-    if header.get("config") != json.loads(json.dumps(cfg.model_dump())):
+    if header.get("config") != json.loads(json.dumps(effective_config(cfg, pz).model_dump())):
         return _zero("episode used a different environment configuration")
+    rm = Roadmap.for_puzzle(pz) if pz.goal.type == "separation" else None
+    if header.get("roadmap_sha256") != (rm.sha256 if rm else None):
+        return _zero("episode used a different cost-to-go roadmap")
 
     env = LoopholeEnv(pz, config=cfg, seed=seed)
     try:

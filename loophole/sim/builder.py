@@ -52,7 +52,7 @@ class BuiltModel:
     xml: str
     puzzle: Puzzle
     num_handles: int
-    rope: RopeInfo
+    rope: RopeInfo | None
     graspable: list[str]  # body names
     frame_bodies: list[str]
     object_bodies: list[str]
@@ -83,7 +83,19 @@ def _geom_aabb_points(g: Geom) -> list[np.ndarray]:
     if g.type == "capsule_ring":
         r = g.radius + g.tube_radius
         return [p - r, p + r]
+    if g.type == "tube":
+        pts = np.asarray(g.points, dtype=float)
+        return [pts.min(axis=0) - g.tube_radius, pts.max(axis=0) + g.tube_radius]
     return [p]
+
+
+def _body_attrs(b: Body) -> dict:
+    a = {"name": b.name, "pos": _fmt(b.pos)}
+    if b.quat is not None:
+        a["quat"] = _fmt(b.quat)
+    else:
+        a["euler"] = _fmt(b.euler)
+    return a
 
 
 class MJCFBuilder:
@@ -108,6 +120,12 @@ class MJCFBuilder:
                 for si, (a, b) in enumerate(_ring_capsules(g.pos, g.normal, g.radius, g.tube_radius, g.segments)):
                     elems.append(
                         ET.SubElement(parent, "geom", name=f"{base}_s{si}", type="capsule", size=_fmt([g.tube_radius]), fromto=_fmt([*a, *b]), **attrs)
+                    )
+            elif g.type == "tube":
+                pts = np.asarray(g.points, dtype=float)
+                for si in range(len(pts) - 1):
+                    elems.append(
+                        ET.SubElement(parent, "geom", name=f"{base}_s{si}", type="capsule", size=_fmt([g.tube_radius]), fromto=_fmt([*pts[si], *pts[si + 1]]), **attrs)
                     )
             elif g.type == "mesh":
                 from .mesh_import import decompose_mesh
@@ -176,13 +194,14 @@ class MJCFBuilder:
 
         world = ET.SubElement(root, "worldbody")
         ET.SubElement(world, "light", name="key", pos="0.5 -0.8 1.8", dir="-0.3 0.5 -1", diffuse="0.6 0.6 0.6", castshadow="true")
-        ET.SubElement(world, "geom", name="floor", type="plane", size="3 3 0.05", material="grid", condim="3", friction="0.8 0.01 0.001", group="0")
+        if p.floor:
+            ET.SubElement(world, "geom", name="floor", type="plane", size="3 3 0.05", material="grid", condim="3", friction="0.8 0.01 0.001", group="0")
 
         # named fixed cameras (presets for render)
         frame_pts = []
         frame_names = []
         for b in p.frame:
-            be = ET.SubElement(world, "body", name=b.name, pos=_fmt(b.pos), euler=_fmt(b.euler))
+            be = ET.SubElement(world, "body", **_body_attrs(b))
             self._add_geoms(be, b, FRAME_RGBA, None, "frame")
             frame_names.append(b.name)
             for g in b.geoms:
@@ -192,15 +211,15 @@ class MJCFBuilder:
         obj_names = []
         graspable = []
         for b in p.objects:
-            be = ET.SubElement(world, "body", name=b.name, pos=_fmt(b.pos), euler=_fmt(b.euler))
+            be = ET.SubElement(world, "body", **_body_attrs(b))
             ET.SubElement(be, "joint", name=f"{b.name}_free", type="free", damping=f"{b.damping}")
             self._add_geoms(be, b, OBJECT_RGBA, b.mass, "object")
             obj_names.append(b.name)
             if b.graspable:
                 graspable.append(b.name)
 
-        rope = self._build_rope(world)
-        if p.rope.graspable:
+        rope = self._build_rope(world) if p.rope is not None else None
+        if rope is not None and p.rope.graspable:
             graspable.extend(rope.body_names)
 
         # handles
@@ -210,7 +229,7 @@ class MJCFBuilder:
             ET.SubElement(hb, "site", name=f"handle{h}_site", size="0.004")
 
         eq = ET.SubElement(root, "equality")
-        if rope.connect_eq:
+        if rope is not None and rope.connect_eq:
             last = rope.body_names[-1]
             ET.SubElement(eq, "connect", name=rope.connect_eq, body1=last, anchor=_fmt([rope.seg_lengths[-1], 0, 0]), solref=_fmt([2 * p.timestep, 1.0]))
         weld_names = {}
@@ -225,7 +244,8 @@ class MJCFBuilder:
 
         # the first / last rope segments sit on their anchors: don't collide them with the anchoring body
         contact = ET.SubElement(root, "contact")
-        for anchor, bname in ((p.rope.start, rope.body_names[0]), (p.rope.end, rope.body_names[-1])):
+        ends = [] if rope is None else [(p.rope.start, rope.body_names[0]), (p.rope.end, rope.body_names[-1])]
+        for anchor, bname in ends:
             if anchor is None:
                 continue
             targets = frame_names if anchor.body == "world" else [anchor.body]

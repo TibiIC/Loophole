@@ -16,13 +16,16 @@ from typing import Any
 import mujoco
 import numpy as np
 
-from ..config import EnvConfig, load_config
+from ..config import EnvConfig, effective_config, load_config
 from ..reward.components import RewardComposer, RewardState
+from ..reward.progress import progress_potential
+from ..reward.roadmap import Roadmap
 from ..reward.topology import Disc, TopologyTracker
 from .audit import Auditor
 from .builder import BuiltModel, build_model
+from .collision import CollisionChecker
 from .rig import Rig, RigError
-from .spec import Puzzle, load_puzzle, resolve_puzzle
+from .spec import Puzzle, load_puzzle, resolve_puzzle, to_native
 
 PHYSICS_TOOLS = ("grab", "move", "release", "wait")
 STATE_SIG = mujoco.mjtState.mjSTATE_INTEGRATION
@@ -65,8 +68,8 @@ class LoopholeEnv:
         seed: int = 0,
         log_path: str | Path | None = None,
     ):
-        self.cfg = config or load_config()
         self.puzzle = puzzle if isinstance(puzzle, Puzzle) else load_puzzle(resolve_puzzle(str(puzzle)))
+        self.cfg = effective_config(config or load_config(), self.puzzle)
         self.seed = int(seed)
         self.built: BuiltModel = build_model(
             self.puzzle,
@@ -84,9 +87,17 @@ class LoopholeEnv:
         )
         self.target_id = self.model.body(self.puzzle.target).id
         self.target_radius = self._body_radius(self.target_id)
-        self.rope_node_bodies = [self.model.body(b).id for b in self.built.rope.body_names]
-        anchors = [self.built.rope.start] + ([self.built.rope.end] if self.built.rope.end is not None else [])
+        rope = self.built.rope
+        self.rope_node_bodies = [self.model.body(b).id for b in rope.body_names] if rope else []
+        anchors = [] if rope is None else [rope.start] + ([rope.end] if rope.end is not None else [])
         self.anchors = [np.asarray(a, dtype=float) for a in anchors]
+        self.checker = CollisionChecker(self.puzzle) if self.puzzle.goal.type == "separation" else None
+        # tube centre-lines (body frame) are tracked as curves by the topology diagnostics
+        self.curves = {
+            b.name: np.concatenate([np.asarray(g.points, float) for g in b.geoms if g.type == "tube"])
+            for b in self.puzzle.frame + self.puzzle.objects
+            if any(g.type == "tube" for g in b.geoms)
+        }
         self.tracker = TopologyTracker(
             [
                 Disc(h.name, h.body, np.asarray(h.center, float), np.asarray(h.normal, float) / np.linalg.norm(h.normal), h.radius)
@@ -96,6 +107,8 @@ class LoopholeEnv:
             primary=self.cfg.topology.primary,
         )
         self._disc_body = {d.name: (None if d.body == "world" else self.model.body(d.body).id) for d in self.tracker.discs}
+        # WIP cost-to-go roadmap reward, behind reward.roadmap (off by default)
+        self.roadmap = Roadmap.for_puzzle(self.puzzle) if (self.checker is not None and self.cfg.reward.roadmap) else None
         self.composer = RewardComposer.from_config(self.cfg.reward)
         self.log = EpisodeLog(log_path)
         self._renderer = None
@@ -119,6 +132,8 @@ class LoopholeEnv:
         return lo, hi
 
     def rope_nodes(self) -> np.ndarray:
+        if not self.rope_node_bodies:
+            return np.empty((0, 3))
         d = self.data
         pts = [d.xpos[b].copy() for b in self.rope_node_bodies]
         last = self.rope_node_bodies[-1]
@@ -134,7 +149,23 @@ class LoopholeEnv:
                 self.tracker.set_disc_pose(disc, self.data.xpos[bid], self.data.xmat[bid].reshape(3, 3))
 
     # ------------------------------------------------------------ goal
+    def target_pose(self) -> np.ndarray:
+        """Target pose relative to the fixed frame (which sits at the origin): x y z qw qx qy qz."""
+        return np.concatenate([self.data.xpos[self.target_id], self.data.xquat[self.target_id]])
+
+    def curve_points(self, body: str) -> np.ndarray:
+        bid = self.model.body(body).id
+        return self.data.xpos[bid] + self.curves[body] @ self.data.xmat[bid].reshape(3, 3).T
+
     def goal_metrics(self) -> dict:
+        if self.puzzle.goal.type == "separation":
+            pose = self.target_pose()
+            d_sep = self.puzzle.goal.d_sep
+            return {
+                "target_min_distance_to_frame": round(self.checker.clearance(pose, 2 * d_sep), 5),
+                "required_separation": d_sep,
+                "goal_reached": self.checker.is_separated(pose),
+            }
         p = self.data.xpos[self.target_id]
         d_anchor = min(float(np.linalg.norm(p - a)) for a in self.anchors)
         lo, hi = self.frame_aabb()
@@ -148,6 +179,12 @@ class LoopholeEnv:
             "required_frame_distance": round(need_frame, 4),
             "goal_reached": bool(d_anchor > need_anchor and d_frame > need_frame),
         }
+
+    def _update_curves(self) -> None:
+        if self.rope_node_bodies:
+            self.tracker.update_curve("rope", self.rope_nodes())
+        for body in self.curves:
+            self.tracker.update_curve(body, self.curve_points(body), owner=body)
 
     # ------------------------------------------------------------ physics
     def _substep(self) -> None:
@@ -194,7 +231,12 @@ class LoopholeEnv:
         if self.cfg.topology.enabled and self.tracker.discs:
             self._update_discs()
             self.tracker.update_target(d.xpos[self.target_id])
-            self.tracker.update_rope(self.rope_nodes())
+            self._update_curves()
+        self.ctg = self.ctg0 = self.best_ctg = None
+        self.ctg_fallbacks = 0
+        if self.roadmap is not None:
+            self.ctg, self._ctg_node = self.roadmap.cost_to_go(self.target_pose(), self.checker)
+            self.ctg0 = self.best_ctg = self.ctg
         self._last_rstate = self._reward_state()
         self.composer.reset(self._last_rstate)
         self.initial_hash = self.state_hash()
@@ -207,6 +249,8 @@ class LoopholeEnv:
                 "seed": self.seed,
                 "config": self.cfg.model_dump(),
                 "initial_state_hash": self.initial_hash,
+                "roadmap_sha256": self.roadmap.sha256 if self.roadmap is not None else None,
+                "start_cost_to_go": self.ctg0,
                 "max_actions": self.puzzle.max_actions,
                 "settle_violations": settle_violations,
                 "wall_time": time.time(),
@@ -223,7 +267,43 @@ class LoopholeEnv:
             violations=self.audit.count,
             done=self.done,
             topology_word=self.tracker.word if self.cfg.topology.enabled else "",
+            cost_to_go=self.ctg,
+            start_cost_to_go=self.ctg0,
+            best_cost_to_go=self.best_ctg,
         )
+
+    def _update_cost_to_go(self) -> bool:
+        """Recompute the roadmap cost-to-go; keep the previous value if no node is visible."""
+        if self.roadmap is None:
+            return False
+        c, node = self.roadmap.cost_to_go(self.target_pose(), self.checker)
+        if c is None:
+            self.ctg_fallbacks += 1
+            return True
+        self.ctg, self._ctg_node = c, node
+        self.best_ctg = c if self.best_ctg is None else min(self.best_ctg, c)
+        return False
+
+    def progress_summary(self) -> dict | None:
+        if self.roadmap is None or not self.ctg0:
+            return None
+        return {
+            "cost_to_go": None if self.ctg is None else round(self.ctg, 5),
+            "start_cost_to_go": round(self.ctg0, 5),
+            "progress": None if self.ctg is None else round(1.0 - self.ctg / self.ctg0, 5),
+            "best_progress": round(1.0 - self.best_ctg / self.ctg0, 5),
+            "note": "1 = separated, 0 = as far as the start (shortest collision-free route, estimated)",
+        }
+
+    def diagnostics(self) -> dict:
+        """Topological diagnostics (log only, not part of the reward)."""
+        out = {}
+        if len(self.curves) >= 2:
+            from ..puzzles.alpha.geometry import gauss_linking
+
+            a, b = list(self.curves)[:2]
+            out["linking_integral"] = round(gauss_linking(self.curve_points(a), self.curve_points(b)), 5)
+        return out
 
     # ------------------------------------------------------------ actions
     def act(self, tool: str, args: dict[str, Any] | None = None) -> dict:
@@ -286,7 +366,8 @@ class LoopholeEnv:
         self.actions_used += 1
         if self.cfg.topology.enabled and self.tracker.discs:
             self._update_discs()
-            self.tracker.update_rope(self.rope_nodes())
+            self._update_curves()
+        fallback = self._update_cost_to_go()
         goal = self.goal_metrics()
         if self.audit.count > 0:
             self.success = False
@@ -313,6 +394,9 @@ class LoopholeEnv:
                 "done": self.done,
                 "violations": self.audit.count,
                 "topology": self.tracker.words if self.cfg.topology.enabled else None,
+                "cost_to_go": self.ctg,
+                "ctg_fallback": fallback,
+                "diagnostics": self.diagnostics(),
                 "sim_time": round(self.data.time, 4),
                 "wall_time": time.time(),
             }
@@ -329,6 +413,7 @@ class LoopholeEnv:
             "violations": self.audit.count,
             "target": self._target_summary(),
             "goal": goal,
+            "progress": self.progress_summary(),
         }
 
     def log_observation(self, tool: str, args: dict) -> None:
@@ -356,6 +441,7 @@ class LoopholeEnv:
             "final_state_hash": self.state_hash(),
             "topology": self.tracker.words if self.cfg.topology.enabled else None,
             "goal": self.goal_metrics(),
+            "cost_to_go": {"start": self.ctg0, "final": self.ctg, "best": self.best_ctg, "fallbacks": self.ctg_fallbacks},
         }
         self.log.write({**self.finalized, "wall_time": time.time()})
         self.log.close()
@@ -364,7 +450,10 @@ class LoopholeEnv:
     # ------------------------------------------------------------ observation
     def _target_summary(self) -> dict:
         bid = self.target_id
-        return {"name": self.puzzle.target, "pos": _r(self.data.xpos[bid]), "quat": _r(self.data.xquat[bid])}
+        out = {"name": self.puzzle.target, "pos": _r(self.data.xpos[bid], 5), "quat": _r(self.data.xquat[bid], 5)}
+        if self.puzzle.unit_scale != 1.0:
+            out["pos_native_units"] = to_native(self.data.xpos[bid].tolist(), self.puzzle, 4)
+        return out
 
     def scene_description(self) -> dict:
         """Static description of the frame (from the puzzle spec) and the holes."""
@@ -376,12 +465,28 @@ class LoopholeEnv:
                     e.update(fromto=list(g.fromto), radius=g.size[0])
                 elif g.type == "capsule_ring":
                     e.update(center=list(g.pos), normal=list(g.normal), ring_radius=g.radius, tube_radius=g.tube_radius)
+                elif g.type == "tube":
+                    e.update(tube_radius=g.tube_radius, centerline=_r(np.asarray(g.points), 4))
                 elif g.type == "mesh":
                     e.update(path=Path(g.path).name, pos=list(g.pos))
                 else:
                     e.update(pos=list(g.pos), size=list(g.size))
                 frame.append(e)
-        return {"frame_parts": frame, "frame_body_offsets": {b.name: list(b.pos) for b in self.puzzle.frame}}
+        out = {"frame_parts": frame, "frame_body_offsets": {b.name: list(b.pos) for b in self.puzzle.frame}}
+        movers = {}
+        for b in self.puzzle.objects:
+            tubes = [g for g in b.geoms if g.type == "tube"]
+            if tubes:
+                movers[b.name] = {
+                    "tube_radius": tubes[0].tube_radius,
+                    "centerline_body_frame": _r(self.curves[b.name], 4),
+                    "centerline_world": _r(self.curve_points(b.name), 4),
+                }
+        if movers:
+            out["objects"] = movers
+        if self.puzzle.unit_scale != 1.0:
+            out["unit_scale"] = self.puzzle.unit_scale
+        return out
 
     def get_state(self) -> dict:
         d = self.data
@@ -413,7 +518,7 @@ class LoopholeEnv:
             "success": self.success,
             "violations": self.audit.count,
             "objects": objects,
-            "rope": {
+            "rope": None if rope is None else {
                 "name": rope.name,
                 "num_segments": len(rope.body_names),
                 "segment_length": round(float(np.mean(rope.seg_lengths)), 5),
@@ -426,6 +531,8 @@ class LoopholeEnv:
             "handles": self.rig.status(),
             "holes": holes,
             "goal": self.goal_metrics(),
+            "progress": self.progress_summary(),
+            "progress_potential": progress_potential(self),  # 0 unless reward.roadmap is on (see reward/progress.py)
             "scene": self.scene_description(),
             "limits": {
                 "max_linear_step_m": self.cfg.rig.max_linear_step,

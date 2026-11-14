@@ -53,6 +53,9 @@ class RewardComponentConfig(BaseModel):
 
 
 class RewardConfig(BaseModel):
+    # Cost-to-go roadmap reward (work in progress, off by default): loads the puzzle's
+    # roadmap-*.npz and adds the `cost_to_go_shaping` and `progress` components.
+    roadmap: bool = False
     components: list[RewardComponentConfig] = [
         RewardComponentConfig(type="base", weight=1.0, params={"alpha": 0.5}),
         RewardComponentConfig(type="topology_shaping", weight=0.2, enabled=False, params={"gamma": 1.0}),
@@ -99,3 +102,10 @@ def load_config(path: str | os.PathLike | None = None, overrides: dict | None = 
     if overrides:
         data = _deep_update(data, overrides)
     return EnvConfig.model_validate(data)
+
+
+def effective_config(base: EnvConfig, puzzle) -> EnvConfig:
+    """Apply a puzzle's own `config` overrides (simulator units) on top of `base`."""
+    if not getattr(puzzle, "config", None):
+        return base
+    return EnvConfig.model_validate(_deep_update(base.model_dump(), puzzle.config))

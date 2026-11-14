@@ -22,6 +22,7 @@ audit:
   max_substep_displacement: 0.003
 
 reward:
+  roadmap: false            # WIP: cost-to-go roadmap shaping + progress credit (needs roadmap-*.npz)
   components:
     - type: base
       weight: 1.0

@@ -48,10 +48,14 @@ class Auditor:
 
     def __post_init__(self):
         r = self.built.rope
-        self._end_body = self.model.body(r.body_names[-1]).id
-        self._end_local = np.array([r.seg_lengths[-1], 0.0, 0.0])
-        self._end_anchor = None if r.end is None else np.asarray(r.end, dtype=float)
-        self._moving = np.array([self.model.body(b).id for b in r.body_names + self.built.object_bodies])
+        self._end_anchor = None
+        rope_bodies = []
+        if r is not None:
+            rope_bodies = r.body_names
+            self._end_body = self.model.body(r.body_names[-1]).id
+            self._end_local = np.array([r.seg_lengths[-1], 0.0, 0.0])
+            self._end_anchor = None if r.end is None else np.asarray(r.end, dtype=float)
+        self._moving = np.array([self.model.body(b).id for b in rope_bodies + self.built.object_bodies])
         self._prev_pos = None
         self._bad = None
 

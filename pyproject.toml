@@ -18,13 +18,13 @@ dependencies = [
 
 [project.optional-dependencies]
 mesh = ["coacd==1.0.14", "trimesh==5.2.1"]
-dev = ["pytest==9.2.0"]
+dev = ["pytest==9.2.0", "matplotlib==3.10.7"]
 
 [tool.setuptools.packages.find]
 include = ["loophole*"]
 
 [tool.setuptools.package-data]
-loophole = ["puzzles/*.yaml", "puzzles/assets/**/*", "reference/trajectories/*.jsonl", "default_config.yaml"]
+loophole = ["puzzles/*.yaml", "puzzles/assets/**/*", "puzzles/alpha/*.yaml", "puzzles/alpha/*.npz", "puzzles/alpha/assets/*", "reference/trajectories/*.jsonl", "default_config.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["loophole/tests"]

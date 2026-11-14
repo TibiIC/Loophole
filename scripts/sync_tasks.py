@@ -150,6 +150,54 @@ services:
       dockerfile: docker/sim.Dockerfile
 """
 
+INSTRUCTION_ALPHA = """\
+# Loophole: {title}
+
+You are operating a robot in a physics simulator through the **`loophole` MCP server**.
+The scene is a 3D *disentanglement puzzle* in the spirit of the classic Alpha puzzle:
+
+- two identical rigid **tubes**, each bent into an "alpha" (a loop whose two ends cross
+  with a small gap between them, then continue as tails),
+- **`tube_a`** (grey) is fixed in space; **`{target}`** (blue) is free. There is no gravity.
+- The tubes are interlocked: each loop threads the other.
+
+## Goal
+
+Separate the tubes: move `{target}` so that its minimum distance to `tube_a` exceeds
+**{d_sep} m** (`get_state` reports it under `goal`). The episode ends as soon as this holds.
+
+Nothing can pass through anything else: the simulator detects and fails any attempt to
+force the tubes through each other. The way out is narrow (a few millimetres of clearance
+for the harder variants), so you have to find it, not force it.
+
+## Tools (MCP server `loophole`)
+
+Observation tools are free:
+- `get_state()`: JSON with the pose of `{target}`, both tube centre-lines (world frame),
+  the tube radius, the loop discs, goal distance, action budget, and `progress`: a
+  normalised estimate of how far along the shortest collision-free way out you are
+  (0 = start, 1 = separated). It tells you whether you are getting closer, not how.
+- `render(view, azimuth, elevation, distance, lookat)`: PNG image + caption.
+
+Each of these costs **one action** from a budget of **{max_actions}**:
+- `grab(handle=0, target="{target}")`: grasp the tube (the handle then sits at the tube's
+  own origin, which is the point between its two crossing strands).
+- `move(handle, dx, dy, dz, droll, dpitch, dyaw, frame)`: relative motion of the grasped
+  tube about the handle, at most {max_lin} m / {max_ang} rad per call (larger requests are
+  clamped). Motion stops early (`blocked`) if the tube is obstructed.
+- `release(handle)`, `wait(steps)`.
+
+There is one handle (0).
+
+## Scoring
+
+Separate the tubes and you score 1 - 0.5 × (actions used / {max_actions}).
+If you don't, you get at most 0.3 × the best `progress` you reached.
+Plan with the free observation tools before acting. The simulator's source is not
+available to you; the score is computed by independently replaying your actions.
+When you are done (or out of ideas), simply stop.
+"""
+
 INSTRUCTION = """\
 # Loophole: {title}
 
@@ -200,14 +248,19 @@ the score is computed by independently replaying your actions. When you are done
 
 
 def make_task(puzzle: str) -> Path:
-    spec = yaml.safe_load((PUZZLES / f"{puzzle}.yaml").read_text())
+    from loophole.sim.spec import resolve_puzzle
+
+    spec = yaml.safe_load(resolve_puzzle(puzzle).read_text())
     ref = TRAJ / f"{puzzle}.jsonl"
     se = TRAJ / f"{puzzle}_stop_early.jsonl"
     if not ref.exists():
         raise FileNotFoundError(f"no reference trajectory for {puzzle}; run scripts/make_reference.py")
     from loophole.config import load_config
 
-    cfg = load_config()
+    from loophole.config import effective_config
+    from loophole.sim.spec import load_puzzle
+
+    cfg = effective_config(load_config(), load_puzzle(resolve_puzzle(puzzle)))
     d = TASKS / f"loophole-{puzzle}"
     if d.exists():
         shutil.rmtree(d)
@@ -225,9 +278,13 @@ def make_task(puzzle: str) -> Path:
         "agent_timeout": {"easy": 1800.0, "medium": 2700.0, "hard": 3600.0}.get(spec.get("difficulty"), 1800.0),
         "max_lin": cfg.rig.max_linear_step,
         "max_ang": cfg.rig.max_angular_step,
+        "d_sep": spec.get("goal", {}).get("d_sep"),
     }
+    alpha = spec.get("goal", {}).get("type") == "separation"
+    if alpha:
+        ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
     (d / "task.toml").write_text(TASK_TOML.format(**ctx))
-    (d / "instruction.md").write_text(INSTRUCTION.format(**ctx))
+    (d / "instruction.md").write_text((INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
     (d / "environment" / "docker-compose.yaml").write_text(COMPOSE.format(**ctx))
     (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)
@@ -243,7 +300,7 @@ def make_task(puzzle: str) -> Path:
 
 
 if __name__ == "__main__":
-    puzzles = sorted(p.stem for p in PUZZLES.glob("*.yaml") if (TRAJ / f"{p.stem}.jsonl").exists())
+    puzzles = sorted(p.stem for p in [*PUZZLES.glob("*.yaml"), *PUZZLES.glob("alpha/*.yaml")] if (TRAJ / f"{p.stem}.jsonl").exists())
     for pz in puzzles:
         print("wrote", make_task(pz).relative_to(ROOT))
     print(json.dumps({"tasks": puzzles}))

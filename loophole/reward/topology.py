@@ -10,10 +10,11 @@ Two kinds of words are tracked:
 * ``target``: an *event* word. After every physics substep the motion of the
   target piece's centre is tested against every disc not attached to the target
   itself and the crossing symbols are appended (then reduced).
-* ``rope``: a *state* word. The rope polyline is walked from its start anchor to
-  its end and the signed crossings with every disc (including discs attached to
-  moving objects, e.g. the target ring's own hole) are listed in order.
-  ``rope_raw`` is the unreduced list, ``rope`` its free reduction.
+* curve *state* words (``rope``, or a tube centre-line such as ``tube_b``): the
+  polyline is walked from its start to its end and the signed crossings with
+  every disc not attached to the curve's own body (including discs attached to
+  moving objects, e.g. the target ring's hole) are listed in order.
+  ``<curve>_raw`` is the unreduced list, ``<curve>`` its free reduction.
 
 ``goal_distance(word) -> int`` is a pluggable hook: plug in a puzzle-specific
 model (e.g. Przytycki–Sikora) with :func:`set_goal_distance`. The default stub
@@ -137,8 +138,12 @@ class TopologyTracker:
 
     def reset(self) -> None:
         self.target_word = ""
-        self.rope_raw = ""
+        self.curve_raw: dict[str, str] = {}
         self._last_target: np.ndarray | None = None
+
+    @property
+    def rope_raw(self) -> str:
+        return self.curve_raw.get("rope", "")
 
     # -- disc poses -----------------------------------------------------
     def set_disc_pose(self, disc: Disc, pos: np.ndarray, mat: np.ndarray) -> None:
@@ -159,23 +164,33 @@ class TopologyTracker:
                     self.target_word = free_reduce(self.target_word + d.symbol(s))
         self._last_target = pos
 
-    def update_rope(self, nodes: np.ndarray) -> None:
-        """Recompute the rope state word from its node polyline (start -> end)."""
+    def update_curve(self, name: str, points: np.ndarray, owner: str | None = None) -> None:
+        """Recompute a curve's state word from its polyline (start -> end).
+        Discs attached to `owner` (the curve's own body) are ignored."""
         events: list[tuple[float, str]] = []
         for d in self.discs:
-            for pos, sign in polyline_crossings(nodes, d.center, d.normal, d.radius):
+            if owner is not None and d.body == owner:
+                continue
+            for pos, sign in polyline_crossings(points, d.center, d.normal, d.radius):
                 events.append((pos, d.symbol(sign)))
         events.sort()
-        self.rope_raw = "".join(s for _, s in events)
+        self.curve_raw[name] = "".join(s for _, s in events)
+
+    def update_rope(self, nodes: np.ndarray) -> None:
+        self.update_curve("rope", nodes)
 
     # -- outputs --------------------------------------------------------
     @property
     def words(self) -> dict[str, str]:
-        return {"rope": free_reduce(self.rope_raw), "rope_raw": self.rope_raw, "target": self.target_word}
+        out = {"target": self.target_word}
+        for name, raw in self.curve_raw.items():
+            out[name] = free_reduce(raw)
+            out[f"{name}_raw"] = raw
+        return out
 
     @property
     def word(self) -> str:
-        return self.words[self.primary]
+        return self.words.get(self.primary, "")
 
     def summary(self) -> dict:
         return {
