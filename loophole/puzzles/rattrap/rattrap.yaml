@@ -1,0 +1,112 @@
+# The Rat Trap: geometry and cord physics scaffold.
+# PLACEHOLDER VALUES throughout: replace each named key with a measurement of the physical puzzle.
+# Units: metres, radians. Coordinates: origin at the centre of the base's underside, x across the
+# frame, y through it (front = -y), z up. The frame stands in the plane y = 0.
+
+timestep: 0.001
+
+# --- base: the foot plank the frame stands on --------------------------------------------------
+base_length: 0.30          # x
+base_depth: 0.10           # y
+base_thickness: 0.015      # z
+
+# --- frame: two vertical rails, top rail, bottom rail (square cross-section) --------------------
+frame_inner_width: 0.20    # clear width between the vertical rails
+frame_inner_height: 0.24   # clear height between bottom and top rail
+rail_thickness: 0.015      # cross-section side of every rail (x/z) and its depth (y)
+
+# --- bars spanning the frame (same cross-section as the rails) ----------------------------------
+bar_thickness: 0.015
+bar_upper_z: 0.17          # bar centre height above the top face of the bottom rail
+bar_lower_z: 0.08
+# vertical through-holes (axis z), square windows; built as boxes around the window, never meshes
+bar_upper_holes: [{x: 0.05, size: 0.010}]
+bar_lower_holes: [{x: 0.05, size: 0.010}]
+
+# --- post: cylinder descending inside the frame, from the top rail down to the upper bar ----------
+post_radius: 0.006
+post_x: 0.0
+post_hole: true            # optional transverse hole through the post (axis y)
+post_hole_height: 0.010    # window size along z
+post_hole_width: 0.006     # window size along x (<= 2 * post_radius)
+post_hole_frac: 0.75       # hole centre as a fraction of the post's length, from its bottom
+
+# --- ring: captive torus around the post (N capsules), the only rigid part not welded to world ----
+ring_major_radius: 0.025
+ring_tube_radius: 0.003
+ring_segments: 24
+ring_z: 0.205              # centre height above the bottom rail's top face
+ring_mass: 0.005
+ring_damping: 0.0005       # light damping on its free joint (gravity off: otherwise a nudge keeps it drifting)
+
+# --- ball: sphere welded to a cord node -------------------------------------------------------------
+ball_radius: 0.010
+ball_node: -12             # cord node index (0 = anchored start; negative = counted from the free end)
+ball_mode: fixed           # fixed: welded to the node (only mode implemented)
+
+# --- mouse: sphere at the cord's free end -------------------------------------------------------
+mouse_enabled: false
+mouse_radius: 0.012
+
+# --- cord: capsule chain with ball joints (joint coordinates: inextensible by construction) --------
+cord_radius: 0.0015
+cord_length: auto          # auto = the route's polyline length; a number must match it within 1 %
+cord_segments: auto        # auto = derived from the tightest aperture (see spec.derive_segments)
+cord_mass: 0.01            # total
+cord_damping: 0.00002      # per ball joint (light: quasi-static, no ringing)
+cord_armature: 0.000001
+cord_anchor_start: true    # node 0 is pinned (ball joint to the world) at the route's first point
+# route: the cord's path through holes and around parts, start (anchored) to free end. PLACEHOLDER:
+# up from the base through the lower and upper bar holes, through the ring beside the post, then out
+# to the front and down, ending in free space. z values are absolute.
+cord_route:
+  - [0.05, 0.045, 0.017]
+  - [0.05, 0.020, 0.040]
+  - [0.05, 0.0, 0.080]
+  - [0.05, 0.0, 0.140]
+  - [0.05, 0.0, 0.215]
+  - [0.015, 0.0, 0.225]
+  - [0.015, 0.0, 0.250]
+  - [0.015, 0.035, 0.262]
+  - [0.050, 0.070, 0.240]
+  - [0.090, 0.075, 0.180]
+  - [0.110, 0.075, 0.120]
+
+# --- rig: grab handles (the Alpha rig, unchanged: incremental moves that halt when resisted) -------
+rig_num_handles: 2
+rig_max_linear_step: 0.03      # m per move request
+rig_max_angular_step: 0.5      # rad per move request
+rig_linear_speed: 0.05         # m/s while executing ("maximum speed")
+rig_angular_speed: 1.0
+rig_settle_steps: 200
+rig_lag_limit: 0.002           # m: the held node lagging its handle this far = blocked
+rig_angle_lag_limit: 0.5
+rig_stall_penetration: 0.0008  # m: any contact pressed this deep = blocked
+rig_grasp_tolerance: 0.01
+rig_weld_solref: [0.002, 1.0]
+rig_workspace_min: [-0.25, -0.20, 0.0]
+rig_workspace_max: [0.25, 0.20, 0.35]
+
+# --- physics ----------------------------------------------------------------------------------
+contact_solref: [0.002, 1.0]
+contact_solimp: [0.95, 0.99, 0.0005, 0.5, 2.0]
+penetration_tolerance: 0.001   # m: deepest allowed contact at initialisation and in tests
+settle_after_route_steps: 300
+medium_viscosity: 0.05       # Pa s: light viscous medium so whole-cord and ring motion dies out (quasi-static)
+
+# --- declared clearances: what passes through which aperture (a wrong value fails a test) ---------
+# apertures: <bar>.hole<i> (vertical), post.hole (along y), ring.annulus (between post and ring, along z),
+# window.lower (between bottom rail and lower bar), window.middle (between the bars), both along y.
+clearance_table:
+  - {aperture: bar_upper.hole0, object: cord, expect: pass}
+  - {aperture: bar_upper.hole0, object: ball, expect: block}
+  - {aperture: bar_lower.hole0, object: cord, expect: pass}
+  - {aperture: bar_lower.hole0, object: ball, expect: block}
+  - {aperture: post.hole, object: cord, expect: pass}
+  - {aperture: post.hole, object: ball, expect: block}
+  - {aperture: ring.annulus, object: cord, expect: pass}
+  - {aperture: ring.annulus, object: ball, expect: block}
+  - {aperture: window.lower, object: cord, expect: pass}
+  - {aperture: window.lower, object: ball, expect: pass}
+  - {aperture: window.middle, object: cord, expect: pass}
+  - {aperture: window.middle, object: ball, expect: pass}

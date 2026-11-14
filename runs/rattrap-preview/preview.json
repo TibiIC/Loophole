@@ -1,0 +1,76 @@
+{
+ "segment_derivation": {
+  "tightest_aperture": "post.hole",
+  "aperture_radius_m": 0.003,
+  "cord_radius_m": 0.0015,
+  "clearance_m": 0.0015,
+  "bend_radius_m": 0.003,
+  "max_segment_length_m": 0.006,
+  "cord_length_m": 0.501789,
+  "segments": 84,
+  "segment_length_m": 0.005974,
+  "sagitta_at_segment_length_m": 0.001487
+ },
+ "nodes": 85,
+ "ball_node": 73,
+ "pull": {
+  "node": 26,
+  "moves": [
+   {
+    "move": [
+     0,
+     -0.03,
+     0
+    ],
+    "blocked": true,
+    "fraction": 0.893
+   },
+   {
+    "move": [
+     0,
+     -0.03,
+     0
+    ],
+    "blocked": true,
+    "fraction": 0.125
+   },
+   {
+    "move": [
+     -0.03,
+     0,
+     0
+    ],
+    "blocked": true,
+    "fraction": 0.558
+   },
+   {
+    "move": [
+     0,
+     0,
+     -0.02
+    ],
+    "blocked": false,
+    "fraction": 1.0
+   }
+  ],
+  "node_displacement_m": 0.04,
+  "neighbours_moved_m": {
+   "16": 0.0026,
+   "23": 0.0199,
+   "29": 0.037,
+   "36": 0.0338
+  },
+  "max_segment_stretch_m": 4.619756834023381e-12,
+  "max_penetration_m": 0.0002726068219725548
+ },
+ "blocked": {
+  "node": 84,
+  "blocked": true,
+  "reason": "cord_83 lags the handle by 0.002 m (blocked by contact or constraint)",
+  "fraction": 0.282,
+  "node_y_m": 0.0086,
+  "rail_front_face_y_m": 0.0075,
+  "cord_surface_to_rail_m": -0.00041,
+  "max_penetration_m": 0.00041078464167849287
+ }
+}
