@@ -18,3 +18,4 @@ MUJOCO_LOG.TXT
 .alpha_paper
 .ompl_alpha
 .mesh_cache
+runs/watch/

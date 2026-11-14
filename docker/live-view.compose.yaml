@@ -1,0 +1,22 @@
+# Live run viewer from the Docker simulator image (docs/watching.md). NOT the Harbor task: no agent container exists
+# here, and both ports are published on the host's 127.0.0.1 only. Inside a Harbor run the viewer stays off: the agent
+# container's network allowlist is per host, so any viewer port on loophole-sim would be within the agent's reach.
+#
+#   docker compose -f docker/live-view.compose.yaml up --build        # then drive it from the host, e.g. the oracle:
+#   python tasks/loophole-rattrap/solution/follow_waypoints.py tasks/loophole-rattrap/solution/waypoints.jsonl --url http://127.0.0.1:8000/mcp
+#   open http://127.0.0.1:8770/
+services:
+  loophole-sim:
+    image: loophole-sim:local
+    build:
+      context: ..
+      dockerfile: docker/sim.Dockerfile
+    environment:
+      LOOPHOLE_TASK: "rattrap"
+      MUJOCO_GL: "osmesa"
+    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http", "--live-view", "8770", "--live-host", "0.0.0.0"]
+    ports:
+      - "127.0.0.1:8000:8000"   # MCP, for the host-side driver
+      - "127.0.0.1:8770:8770"   # the viewer
+    volumes:
+      - ../runs/watch/docker:/var/loophole/episode   # frames land on the host as they are written

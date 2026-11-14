@@ -8,7 +8,7 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random judge
+.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random judge watch watch-last
 
 help:
 	@echo "make build                         build the simulator / verifier image"
@@ -69,6 +69,15 @@ eval: build
 # One command for the whole evaluation of one task: reference, stop-early, noop, three agent runs (run_evaluation.sh)
 judge:
 	./run_evaluation.sh $(or $(TASK),alpha) $(if $(filter command line environment,$(origin MODEL)),$(MODEL),gemini/gemini-4-carbon)
+
+# Live viewer (docs/watching.md): off for scored runs; WHO=oracle|random|deepseek|kimi|nemotron, PORT=8770
+watch:
+	PYTHONPATH=$(CURDIR) .venv/bin/python scripts/watch_rattrap.py --who $(or $(WHO),oracle) --port $(or $(PORT),8770)
+# encode the most recently watched run's frames into an MP4 (no re-simulation) and open it
+watch-last:
+	@d=$$(ls -dt runs/watch/*/frames 2>/dev/null | head -1); [ -n "$$d" ] || { echo "no watched run in runs/watch/"; exit 1; }; \
+	ffmpeg -y -loglevel error -framerate 4 -i "$$d/%06d.png" -pix_fmt yuv420p -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" "$$d/../run.mp4" && \
+	echo "$$d/../run.mp4" && (open "$$d/../run.mp4" 2>/dev/null || xdg-open "$$d/../run.mp4" 2>/dev/null || true)
 
 # Rat Trap (in-process, no Docker): the oracle (reference solve), noop and a random agent, scored by the real reward
 rattrap-oracle:

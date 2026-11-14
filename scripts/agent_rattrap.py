@@ -84,6 +84,7 @@ def main() -> None:
     ap.add_argument("--max-minutes", type=float, default=180.0)
     ap.add_argument("--max-turns", type=int, default=1000)
     ap.add_argument("--sparse", action="store_true", help="solved-or-0 (the first round's reward)")
+    ap.add_argument("--live-view", type=int, default=None, metavar="PORT", help="live viewer on 127.0.0.1:PORT (docs/watching.md); off by default")
     ap.add_argument("--context-chars", type=int, default=150_000)
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
@@ -95,6 +96,10 @@ def main() -> None:
     spec = load_spec(overrides=overrides)
     ep = RatTrapEpisode(spec)
     hz = Harness(spec, ep, out, m["vision"], overrides)
+    if a.live_view:
+        from loophole.puzzles.rattrap.live_view import LiveView
+
+        print(f"live view: {LiveView(out, a.live_view).attach(hz).url}", flush=True)
     tools = TOOLS + ([RENDER] if m["vision"] else [])
     msgs = [{"role": "system", "content": scene_text(spec, ep)},
             {"role": "user", "content": "Begin. Call get_state first" + (" and render" if m["vision"] else "") + ", then work towards freeing the loop."}]

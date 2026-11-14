@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 import threading
 import time
 from pathlib import Path
@@ -31,12 +32,18 @@ from .spec import load_spec
 INSTRUCTIONS = "The Rat Trap string puzzle: free the closed string loop (with the mouse bead) from the wooden frame. See get_state."
 
 
-def build(out: Path, sparse: bool = False, label: str = "", host: str = "0.0.0.0", port: int = 8000) -> FastMCP:
+def build(out: Path, sparse: bool = False, label: str = "", host: str = "0.0.0.0", port: int = 8000,
+          live_view: int | None = None, live_host: str = "127.0.0.1") -> FastMCP:
     out.mkdir(parents=True, exist_ok=True)
     overrides = {"score_progress_cap": 0.0} if sparse else {}
     spec = load_spec(overrides=overrides)
     ep = RatTrapEpisode(spec)
     hz = Harness(spec, ep, out, vision=False, overrides=overrides)
+    if live_view:  # off unless --live-view: a separate HTTP port, never MCP (live_view.py, docs/watching.md)
+        from .live_view import LiveView
+
+        lv = LiveView(out, live_view, host=live_host).attach(hz)
+        print(f"live view: {lv.url}", file=sys.stderr, flush=True)  # stderr: stdout is the MCP stdio channel
     log = open(out / "tools.jsonl", "a", buffering=1)
     lock = threading.Lock()
     t0 = time.time()
@@ -142,8 +149,12 @@ def main() -> None:
     ap.add_argument("--http", action="store_true", help="streamable HTTP at /mcp instead of stdio")
     ap.add_argument("--host", default=os.environ.get("LOOPHOLE_HOST", "0.0.0.0"))
     ap.add_argument("--port", type=int, default=int(os.environ.get("LOOPHOLE_PORT", "8000")))
+    ap.add_argument("--live-view", type=int, default=int(os.environ.get("LOOPHOLE_LIVE_VIEW", "0")) or None, metavar="PORT",
+                    help="serve a live run viewer on this port (off by default; for us, never through MCP)")
+    ap.add_argument("--live-host", default=os.environ.get("LOOPHOLE_LIVE_HOST", "127.0.0.1"),
+                    help="viewer bind address (127.0.0.1; 0.0.0.0 only inside the standalone container of docker/live-view.compose.yaml)")
     a = ap.parse_args()
-    mcp = build(a.out, a.sparse, a.label, a.host, a.port)
+    mcp = build(a.out, a.sparse, a.label, a.host, a.port, a.live_view, a.live_host)
     mcp.run("streamable-http" if a.http else "stdio")
 
 

@@ -108,6 +108,7 @@ class Harness:
         self.cmds = open(out / "commands.jsonl", "w", buffering=1)
         self.cmds.write(json.dumps(episode_header(spec, ep, overrides)) + "\n")
         self.gave_up = False
+        self.live = None  # optional LiveView (live_view.py): for us, off by default, never part of a tool result
 
     def state(self) -> dict:
         sim = self.ep.sim
@@ -173,6 +174,8 @@ class Harness:
         if tool == "move":
             out.update(blocked=res.get("blocked"), blocked_reason=res.get("blocked_reason"), executed_fraction=res.get("executed_fraction"))
         out["actions_left"] = ep.T - ep.actions
+        if self.live is not None:  # after the action is logged; reads the state, never changes it
+            self.live.on_action(ep, name, a, res)  # the call as the agent made it (mm)
         return out, None
 
 
