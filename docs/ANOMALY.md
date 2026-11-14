@@ -62,31 +62,70 @@ For comparison, on the original interface, which did expose progress:
 The mechanism is **perception → offline motion planning → open-loop execution**. This is what
 the `sensors` interface is meant to allow (genuine vision; the agent may write a planner).
 
-## 3. Action counts, a/T, and a path-length efficiency metric
+## 3. Path length, measured over physics substeps
 
-Path length = SE(3) path of tube B relative to tube A over the logged poses:
-Σ ‖Δt‖ + w·∠, with w = 1.54 m.
+Path length of tube B relative to tube A is integrated over every physics substep (1 ms) by
+replaying the log (`scripts/diagnose_run.py`), not summed over logged action endpoints.
+Translation and rotation are reported separately; L = translation + w · rotation, with
+w = 1.54 m. The substep values match the endpoint sums to within 0.1 %, because each move is a
+straight SE(3) segment executed without bounce. The exception is the gradient-search run: its
+36 blocked moves add 0.4 %.
 
-The path-length score column uses solved → 1 − 0.5 · min(1, L / (2.5 · L_oracle)). Here 2.5
-is the same budget ratio as T = 198 ≈ 2.5 × the oracle's original 79 actions. This is an
-illustration ahead of step 2; the constants are not tuned.
-
-| run | goal | actions a | a/T | score (actions) | path length L | L / L_oracle | score (path length) |
+| run | interface | score | actions a | a/T | translation (m) | rotation (rad) | L |
 |---|---|---|---|---|---|---|---|
-| oracle `fVDVriY` | free escape | 59 | 0.298 | 0.851 | **15.92** | 1.00 | 0.800 |
-| `sbMy6Ld` | free escape | 45 | 0.227 | 0.886 | **5.79** | 0.36 | **0.927** |
-| `AbJs9Px` | free escape | 46 | 0.232 | 0.884 | **6.76** | 0.42 | **0.915** |
-| oracle `Xx78e6N` | distance 0.4 m | 79 | 0.399 | 0.801 | **22.54** | 1.00 | 0.800 |
-| `5oFTZb8` | distance 0.4 m | 64 | 0.323 | 0.838 | **10.57** | 0.47 | **0.906** |
+| oracle `fVDVriY` | redesigned | 0.851 | 59 | 0.298 | 3.24 | **8.23** | **15.92** |
+| `sbMy6Ld` | redesigned | 0.886 | 45 | 0.227 | 1.39 | **2.86** | **5.79** |
+| `AbJs9Px` | redesigned | 0.884 | 46 | 0.232 | 1.38 | 3.49 | 6.76 |
+| `qxQuETk` | redesigned | 0.823 | 70 | 0.354 | 3.44 | 8.18 | 16.05 |
+| oracle `Xx78e6N` | original | 0.801 | 79 | 0.399 | 4.52 | 11.70 | 22.54 |
+| `5oFTZb8` | original | 0.838 | 64 | 0.323 | 2.83 | 5.03 | 10.57 |
+| `Kt5DJ3h` | original | 0.139 | 157 | 0.793 | 5.19 | 10.91 | 21.99 |
 
-**The agents' paths are 2.1–2.7× shorter than the oracle's.** A path-length metric
-**widens** the agents' lead instead of removing it. The oracle loses on motion quality, not
-on tool-call granularity:
-* It is the authors' *simplified* tunnel-discovery path (22 poses). That path was planned for
-  validity in their C-space, not optimised for length in our SE(3) metric.
-* It rotates 11.6 rad in total; `5oFTZb8` rotated 5.0 rad.
-* Its granularity cost is small. It uses the same per-call caps (0.1 m, 0.2 rad) at a 0.95
-  safety factor, plus per-segment rounding. That costs a few actions, not the 14–20 gap.
+The two fastest runs move tube B along paths 2.4–2.7× shorter than the published solution, and
+most of the difference is rotation: 2.9–3.5 rad against 8.2. `qxQuETk` followed essentially the
+published route (L 16.05 vs 15.92) and scored below the oracle.
+
+## 4. Strategy classes (all runs: same model, same harness, same settings)
+
+Every agent run used `gemini/gemini-4-carbon` through OpenCode with default settings
+(`kwargs: None`) and the same timeout. The two interfaces are the only difference between the
+batches.
+
+| run | interface | strategy | score | actions | blocked | reversals |
+|---|---|---|---|---|---|---|
+| `sbMy6Ld` | redesigned | reconstruct-and-plan: depth+seg → point clouds → ICP (B onto A) → own C++ RRT → execute | **0.886** | 45 | 0 | 0 |
+| `AbJs9Px` | redesigned | reconstruct-and-plan: same pipeline, PCA + trimmed ICP | **0.884** | 46 | 0 | 0 |
+| `qxQuETk` | redesigned | reconstruct-and-plan: same pipeline, planner found the published-like route | 0.823 | 70 | 0 | 0 |
+| `5oFTZb8` | original | reconstruct-and-plan: RGB space carving of both tubes → own C++ planner → execute | **0.838** | 64 | 0 | 0 |
+| `Kt5DJ3h` | original | **gradient search**: finite differences of the exposed `cost_to_go`, step downhill | 0.139 | 157 | 36 | 2 |
+| `wRU3ykj` | original | reconstruct (PCA + ICP alignment of voxel clouds), aborted by a Gemini API error before any action | 0.000 | 0 | 0 | 0 |
+
+No run used pure direct interaction, i.e. moving and reading state without either a model or
+a gradient. `5oFTZb8` and `Kt5DJ3h` are the cleanest contrast: same model, same environment
+version, same eval batch. Tool-building wins; direct search on the cost-to-go signal loses.
+
+## 5. Congruence made reconstruction easy
+
+Alpha 1.0's two pieces are congruent: tube B is an exact rigid copy of tube A. All three
+redesigned-task winners and the aborted `wRU3ykj` exploited this. They reconstructed point
+clouds of both tubes from depth + segmentation, then **registered B onto A with ICP**
+(PCA initialisation, 4–24 sign or rotation candidates, then point-to-point refinement). The
+result was B's exact pose in A's frame and one shared shape model, rather than two independent,
+noisy reconstructions.
+
+A non-congruent variant would remove this shortcut: each piece would have to be reconstructed
+and modelled separately, with no cross-check between the two clouds. That is the stated
+reason to prefer a non-congruent puzzle as a harder variant (see the escalation note).
+
+## Refuted hypotheses
+
+| hypothesis | test | result |
+|---|---|---|
+| H1. The winners used progress / cost-to-go as a search signal | probe-then-reverse count, blocked moves, code for reads of progress / cost-to-go | **Refuted.** The redesigned task exposes no such value; the winners made 0 reversals and 0 blocked moves, executing a precomputed plan. Only the losing `Kt5DJ3h` searched on it. |
+| H2. The oracle is penalised for tool-call granularity; a path-length efficiency term would make it best | path length over physics substeps, normalised by the oracle's | **Refuted.** The agents' paths are 2.4–2.7× *shorter*. A path-length metric widens their lead (illustrative scores, solved → 1 − 0.5 · min(1, L / (2.5 · L_oracle)): 0.927 / 0.915 vs oracle 0.800). The oracle already uses the same per-call caps (0.95 safety factor). |
+| H3. A tighter action budget (~1.5× the oracle) would penalise trial and error and create a gap | actions used by every run | **Refuted.** The winners used 45–46 of 198 actions. A cap of ≈ 1.5 × 59 ≈ 89 would not bind them; it would only truncate the gradient-search run (157), which already scores 0.139. |
+
+Steps 2 (path-length efficiency term) and 4 (action cap) of the brief were therefore dropped.
 
 ## Conclusion
 
@@ -94,8 +133,7 @@ on tool-call granularity:
   planning, and found **shorter** collision-free paths than the published one.
 * The oracle is a *validity* reference (it proves solvability and anchors partial credit),
   not an optimal one.
-* Changing the efficiency term to path length (step 2) will not make the oracle the best
-  score as it stands. Only a shorter oracle path would, for example the published path
-  shortened in our own simulator.
+* The fix for the reference is to implement it properly: shortcut-smooth the published path
+  in our own simulator, rotation first (section "Smoothed oracle" below, once it lands).
 * The progress signal was only exposed on the original interface. There, one agent used it
   for gradient-style search, and that run did not win.

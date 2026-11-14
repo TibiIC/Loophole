@@ -50,6 +50,26 @@ log consistent, sidecar agrees. Under the current goal (free escape by translati
 (local replay; the trajectory header records `expected_score` 0.851, `distance_goal_score`
 0.8005).
 
+## What is withheld from the agent: a solution oracle, not task state
+
+The agent gets everything needed to reason about the task:
+* cameras: rgb, metric depth, segmentation and the full camera model, from any viewpoint;
+* tube B's pose relative to tube A, and its own handle;
+* contact points, normals, penetration and forces;
+* the outcome of every action (executed motion, `blocked`, `clamped`);
+* the action budget and the rig limits.
+
+What it does not get is any **solution signal**: the roadmap cost-to-go, the derived progress
+value, the goal test or escape direction. These stay verifier-side. Exposing them turns the
+task into black-box descent on our own planner's value function: on the original interface,
+one run (`Kt5DJ3h`) did exactly that by finite differences and failed (docs/ANOMALY.md).
+
+**Proximity (minimum distance between the tubes) is deliberately excluded**, in any form,
+including a proximity value in `get_contacts`. It is a hand-made shaping signal rather than
+something a robot senses. The old goal was defined through it (min distance > 0.4 m), and the
+puzzle's real obstruction is topological and geometric, not metric. Contact feedback (actual
+touch) is provided.
+
 ## Observation profiles and images
 
 The task's MCP tools come from `observation.profile` in the sim config

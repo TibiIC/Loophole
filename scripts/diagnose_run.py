@@ -11,8 +11,10 @@ Per trial it reports:
   * blocked moves, observation calls by tool, whether actions ran in a single scripted burst;
   * which state fields the agent's code and reasoning reference (get_state / get_contacts /
     render caption keys), and whether any progress / cost-to-go value was ever available to it;
-  * actions a, a/T, and the SE(3) path length of tube B relative to tube A
-    (sum over consecutive logged poses of ||dt|| + w * angle, w = the roadmap's characteristic length).
+  * actions a, a/T, and the SE(3) path length of tube B relative to tube A, integrated over
+    physics substeps (1 ms) by replaying the log: translation (m) and rotation (rad) separately,
+    and L = translation + w * rotation, w = the roadmap's characteristic length. (Summing over
+    logged action endpoints instead under-counts curved or settling motion; both are reported.)
 """
 
 from __future__ import annotations
@@ -79,7 +81,41 @@ def agent_text(trial: Path) -> tuple[str, str]:
     return "\n".join(prose), "\n".join(code)
 
 
-def diagnose(trial: Path) -> dict:
+def substep_path(log: Path) -> dict:
+    """Replay a simulator episode log and integrate tube B's motion over every physics substep."""
+    from loophole.config import EnvConfig
+    from loophole.sim.env import EpisodeOver, LoopholeEnv
+    from loophole.sim.rig import RigError
+
+    recs = [json.loads(l) for l in log.open() if l.strip()]
+    hdr = recs[0]
+    env = LoopholeEnv(hdr["puzzle"], config=EnvConfig.model_validate(hdr["config"]), seed=int(hdr.get("seed", 0)),
+                      start_pose=hdr.get("start_pose"))
+    acc = {"trans": 0.0, "rot": 0.0}
+    prev = [env.target_pose().copy()]
+    inner = env._substep
+
+    def substep():
+        inner()
+        cur = env.target_pose()
+        acc["trans"] += float(np.linalg.norm(cur[:3] - prev[0][:3]))
+        acc["rot"] += abs(float(quat_to_axis_angle(quat_mul(quat_conj(prev[0][3:]), cur[3:]))[1]))
+        prev[0] = cur.copy()
+
+    env._substep = substep
+    env.rig.substep = substep
+    for r in recs:
+        if r["type"] == "action" and not env.done:
+            try:
+                env.act(r["tool"], r["args"])
+            except (RigError, EpisodeOver, ValueError, TypeError):
+                pass
+    env.close()
+    return {"translation_m": round(acc["trans"], 4), "rotation_rad": round(acc["rot"], 4),
+            "L": round(acc["trans"] + W * acc["rot"], 4)}
+
+
+def diagnose(trial: Path, substeps: bool = True) -> dict:
     recs = [json.loads(l) for l in (trial / "verifier" / "episode.jsonl").open() if l.strip()]
     hdr = recs[0]
     T = int(hdr["max_actions"])
@@ -100,6 +136,8 @@ def diagnose(trial: Path) -> dict:
     n_moves = len(moves)
     poses = [Q0] + [np.asarray(r["rel_pose"], float) for r in acts]
     L = sum(pose_metric(a, b) for a, b in zip(poses[:-1], poses[1:]))
+    tr = sum(float(np.linalg.norm(b[:3] - a[:3])) for a, b in zip(poses[:-1], poses[1:]))
+    sub = substep_path(trial / "verifier" / "episode.jsonl") if substeps else None
     wall = [r["wall_time"] for r in acts]
     gaps = np.diff(wall) if len(wall) > 1 else np.array([])
     prose, code = agent_text(trial)
@@ -127,7 +165,9 @@ def diagnose(trial: Path) -> dict:
         "action_burst": {"median_gap_s": round(float(np.median(gaps)), 2) if gaps.size else None,
                          "max_gap_s": round(float(gaps.max()), 1) if gaps.size else None,
                          "span_s": round(wall[-1] - wall[0], 1) if wall else None},
-        "path_length_se3": round(L, 4),
+        "path_length_se3_endpoints": round(L, 4), "translation_m_endpoints": round(tr, 4),
+        "rotation_rad_endpoints": round((L - tr) / W, 4),
+        "path_length_se3": sub["L"] if sub else round(L, 4), "path_substeps": sub,
         "fields_referenced": fields,
         "code_chars": len(code), "reasoning_chars": len(prose),
     }
