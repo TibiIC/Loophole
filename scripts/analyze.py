@@ -230,15 +230,24 @@ def axes_row(trial: Path, group: str, model: str) -> dict:
             "furthest_ctg": min(ctgs) if ctgs else None}
 
 
+# harness-invalid trials (docs/HARNESS_NOTES.md, scripts/harness_audit.py): the model never got to act on the puzzle
+EXCLUDED_MODELS = {"gemini/gemini-2.5-flash": "model no longer available to new API users (0 turns)"}
+EXCLUDED_TRIALS = {"wRU3ykj": "API 400 'Requests ending with a model turn are not supported' before any action"}
+
+
 def axes(out_md: Path) -> str:
     st = stages_from_profile()
-    rows = []
+    rows, excluded = [], []
     for run_dir in sorted(ROOT.glob("runs/2026*")):
         cfgp = run_dir / "config.json"
         if not cfgp.exists():
             continue
         cfg = json.loads(cfgp.read_text())
         for trial in sorted((run_dir / "opencode").glob("*__*")):
+            tid, model = trial.name.split("__")[-1], cfg.get("model", "?")
+            if model in EXCLUDED_MODELS or tid in EXCLUDED_TRIALS:
+                excluded.append(f"`{tid}` (`{model}`, {run_dir.name}): {EXCLUDED_MODELS.get(model) or EXCLUDED_TRIALS[tid]}")
+                continue
             if (trial / "verifier" / "episode.jsonl").exists():
                 r = axes_row(trial, run_dir.name, cfg.get("model", "?"))
                 r["stage"] = stage_of(r["furthest_ctg"], r["solved"], st)
@@ -279,6 +288,8 @@ def axes(out_md: Path) -> str:
                   f"{TUNNEL_CLEARANCE * 1000:.0f} mm; tunnel entry at cost-to-go {f(st['tunnel_entry'], 1)}, key configuration (narrowest, "
                   f"{st.get('key_clearance_mm', '–')} mm) at {f(st['key'], 1)}, tunnel exit at {f(st['tunnel_exit'], 1)}; start {f(st['start_ctg'], 1)}. "
                   "Runs that never had a visible roadmap node report no cost-to-go (stage: start bubble) unless solved."]
+    if excluded:
+        lines += ["", "Excluded as harness-invalid (the model never acted on the puzzle; not counted as failures):"] + [f"* {e}" for e in excluded]
     table = "\n".join(lines)
     md = out_md.read_text() if out_md.exists() else ""
     start, end = "<!-- axes:start -->", "<!-- axes:end -->"

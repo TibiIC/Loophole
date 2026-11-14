@@ -1,0 +1,48 @@
+{
+    "id": "e0e000c2-2099-40ee-8262-858a84ff688c",
+    "started_at": "2026-11-14T20:45:43.045105",
+    "updated_at": "2026-11-14T22:50:06.321268",
+    "finished_at": "2026-11-14T22:50:06.321268",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 2,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__verda/kimi-k3-1-pro__adhoc": {
+                "n_trials": 3,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.0015293333333333333
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.004588": [
+                            "loophole-alpha__4BanhcW"
+                        ],
+                        "0.0": [
+                            "loophole-alpha__D9VAB6s",
+                            "loophole-alpha__UpevmKp"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "loophole-alpha__4BanhcW",
+                        "loophole-alpha__D9VAB6s"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 121390197,
+        "n_cache_tokens": 120855168,
+        "n_output_tokens": 147568,
+        "cost_usd": null
+    }
+}

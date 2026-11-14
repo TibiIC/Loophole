@@ -1,0 +1,14 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__j7MwLox",
+    "trials_dir": "/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-194920-opencode",
+    "agent_timeout_multiplier": 1.0,
+    "agent_setup_timeout_multiplier": 4.0,
+    "agent": {
+        "name": "opencode",
+        "model_name": "gemini/gemini-2.5-flash"
+    },
+    "job_id": "1afc0bb9-a3df-4006-a656-010e9fd02a5c"
+}

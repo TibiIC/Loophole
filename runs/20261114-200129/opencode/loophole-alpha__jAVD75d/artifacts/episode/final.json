@@ -1,0 +1,48 @@
+{
+ "type": "final",
+ "puzzle": "alpha-1.0-paper",
+ "score": 0.004762,
+ "success": false,
+ "actions_used": 198,
+ "max_actions": 198,
+ "done_reason": "action budget exhausted",
+ "violations": {
+  "count": 0,
+  "max_penetration": 0.000814,
+  "records": []
+ },
+ "breakdown": {
+  "cspace_tunnel": {
+   "weight": 1.0,
+   "step_sum": 0.019416,
+   "terminal": 0.004762058152930759,
+   "in_score": true
+  },
+  "clearance_shaping": {
+   "weight": 0.0,
+   "step_sum": -0.241503,
+   "terminal": 0.0,
+   "in_score": false
+  },
+  "gauss_linking_diagnostic": {
+   "weight": 0.0,
+   "step_sum": 0.0,
+   "terminal": 0.0,
+   "in_score": false
+  }
+ },
+ "final_state_hash": "5d0120737e1c987faaeeece2e4b72885e2363d0d93ab9b774ba2eb295e41297d",
+ "topology": null,
+ "goal": {
+  "criterion": "free escape by translation",
+  "goal_reached": false,
+  "escape_direction": null
+ },
+ "cost_to_go": {
+  "start": 21.60665698080951,
+  "final": 21.187138408328842,
+  "best": 21.137278904716183,
+  "stable_best": 21.263683124032703,
+  "fallbacks": 161
+ }
+}

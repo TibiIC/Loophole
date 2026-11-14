@@ -1,0 +1,8 @@
+{
+ "model": "gemini/gemini-3.8-flash",
+ "runs": 3,
+ "task": "./tasks/loophole-alpha",
+ "harbor": "/Users/tg4018/.local/bin/harbor",
+ "commit": "72961e0a6bbb430f16817bbcf077187a7c17b515",
+ "dirty": false
+}

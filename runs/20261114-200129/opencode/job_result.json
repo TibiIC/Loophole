@@ -1,0 +1,49 @@
+{
+    "id": "6a974238-89ef-4c44-b44b-e70539512958",
+    "started_at": "2026-11-14T20:01:52.272397",
+    "updated_at": "2026-11-14T20:45:29.211054",
+    "finished_at": "2026-11-14T20:45:29.211054",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 1,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__verda/deepseek-4-1-flash-1017__adhoc": {
+                "n_trials": 3,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.005388333333333333
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.007049": [
+                            "loophole-alpha__wZquaF5"
+                        ],
+                        "0.004354": [
+                            "loophole-alpha__BpQxf4N"
+                        ],
+                        "0.004762": [
+                            "loophole-alpha__jAVD75d"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "NonZeroAgentExitCodeError": [
+                        "loophole-alpha__BpQxf4N"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 22281421,
+        "n_cache_tokens": 22128640,
+        "n_output_tokens": 153216,
+        "cost_usd": null
+    }
+}

@@ -1,0 +1,2 @@
+{"reward": 0.004762, "success": 0, "actions_used": 198, "violations": 0, "log_consistent": 1, "reason": "action budget exhausted"}
+0.004762

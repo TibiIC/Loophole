@@ -1,0 +1,57 @@
+{
+ "reward": 0.018618,
+ "success": 0,
+ "actions_used": 76,
+ "violations": 0,
+ "log_consistent": 1,
+ "sidecar_agrees": 1,
+ "reason": "stopped by agent/harness",
+ "final": {
+  "type": "final",
+  "puzzle": "alpha-1.0-paper",
+  "score": 0.018618,
+  "success": false,
+  "actions_used": 76,
+  "max_actions": 198,
+  "done_reason": "stopped by agent/harness",
+  "violations": {
+   "count": 0,
+   "max_penetration": 0.000584,
+   "records": []
+  },
+  "breakdown": {
+   "cspace_tunnel": {
+    "weight": 1.0,
+    "step_sum": 0.040673,
+    "terminal": 0.018618188870588834,
+    "in_score": true
+   },
+   "clearance_shaping": {
+    "weight": 0.0,
+    "step_sum": -0.225668,
+    "terminal": 0.0,
+    "in_score": false
+   },
+   "gauss_linking_diagnostic": {
+    "weight": 0.0,
+    "step_sum": 0.0,
+    "terminal": 0.0,
+    "in_score": false
+   }
+  },
+  "final_state_hash": "0c8a13651f166a400783d5cd7496cab14ec593c958b72eec27de83bc98e2130f",
+  "topology": null,
+  "goal": {
+   "criterion": "free escape by translation",
+   "goal_reached": false,
+   "escape_direction": null
+  },
+  "cost_to_go": {
+   "start": 21.60665698080951,
+   "final": 20.727839587162194,
+   "best": 20.210722749939897,
+   "stable_best": 20.26573424570705,
+   "fallbacks": 23
+  }
+ }
+}

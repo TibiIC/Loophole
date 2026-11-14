@@ -1,0 +1,132 @@
+=== gemini/gemini-3.8-flash Sat 14 Nov 2026 17:44:59 EET
+[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)
+[eval] opencode: /Users/tg4018/.local/bin/harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-3.8-flash -k 3 -n 3 --agent-timeout-multiplier 1.0 --agent-setup-timeout-multiplier 4 -o /Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs --job-name 20261114-174459-opencode
+[eval] opencode: [0.005825, 0.0, 0.018618] (6252s)
+# Evaluation summary: `20261114-174459`
+
+Task `tasks/loophole-alpha` (Alpha 1.0). Agent model: `gemini/gemini-3.8-flash` (OpenCode).
+
+| run | trial | score | solved | actions | violations | start ctg | best held ctg | log consistent |
+|---|---|---|---|---|---|---|---|---|
+| opencode | loophole-alpha__QrsMh3s | 0.006 | no | 189 | 0 | 21.61 | 21.19 | 1 |
+| opencode | loophole-alpha__sHE2fBv | 0.000 | no | 196 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__snypBd4 | 0.019 | no | 76 | 0 | 21.61 | 20.27 | 1 |
+
+## Scores
+
+| run | score |
+|---|---|
+| oracle | – |
+| noop | – |
+| stop-early | – |
+| opencode `gemini/gemini-3.8-flash` (n=3) | 0.008 ± 0.010 |
+
+Score: solved → 1 − 0.5·a/T; unsolved → 0.3·p with p = 1 − best held cost-to-go / start cost-to-go; any violation → 0 (see loophole/reward/literature_rewards.py).
+
+[eval] wrote /Users/tg4018/Documents/Hackathons/Junction/Loophole/runs/20261114-174459
+=== gemini/gemini-3.5-flash-lite Sat 14 Nov 2026 19:29:11 EET
+[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)
+[eval] opencode: /Users/tg4018/.local/bin/harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-3.5-flash-lite -k 3 -n 3 --agent-timeout-multiplier 1.0 --agent-setup-timeout-multiplier 4 -o /Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs --job-name 20261114-192911-opencode
+[eval] opencode: [0.0, 1.9e-05, 0.0] (1209s)
+# Evaluation summary: `20261114-192911`
+
+Task `tasks/loophole-alpha` (Alpha 1.0). Agent model: `gemini/gemini-3.5-flash-lite` (OpenCode).
+
+| run | trial | score | solved | actions | violations | start ctg | best held ctg | log consistent |
+|---|---|---|---|---|---|---|---|---|
+| opencode | loophole-alpha__UofRoUL | 0.000 | no | 54 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__o6W9Upt | 0.000 | no | 55 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__tyxJ2PC | 0.000 | no | 198 | 0 | 21.61 | 21.61 | 1 |
+
+## Scores
+
+| run | score |
+|---|---|
+| oracle | – |
+| noop | – |
+| stop-early | – |
+| opencode `gemini/gemini-3.5-flash-lite` (n=3) | 0.000 ± 0.000 |
+
+Score: solved → 1 − 0.5·a/T; unsolved → 0.3·p with p = 1 − best held cost-to-go / start cost-to-go; any violation → 0 (see loophole/reward/literature_rewards.py).
+
+[eval] wrote /Users/tg4018/Documents/Hackathons/Junction/Loophole/runs/20261114-192911
+=== gemini/gemini-2.5-flash Sat 14 Nov 2026 19:49:20 EET
+[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)
+[eval] opencode: /Users/tg4018/.local/bin/harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-2.5-flash -k 3 -n 3 --agent-timeout-multiplier 1.0 --agent-setup-timeout-multiplier 4 -o /Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs --job-name 20261114-194920-opencode
+[eval] opencode: [0.0, 0.0, 0.0] (728s)
+# Evaluation summary: `20261114-194920`
+
+Task `tasks/loophole-alpha` (Alpha 1.0). Agent model: `gemini/gemini-2.5-flash` (OpenCode).
+
+| run | trial | score | solved | actions | violations | start ctg | best held ctg | log consistent |
+|---|---|---|---|---|---|---|---|---|
+| opencode | loophole-alpha__8RcG9VQ | 0.000 | no | 0 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__cDA8RbC | 0.000 | no | 0 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__j7MwLox | 0.000 | no | 0 | 0 | 21.61 | 21.61 | 1 |
+
+## Scores
+
+| run | score |
+|---|---|
+| oracle | – |
+| noop | – |
+| stop-early | – |
+| opencode `gemini/gemini-2.5-flash` (n=3) | 0.000 ± 0.000 |
+
+Score: solved → 1 − 0.5·a/T; unsolved → 0.3·p with p = 1 − best held cost-to-go / start cost-to-go; any violation → 0 (see loophole/reward/literature_rewards.py).
+
+[eval] wrote /Users/tg4018/Documents/Hackathons/Junction/Loophole/runs/20261114-194920
+=== done Sat 14 Nov 2026 20:01:29 EET
+=== verda/deepseek-4-1-flash-1017 Sat 14 Nov 2026 20:01:29 EET
+[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)
+[eval] opencode: /Users/tg4018/.local/bin/harbor run -p ./tasks/loophole-alpha -a opencode -m verda/deepseek-4-1-flash-1017 -k 3 -n 3 --agent-timeout-multiplier 1.0 --agent-setup-timeout-multiplier 4 --base-url https://inference.verda.com/v1 --api-key-name DEEPSEEK_AI_API_KEY --api-format openai_chat_completions -o /Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs --job-name 20261114-200129-opencode
+[eval] opencode: [0.004354, 0.004762, 0.007049] (2641s)
+# Evaluation summary: `20261114-200129`
+
+Task `tasks/loophole-alpha` (Alpha 1.0). Agent model: `verda/deepseek-4-1-flash-1017` (OpenCode).
+
+| run | trial | score | solved | actions | violations | start ctg | best held ctg | log consistent |
+|---|---|---|---|---|---|---|---|---|
+| opencode | loophole-alpha__BpQxf4N | 0.004 | no | 198 | 0 | 21.61 | 21.29 | 1 |
+| opencode | loophole-alpha__jAVD75d | 0.005 | no | 198 | 0 | 21.61 | 21.26 | 1 |
+| opencode | loophole-alpha__wZquaF5 | 0.007 | no | 179 | 0 | 21.61 | 21.10 | 1 |
+
+## Scores
+
+| run | score |
+|---|---|
+| oracle | – |
+| noop | – |
+| stop-early | – |
+| opencode `verda/deepseek-4-1-flash-1017` (n=3) | 0.005 ± 0.001 |
+
+Score: solved → 1 − 0.5·a/T; unsolved → 0.3·p with p = 1 − best held cost-to-go / start cost-to-go; any violation → 0 (see loophole/reward/literature_rewards.py).
+
+[eval] wrote /Users/tg4018/Documents/Hackathons/Junction/Loophole/runs/20261114-200129
+=== verda/kimi-k3-1-pro Sat 14 Nov 2026 20:45:30 EET
+[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)
+[eval] opencode: /Users/tg4018/.local/bin/harbor run -p ./tasks/loophole-alpha -a opencode -m verda/kimi-k3-1-pro -k 3 -n 3 --agent-timeout-multiplier 1.0 --agent-setup-timeout-multiplier 4 --base-url https://inference.verda.com/v1 --api-key-name KIMI_AI_API_KEY --api-format openai_chat_completions -o /Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs --job-name 20261114-204530-opencode
+[eval] opencode: [0.004588, 0.0, 0.0] (7478s)
+# Evaluation summary: `20261114-204530`
+
+Task `tasks/loophole-alpha` (Alpha 1.0). Agent model: `verda/kimi-k3-1-pro` (OpenCode).
+
+| run | trial | score | solved | actions | violations | start ctg | best held ctg | log consistent |
+|---|---|---|---|---|---|---|---|---|
+| opencode | loophole-alpha__4BanhcW | 0.005 | no | 35 | 0 | 21.61 | 21.28 | 1 |
+| opencode | loophole-alpha__D9VAB6s | 0.000 | no | 3 | 0 | 21.61 | 21.61 | 1 |
+| opencode | loophole-alpha__UpevmKp | 0.000 | no | 182 | 0 | 21.61 | 21.61 | 1 |
+
+## Scores
+
+| run | score |
+|---|---|
+| oracle | – |
+| noop | – |
+| stop-early | – |
+| opencode `verda/kimi-k3-1-pro` (n=3) | 0.002 ± 0.003 |
+
+Score: solved → 1 − 0.5·a/T; unsolved → 0.3·p with p = 1 − best held cost-to-go / start cost-to-go; any violation → 0 (see loophole/reward/literature_rewards.py).
+
+[eval] wrote /Users/tg4018/Documents/Hackathons/Junction/Loophole/runs/20261114-204530
+=== verda done Sat 14 Nov 2026 22:50:09 EET

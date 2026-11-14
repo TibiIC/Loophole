@@ -1,0 +1,2 @@
+{"reward": 0.0, "success": 0, "actions_used": 54, "violations": 0, "log_consistent": 1, "reason": "stopped by agent/harness"}
+0.000000
