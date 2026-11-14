@@ -11,3 +11,4 @@ MUJOCO_LOG.TXT
 .ompl_alpha/
 .env*
 .alpha_paper/
+.view_cache/

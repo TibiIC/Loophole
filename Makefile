@@ -14,7 +14,7 @@ help:
 	@echo "make build                         build the simulator / verifier image"
 	@echo "make reference | noop | stop-early run the oracle / baselines through Harbor"
 	@echo "make agent MODEL=<provider/model> [AGENT=opencode] [RUNS=3]"
-	@echo "make eval MODEL=<provider/model>   build + reference + agent x RUNS + noop + stop-early"
+	@echo "make eval MODEL=<provider/model>   oracle + RUNS opencode runs + noop + stop-early -> runs/<ts>/summary.md"
 	@echo "make dev && make test              local venv + pytest"
 
 build:
@@ -36,8 +36,12 @@ fetch-alpha-paper:
 	scripts/fetch_alpha_paper.sh
 
 # watch the oracle (the paper's published solution) in the MuJoCo viewer
+# first run simulates once (~80 s) into .view_cache/; playback speed: SPEED=10, the
+# `playback_speed` slider (right panel > Control) or the up/down arrows; space pauses
+SPEED ?= 5
 view-alpha: fetch-alpha-paper
-	.venv/bin/mjpython -m loophole.viewer --trajectory loophole/reference/trajectories/alpha-1.0-paper.jsonl
+	.venv/bin/mjpython -m loophole.viewer --trajectory loophole/reference/trajectories/alpha-1.0-paper.jsonl \
+		--config loophole/configs/alpha_training.yaml --speed $(SPEED)
 
 # regenerate trajectories + Harbor task dirs from puzzles/ and the scripted references
 tasks:
@@ -56,7 +60,10 @@ noop: build
 stop-early: build
 	$(HARBOR) run -p $(TASKS) -a oracle --ae LOOPHOLE_SOLUTION=stop_early -o $(JOBS) --job-name stop-early-$(STAMP)
 
-eval: build reference agent noop stop-early
+# oracle + RUNS OpenCode runs + noop + stop-early on tasks/loophole-alpha -> runs/<timestamp>/summary.md
+# API keys from the environment; a local .env (gitignored) is sourced if present.
+eval: build
+	set -a; [ -f .env ] && . ./.env; set +a; HARBOR=$(HARBOR) .venv/bin/python scripts/eval.py --model $(MODEL) --runs $(RUNS)
 
 view:
 	$(HARBOR) view $(JOBS)
