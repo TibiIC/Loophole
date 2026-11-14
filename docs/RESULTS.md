@@ -124,6 +124,78 @@ profile (`tasks/loophole-alpha-planner`). Scored by Harbor's own verifier. "prog
 for the oracle is 0.72 because the episode ends as soon as tube B is free, before the
 roadmap's separated nodes are reached.
 
+## Rat Trap: what the agents were doing
+
+No model has solved the Rat Trap, and none reached even the first of the 20 reference checkpoints. The scores say
+nothing more, so this section reads the transcripts (`runs/rattrap-agents/*/transcript.jsonl`, `tools.jsonl`). Runs that
+ended on the release defect, the harness truncation bug or a revoked API key are excluded (README results table).
+
+| Failure mode | Run | Actions (end) | Blocked-move rate | Repeated identical actions | Grabs | State queries / move | Renders / move | Checkpoints | Closest to c₁ | Commonest response to a block |
+|---|---|---|---|---|---|---|---|---|---|---|
+| fixed wrong model | Nemotron 3.5 Super VL, round 1 | 343 (turn cap) | 0.27 | 1 | 107 | 0.31 | 0.04 | 0 | 110.8 mm | release (32 of 35) |
+| right diagnosis, local execution | Kimi K3 Pro, round 2 | 852 (budget) | 0.27 | 13 | 168 | 0.16 | 0 | 0 | 63.4 mm | release (55 of 138), then redirect (33), other gripper (32) |
+| right diagnosis, local execution | Kimi K3 Pro, round 1 | 357 (turn cap) | 0.19 | 21 | 55 | 0.17 | 0 | 0 | 70.1 mm | redirect, reverse, release |
+| explicit topology, then quitting | DeepSeek V4.1 Flash, round 2 | 493 (gave up) | 0.17 | 38 | 117 | 0.51 | 0 | 0 | 88.1 mm | release, redirect (state checked more often than the others) |
+| explicit topology, then quitting | DeepSeek V4.1 Flash, round 1 | 322 (turn cap) | 0.25 | 10 | 78 | 0.46 | 0 | 0 | 97.7 mm | release (27 of 41) |
+| acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 2 | 248 (model stopped) | 0.30 | 19 | 27 | 0.25 | 0 | 0 | not computed | redirect, then look and release |
+| acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 0 | 298 (API key revoked) | 0.37 | 12 | 43 | 0.28 | 0 | 0 | not computed | redirect, then reverse, then look and release |
+
+*Blocked-move rate* is blocked moves over moves. *Repeated identical actions* counts consecutive identical calls.
+*Closest to c₁* is the smallest max-norm distance to the first checkpoint over the run (ε = 16.6 mm; the start is
+110.8 mm away). The Gemini runs predate the release fix and saw every 6th cord node; Nemotron had rendered images and
+the others text only. Each model has one or two runs, so these are case studies, not rates.
+
+**A fixed, wrong picture of the puzzle (Nemotron).**
+* *The decision the task requires:* read off the structure what is fixed and what is free. The right dowel rises from
+  the bottom rail and ends in the ring, so the loop wrapped round it has no free end to come off by.
+* *What Nemotron did:* it formed one plan in its first message, "to free the loop, I need to unwrap it from the right
+  dowel", and kept it to the last. "Unwrap" or "slide it off" appears in 31 of its 73 messages, ending with "pulling
+  the wrapped strand in the right direction to slide it off the bottom of the dowel".
+* It named the post-end gap 11 times ("threading it through the gap at the free end of the lower post … to change its
+  topology") but never stayed with it.
+* It answered almost every block by letting go and grabbing elsewhere (32 of 35), and rendered only 0.04 times per move
+  despite having images. Its interaction never updated the belief.
+* *Caveat:* one run, so this could be a property of the run as much as of the model.
+
+**The right diagnosis, executed locally (Kimi).**
+* *The decision the task requires:* commit to a coordinated global manoeuvre, moving a whole bight of cord through a
+  passage the mouse bead fits, instead of relieving tension where the cord catches.
+* *What Kimi learned:* it learned that the loop can't simply slip off ("the forward pull confirms this is a trapped
+  loop, not a simple slip-off: the dowel continues into the post and base"). It then noticed that its local pulls only
+  move the entanglement around the loop: "Each rear transfer has simply handed the winding to the next section." By
+  turn 462: "The lower-turn transfer has now repeatedly migrated around the loop, which means the upper crossing is
+  supplying the winding. I'll … move the upper bight around the left free end of the upper post, using the
+  mouse-compatible outer gap."
+* That is the right kind of move.
+* *What it did with it:* it went back to local work ("the action pattern has been unnecessarily cyclic", turn 551),
+  used all 852 actions with 141 blocked moves, and came closest of any agent, though still 63 mm from the first
+  checkpoint.
+* It had the insight, but not the sustained plan that would turn it into a sequence.
+
+**Explicit topology, then quitting (DeepSeek).**
+* *The decision the task requires:* search over sequences of passages, keep going when a sequence fails, and not
+  mistake an invariant for a proof of impossibility.
+* *What DeepSeek built:* it did the most explicit reasoning of any agent. It tracked where the loop crosses the frame
+  plane from the node coordinates, and whether those crossings straddle the dowel. It saw that local moves cannot
+  change that: "moving one node of the dip around won't thread the whole loop … moving it around doesn't change
+  topology." It even questioned its own model: "I keep assuming straddle = wrap. Let me verify."
+* *How it ended:* it never found a sequence that changes the invariant, and it stopped with 359 of 852 actions unused:
+  "I am now confident I cannot solve this … The loop remains enclosed (crossings at x13 and x44 straddle the dowel)."
+* It treated a correct description of the obstruction as a reason to stop.
+
+**Not every run fits a story.**
+* *Gemini 4 Carbon (OpenCode), runs 0 and 2:* these left no stated plan at all.
+  * At the `low` thinking level it emitted about 12 reasoning tokens per turn (4,894 over 392 turns in run 0). At
+    OpenCode's default level it reasoned past its 32k output cap and never acted (docs/HARNESS_NOTES.md).
+  * Its actions (grab the mouse most often, redirect after a block, a blocked-move rate of 0.30–0.37) can't be tied to
+    a belief.
+  * Run 0 did not stop on its own: Google revoked the key mid-run.
+* *The closest-approach column is a coarse signal, not a progress scale:* 63 mm and 111 mm are both far outside ε, and
+  getting nearer to the first checkpoint is not getting nearer to freeing the cord.
+* *What the transcripts support is narrower than a single cause:* different models fail at different decisions. One
+  never revises a wrong model; one sees what is needed and can't sustain it; one sees the obstruction precisely and
+  gives up.
+
 ## Next
 
 * The agent beats the oracle on the redesigned task. That is the subject of the current brief
