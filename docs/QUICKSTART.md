@@ -14,7 +14,7 @@ for OpenAI, `OPENAI_API_KEY`.
 ```bash
 git clone https://github.com/TibiIC/Loophole && cd Loophole
 ./run_evaluation.sh alpha   gemini/gemini-4-carbon     # or: make judge TASK=alpha MODEL=...
-./run_evaluation.sh rattrap gemini/gemini-4-carbon     # or: make judge TASK=rattrap MODEL=...
+./run_evaluation.sh rattrap google/gemini-4-carbon     # or: make judge TASK=rattrap MODEL=...; see "Gemini on the Rat Trap"
 ```
 
 The script installs Harbor (0.25.0) and `uv` if missing, builds the simulator image (the first
@@ -31,20 +31,63 @@ from a separate verifier container that replays the logged actions in a fresh si
 and an agent run about an hour. The Rat Trap is much slower: its reference replay is about
 1.5 h, and an agent run can take up to 4 h plus verification.
 
-### Single runs
+### What you can run: `harbor run -p <task> -a <agent> [flags]`
+
+**Tasks** (`-p`). Each is a directory under `tasks/`; `run_evaluation.sh` takes `alpha` or `rattrap`.
+
+| `-p` | puzzle | action budget | status |
+|---|---|---|---|
+| `./tasks/loophole-alpha` | Alpha 1.0 (Zhang et al. 2020); vision, proprioception, touch | 198 | **submitted** |
+| `./tasks/loophole-alpha-planner` | Alpha 1.0, plus collision queries and the meshes | 198 | submitted variant |
+| `./tasks/loophole-rattrap` | Rat Trap: free a closed cord with a mouse bead from a wooden frame | 852 | **submitted** |
+| `./tasks/loophole-alpha-{easy,medium,hard}` | procedural Alpha-*style* tubes, not the real geometry | 120 / 150 / 200 | deprecated, no results claimed |
+| `./tasks/loophole-{easy,medium,hard}` | earlier rope-and-ring puzzles | 60 / 50 / 45 | kept, not submitted, no results claimed |
+
+* **Alpha tools.** `tasks/loophole-alpha` gives the agent `render`, `get_state` and
+  `get_contacts`; `tasks/loophole-alpha-planner` adds `check_motion`, `check_poses` and
+  `get_geometry`. Actions are `grab`, `move`, `release` and `wait`.
+* **Rat Trap tools.** The agent works with two grippers: grab a cord node, move it (at most
+  30 mm per call, halting when blocked), and release. It has a 4 h agent timeout and a 6 h
+  verifier timeout.
+* **Isolation.** In every task the agent's container holds no simulator code, meshes, solver or
+  reference; it reaches the simulator only over MCP.
+
+**Agents** (`-a`):
+
+| `-a` | what it does |
+|---|---|
+| `oracle` | Harbor's built-in agent: replays the task's `solution/` (the reference) |
+| `oracle --ae LOOPHOLE_SOLUTION=stop_early` | the stop-early baseline: the reference cut short |
+| `nop` | Harbor's built-in do-nothing agent |
+| `opencode -m <provider>/<model>` | an LLM through OpenCode, e.g. `gemini/gemini-4-carbon` or `openai/<model>` |
+
+**Flags the repo uses.** All are passed straight to Harbor.
+
+| flag | meaning |
+|---|---|
+| `-m <provider>/<model>` | model for `-a opencode` |
+| `-k <n>` | number of attempts (agent runs) |
+| `-n <n>` | how many run concurrently |
+| `-o <dir>`, `--job-name <name>` | where results go |
+| `--ae KEY=VALUE` | environment variable for the agent (used for `LOOPHOLE_SOLUTION=stop_early`) |
+| `--agent-setup-timeout-multiplier <x>` | more time for agent setup (the evaluation script uses 4) |
+| `-p tasks -i '<glob>'` | run several tasks at once, e.g. `-i 'loophole-alpha-*'` |
 
 ```bash
-harbor run -p ./tasks/loophole-alpha -a oracle                                  # reference solution
-harbor run -p ./tasks/loophole-alpha -a nop                                     # do-nothing baseline
-harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon     # one agent run
+harbor run -p ./tasks/loophole-alpha -a oracle                                     # reference solution
+harbor run -p ./tasks/loophole-alpha -a nop                                        # do-nothing baseline
+harbor run -p ./tasks/loophole-alpha -a oracle --ae LOOPHOLE_SOLUTION=stop_early   # stop-early baseline
+harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon        # one agent run
 harbor run -p ./tasks/loophole-alpha-planner -a opencode -m gemini/gemini-4-carbon  # + planning queries
+harbor run -p ./tasks/loophole-rattrap -a oracle                                   # Rat Trap reference
+harbor run -p ./tasks/loophole-rattrap -a nop
+harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon      # see the note below
 ```
 
-`tasks/loophole-alpha` gives the agent vision, proprioception and touch (`render`, `get_state`,
-`get_contacts`); `tasks/loophole-alpha-planner` adds collision queries and the meshes
-(`check_motion`, `check_poses`, `get_geometry`). Actions are `grab`, `move`, `release` and
-`wait`. The agent's container holds no simulator code, meshes, solver or reference; it reaches
-the simulator only over MCP.
+**Gemini on the Rat Trap.** The README runs it as `google/gemini-4-carbon` (OpenCode's native
+Google provider), not `gemini/...`. The task's OpenCode config sets `thinkingLevel: low` under
+the `google` provider; at the default level the model spent its whole output budget reasoning and
+never acted.
 
 ## 2. Drive the simulator with your own agent
 
