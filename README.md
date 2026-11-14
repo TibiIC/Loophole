@@ -441,7 +441,7 @@ Each row points at the artifact behind it.
 | Component | Status | Evidence |
 |---|---|---|
 | **Alpha 1.0 task `tasks/loophole-alpha`** (Zhang et al. 2020) | done | `runs/20261114-111735/`: oracle **0.851** (the authors' published path), nop **0**, stop-early **0**, Gemini 4 Carbon 0.884 / 0.823 / 0.886 |
-| **Rat Trap task `tasks/loophole-rattrap`** | done | `runs/harbor-rattrap/`: Harbor runs of the oracle (Tibi's recorded human solve), stop-early and nop; the oracle's expected 0.833 is in `loophole/reference/rattrap-checkpoints.npz` (metadata); random agent: `runs/rattrap-random/` |
+| **Rat Trap task `tasks/loophole-rattrap`** | built; **oracle does not yet reproduce on Linux** | Harbor: nop 0, stop-early 0, oracle 0.27 (18 / 20 checkpoints, unsolved) in `runs/harbor-rattrap/`; on macOS the oracle solves (0.833: `loophole/reference/rattrap-checkpoints.npz` metadata); random agent 0: `runs/rattrap-random/` |
 | *Earlier:* Alpha 1.5 task on OMPL.app geometry | superseded | its oracle was our own RRT-Connect plan: `runs/harbor/canon-oracle/` (0.876) |
 | Real model runs (`-a opencode`) | done | Alpha: docs/RESULTS.md; Rat Trap: the README results table and `runs/rattrap-agents/` |
 | Cost-to-go roadmap (Alpha partial credit) | done | `loophole/puzzles/alpha_paper/roadmap-alpha-1.0-paper.npz` (8,044 nodes, 60,260 edges) |
