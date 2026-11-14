@@ -38,7 +38,7 @@ MODELS = {
     "deepseek": dict(base="https://inference.verda.com/v1", model="deepseek-4-1-flash-1017", key="DEEPSEEK_AI_API_KEY", vision=False),
     "kimi": dict(base="https://inference.verda.com/v1", model="kimi-k3-1-pro", key="KIMI_AI_API_KEY", vision=False),
     "nemotron": dict(base="https://containers.datacrunch.io/nemotron-3-5-super-vl-b300/v1", model="nemotron-3.5-super-vl",
-                     key="NVIDIA_NEMOTRON_AI_API_KEY", vision=True),
+                     key="NVIDIA_NEMOTRON_AI_API_KEY", vision=True, max_tokens=32768),  # its reasoning overruns 8k
     "gemini-4-carbon": dict(base="https://generativelanguage.googleapis.com/v1beta/openai", model="gemini-4-carbon",
                             key="GOOGLE_GENERATIVE_AI_API_KEY", vision=True, max_tokens=32768,
                             extra={"reasoning_effort": "medium"}),  # unbounded, it thinks past 32k tokens and answers nothing
@@ -99,7 +99,7 @@ def main() -> None:
     msgs = [{"role": "system", "content": scene_text(spec, ep)},
             {"role": "user", "content": "Begin. Call get_state first" + (" and render" if m["vision"] else "") + ", then work towards freeing the loop."}]
     log = open(out / "transcript.jsonl", "w", buffering=1)
-    t0, usage, turns, nudges, err = time.time(), {"prompt_tokens": 0, "completion_tokens": 0}, 0, 0, None
+    t0, usage, turns, nudges, cutoffs, err = time.time(), {"prompt_tokens": 0, "completion_tokens": 0}, 0, 0, 0, None
     client = httpx.Client(timeout=600.0, headers={"Authorization": f"Bearer {key}"})
     try:
         while not (ep.done or hz.gave_up) and turns < a.max_turns and time.time() - t0 < a.max_minutes * 60:
@@ -125,6 +125,13 @@ def main() -> None:
                                   "finish_reason": resp["choices"][0].get("finish_reason")}) + "\n")
             calls = msg.get("tool_calls") or []
             msgs.append({"role": "assistant", "content": msg.get("content") or "", **({"tool_calls": calls} if calls else {})})
+            if not calls and resp["choices"][0].get("finish_reason") == "length":
+                cutoffs += 1  # the reply was cut off mid-reasoning: not a decision to stop
+                if cutoffs > 10:
+                    err = "10 replies cut off at the output limit"
+                    break
+                msgs.append({"role": "user", "content": "Your last reply was cut off before any tool call. Think less and reply with a tool call now."})
+                continue
             if not calls:
                 nudges += 1
                 if nudges > 3:

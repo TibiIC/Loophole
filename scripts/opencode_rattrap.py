@@ -64,6 +64,12 @@ def one_run(a, i: int) -> Path:
     cfg = {"$schema": "https://opencode.ai/config.json",
            "mcp": {"rattrap": {"type": "local", "command": server, "enabled": True, "environment": {"PYTHONPATH": str(ROOT)}}},
            "tools": {t: False for t in BUILTIN}}
+    if a.model.startswith("google/") and a.thinking_level:
+        # Gemini 4 Carbon at OpenCode's default thinking level (and at "medium") spends its whole 32k-token output
+        # budget reasoning after the first get_state and answers nothing; "low" acts. (Google refuses a thinking
+        # budget alongside the level OpenCode sets, so the level is what can be changed.)
+        mid = a.model.split("/", 1)[1]
+        cfg["provider"] = {"google": {"models": {mid: {"options": {"thinkingConfig": {"thinkingLevel": a.thinking_level, "includeThoughts": True}}}}}}
     (home / "config" / "opencode.json").write_text(json.dumps(cfg, indent=1))
     spec = load_spec(overrides={"score_progress_cap": 0.0} if a.sparse else {})
     prompt = (scene_text(spec, RatTrapEpisode(spec)) + "\n\nYour only tools are the Rat Trap tools (get_state, grab, move, release, give_up). "
@@ -88,7 +94,7 @@ def one_run(a, i: int) -> Path:
             rc = "timeout"
     shutil.copytree(home, run / "opencode-home", dirs_exist_ok=True)
     res = json.loads((run / "result.json").read_text()) if (run / "result.json").exists() else {"error": "no result (the MCP server never started?)"}
-    res.update(opencode_exit=rc, opencode_version=subprocess.run([a.opencode, "--version"], capture_output=True, text=True).stdout.strip())
+    res.update(thinking_level=a.thinking_level if a.model.startswith("google/") else None, opencode_exit=rc, opencode_version=subprocess.run([a.opencode, "--version"], capture_output=True, text=True).stdout.strip())
     (run / "result.json").write_text(json.dumps(res, indent=1))
     print(json.dumps({"run": run.name, **{k: res.get(k) for k in ("score", "solved", "actions", "checkpoints_reached", "end", "opencode_exit")}}), flush=True)
     return run
@@ -102,6 +108,7 @@ def main() -> None:
     ap.add_argument("--sparse", action="store_true")
     ap.add_argument("--opencode", default=shutil.which("opencode") or "opencode")
     ap.add_argument("--parallel", action="store_true", help="start all runs at once")
+    ap.add_argument("--thinking-level", default="low", help="Google models: thinkingConfig.thinkingLevel ('' = OpenCode's default)")
     a = ap.parse_args()
     if a.parallel:
         import concurrent.futures as cf
