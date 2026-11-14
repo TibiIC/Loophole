@@ -6,6 +6,8 @@
     obs, r, terminated, truncated, info = env.step(env.action_space.sample())
     venv = make_vec_env(8, start="curriculum", curriculum_distance=0.3)
 
+* ``start``: perturb | curriculum | interlocked | flipped | bank (see loophole/training/starts.py);
+  ``tie`` = both | canonical | flipped selects how the loops are tied (linking number -1 / +1).
 * ``reset(seed, options)`` samples a start (``loophole.training.starts``), resets the simulator,
   applies optional domain randomisation, and grabs tube B (one action, as an agent must).
   ``options`` may override ``start``, ``curriculum_distance``, ``curriculum_source`` and set
@@ -66,7 +68,8 @@ class AlphaEnv(gym.Env):
                  observations: tuple[str, ...] = ("pose",), image_size: tuple[int, int] = (96, 96),
                  randomize_orientation: bool = False, randomize_friction: bool = False, friction_range=(0.0, 0.5),
                  randomize_stiffness: bool = False, stiffness_range=(0.5, 2.0), obs_noise: float = 0.0,
-                 sampler_kwargs: dict | None = None, render_mode: str | None = None):
+                 sampler_kwargs: dict | None = None, render_mode: str | None = None, tie: str = "both",
+                 roadmap: str = "auto"):
         if mode not in ("train", "eval"):
             raise ValueError("mode must be 'train' or 'eval'")
         if mode == "train" and start == "canonical":
@@ -74,11 +77,23 @@ class AlphaEnv(gym.Env):
         self.env = LoopholeEnv(puzzle, config=load_config(config or CONFIG))
         if self.env.checker is None or self.env.roadmap is None:
             raise ValueError("AlphaEnv needs a separation puzzle with reward.roadmap: true")
+        # training roadmap (evaluation roadmap + start-bank corridors): cost-to-go from bank starts.
+        # "auto" = use it in training mode if it exists; evaluation always keeps the task's roadmap.
+        from .puzzles import paper_alpha as pa
+        from .reward.roadmap import Roadmap
+        from .training.bank import TRAIN_ROADMAP_FILE
+
+        train_rm = pa.PUZZLE_OUT / TRAIN_ROADMAP_FILE.format(name=puzzle)
+        use_train = mode == "train" and (roadmap == "train" or (roadmap == "auto" and train_rm.exists()))
+        if use_train:
+            self.env.roadmap = Roadmap.load(train_rm)
+            self.env.reset()
+        self.roadmap_kind = "train" if use_train else "eval"
         self.mode, self.start = mode, ("canonical" if mode == "eval" else start)
         self.q0 = self.env.target_pose().copy()  # canonical start (constructed with start_pose=None)
         self.sampler = None if mode == "eval" else StartSampler(
             self.env, self.q0, mode=start, curriculum_distance=curriculum_distance, curriculum_source=curriculum_source,
-            **(sampler_kwargs or {}))
+            chirality=tie, **(sampler_kwargs or {}))
         self.obs_keys = tuple(observations)
         if not set(self.obs_keys) <= {"pose", "rgb", "depth", "segmentation"}:
             raise ValueError("observations: any of pose, rgb, depth, segmentation")
@@ -173,6 +188,8 @@ class AlphaEnv(gym.Env):
             e.start_pose, self.start_info = None, {"start_mode": "canonical"}
         else:
             override = {k: options[k] for k in ("curriculum_distance", "curriculum_source") if k in options}
+            if "tie" in options:
+                override["chirality"] = options["tie"]
             if "start" in options:
                 if options["start"] == "canonical":
                     raise ValueError("the canonical start is never used in training mode")

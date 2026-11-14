@@ -16,6 +16,9 @@ Modes
   random tilt, random spin about the axis, random centre offset), which links the loops by
   construction; ~45 % of candidates are collision-free. ``chirality`` picks the tie:
   "both" (default), "canonical" (same linking sign as the canonical start) or "flipped".
+* ``bank``: a certified start from the start bank (loophole/training/bank.py: each has a
+  planner-found way out and a corridor in the training roadmap), plus small jitter;
+  ``chirality`` selects the tie. Only ties with certified starts can be used.
 * ``flipped``: the canonical start turned over (B rotated 180 degrees about an axis in its
   loop plane through the loop centre), which ties the loops the *other* way (linking number
   +1 instead of -1). The collision-free turn-over with the most clearance is used, plus jitter.
@@ -94,8 +97,8 @@ class StartSampler:
         self.c0, _ = rm.cost_to_go(self.q0, ck)
         if not self.c0:
             raise ValueError("canonical start has no visible roadmap node")
-        if self.mode not in ("perturb", "curriculum", "interlocked", "flipped"):
-            raise ValueError("mode must be perturb, curriculum, interlocked or flipped (the canonical start is never a training start)")
+        if self.mode not in ("perturb", "curriculum", "interlocked", "flipped", "bank"):
+            raise ValueError("mode must be perturb, curriculum, interlocked, flipped or bank (the canonical start is never a training start)")
         if self.chirality not in ("both", "canonical", "flipped"):
             raise ValueError("chirality must be both, canonical or flipped")
         loops = self.env.loops
@@ -106,6 +109,18 @@ class StartSampler:
         if abs(abs(self.lk0) - 1) > 0.1:
             raise ValueError(f"canonical start is not interlocked (Lk = {self.lk0:.3f})")
         self._flipped = None
+        self._bank = None
+
+    def bank(self):
+        if self._bank is None:
+            from ..puzzles import paper_alpha as pa
+            from .bank import BANK_FILE, StartBank
+
+            path = pa.PUZZLE_OUT / BANK_FILE.format(name=self.env.puzzle.name)
+            if not path.exists():
+                raise StartSamplingError(f"no start bank at {path}: run scripts/build_start_bank.py")
+            self._bank = StartBank(path)
+        return self._bank
 
     # ------------------------------------------------------------------ checks
     def ctg(self, q) -> float | None:
@@ -257,6 +272,10 @@ class StartSampler:
             elif mode == "interlocked":
                 q = self.interlocked_candidate(rng, chir)
                 ok, c, lk = self.acceptable(q, need_ctg=self.require_ctg, chirality=chir)
+            elif mode == "bank":
+                i, base = self.bank().sample(rng, chir)
+                q = self._jitter(base, rng, self.jitter_t, self.jitter_r) if tries <= self.max_tries // 2 else base
+                ok, c, lk = self.acceptable(q, need_ctg=True, chirality=str(self.bank().tie[i]))
             elif mode == "flipped":
                 q = self._jitter(self.flipped_start(), rng, self.jitter_t, self.jitter_r) if tries > 1 or self.jitter_t > 0 else self.flipped_start()
                 ok, c, lk = self.acceptable(q, need_ctg=self.require_ctg, chirality="flipped")

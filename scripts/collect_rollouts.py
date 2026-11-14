@@ -70,7 +70,7 @@ def final_record(log: Path) -> dict:
 def run_gym(a, out: Path) -> list[dict]:
     from loophole.gym import AlphaEnv
 
-    env = AlphaEnv(config=a.config, start=a.start, curriculum_distance=a.curriculum_distance, curriculum_source=a.curriculum_source,
+    env = AlphaEnv(config=a.config, start=a.start, curriculum_distance=a.curriculum_distance, curriculum_source=a.curriculum_source, tie=a.tie,
                    randomize_orientation=a.randomize_orientation, randomize_friction=a.randomize_friction,
                    randomize_stiffness=a.randomize_stiffness, obs_noise=a.obs_noise)
     rows = []
@@ -98,7 +98,7 @@ async def _mcp_reset(url: str, seed: int, a) -> dict:
     from mcp import ClientSession
     from mcp.client.streamable_http import streamable_http_client
 
-    args = {"seed": seed, "start": a.start, "curriculum_source": a.curriculum_source}
+    args = {"seed": seed, "start": a.start, "curriculum_source": a.curriculum_source, "tie": a.tie}
     if a.start == "curriculum":
         args["curriculum_distance"] = a.curriculum_distance
     async with streamable_http_client(url + "/mcp") as (r, w, _):
@@ -153,7 +153,8 @@ def main() -> None:
     ap.add_argument("--policy", required=True)
     ap.add_argument("--episodes", type=int, default=10)
     ap.add_argument("--seed0", type=int, default=0)
-    ap.add_argument("--start", choices=["perturb", "curriculum"], default="perturb")
+    ap.add_argument("--start", choices=["perturb", "curriculum", "interlocked", "flipped", "bank"], default="perturb")
+    ap.add_argument("--tie", choices=["both", "canonical", "flipped"], default="both", help="interlocked / bank starts")
     ap.add_argument("--curriculum-distance", type=float, default=0.5)
     ap.add_argument("--curriculum-source", choices=["oracle", "roadmap"], default="oracle")
     ap.add_argument("--config", type=Path, default=CONFIG)

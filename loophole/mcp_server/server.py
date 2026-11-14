@@ -189,7 +189,9 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000, trai
         @mcp.tool(annotations=ACTION)
         def reset(
             seed: Annotated[int, Field(description="episode seed (start sampling and simulator)")],
-            start: Annotated[Literal["perturb", "curriculum"], Field(description="training start distribution")] = "perturb",
+            start: Annotated[Literal["perturb", "curriculum", "interlocked", "flipped", "bank"],
+                             Field(description="training start distribution")] = "perturb",
+            tie: Annotated[Literal["both", "canonical", "flipped"], Field(description="interlocked / bank: how the loops are tied")] = "both",
             curriculum_distance: Annotated[float | None, Field(description="curriculum: 0 = just before free, 1 = as far as the canonical start")] = None,
             curriculum_source: Annotated[Literal["oracle", "roadmap"], Field(description="curriculum: poses along the oracle path or roadmap nodes")] = "oracle",
         ) -> dict:
@@ -198,7 +200,7 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000, trai
             with lock:
                 if env.finalized is None:
                     env.finalize()
-                kw = {"mode": start, "curriculum_source": curriculum_source}
+                kw = {"mode": start, "curriculum_source": curriculum_source, "chirality": tie}
                 if curriculum_distance is not None:
                     kw["curriculum_distance"] = curriculum_distance
                 try:
@@ -286,6 +288,13 @@ def main(argv: list[str] | None = None) -> None:
     if a.training:
         log.warning("TRAINING MODE: reset tool and shaping rewards exposed; not an evaluation server")
         training = {"q0": env.target_pose().copy(), "log_dir": a.log_dir}
+        from ..puzzles import paper_alpha as pa
+        from ..reward.roadmap import Roadmap
+        from ..training.bank import TRAIN_ROADMAP_FILE
+
+        train_rm = pa.PUZZLE_OUT / TRAIN_ROADMAP_FILE.format(name=a.puzzle)
+        if env.roadmap is not None and train_rm.exists():  # cost-to-go from start-bank starts (training only)
+            env.roadmap = Roadmap.load(train_rm)
     build_server(env, a.host, a.port, training).run(transport="streamable-http")
 
 
