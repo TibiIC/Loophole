@@ -2,12 +2,15 @@
 
 Modes
 -----
-* ``perturb``: the canonical start q0 plus Gaussian noise (translation sigma_t, rotation
-  sigma_r as a random rotation vector), accepted only if the pose is collision-free, still
-  interlocked (no free escape by translation) and its roadmap cost-to-go is at least
-  ``min_ctg_frac`` of the canonical start's.
-* ``curriculum`` (reverse curriculum): a pose at a chosen distance ``d`` in [0, 1] from the
-  goal, sampled along the oracle path (``source="oracle"``: d = path length still to go to
+* ``perturb``: deviations of a reference start: Gaussian noise (translation sigma_t, rotation
+  sigma_r as a random rotation vector) on the canonical start (``chirality="canonical"``) or on
+  the turned-over canonical start (``"flipped"``; ``"both"`` picks one per episode), accepted
+  only if collision-free, still interlocked with the same tie, not yet free, and its roadmap
+  cost-to-go is at least ``min_ctg_frac`` of the reference start's. The flipped tie needs a
+  certified way out (start bank) for its cost-to-go; until then it raises.
+* ``curriculum`` (reverse curriculum, per tie; default canonical): a pose at a chosen distance
+  ``d`` in [0, 1] from the goal, sampled along the tie's reference path (canonical: the published
+  solution; flipped: the start bank's certified path of the turned-over start) (``source="oracle"``: d = path length still to go to
   the first free pose on the path / that pose's path length from the start, small jitter) or from roadmap nodes (``source="roadmap"``: cost-to-go within
   ``band`` of d * c0); also required to be collision-free and not yet free.
 
@@ -136,17 +139,18 @@ class StartSampler:
         return "canonical" if np.sign(lk) == np.sign(self.lk0) else "flipped"
 
     def acceptable(self, q: np.ndarray, min_ctg: float | None = None, need_ctg: bool = True,
-                   chirality: str = "both") -> tuple[bool, float | None, float | None]:
+                   chirality: str | None = "both") -> tuple[bool, float | None, float | None]:
         """(ok, cost-to-go, linking number). Rejects: near canonical, colliding, loops not
         connected (|Lk| != 1) or of the wrong tie, no visible roadmap node (if needed), too close
-        to free (min_ctg), already free."""
+        to free (min_ctg), already free. chirality=None skips the linking test (reverse curriculum:
+        near the goal the loops are already unlinked while the tube is still caged)."""
         ck = self.env.checker
         if float(pose_metric(q, self.q0[None], self.w)[0]) < self.exclude_radius:
             return False, None, None
         if not ck.is_valid(q):
             return False, None, None
         lk = self.linking(q)
-        if abs(abs(lk) - 1) > 0.1 or (chirality != "both" and self.chirality_of(lk) != chirality):
+        if chirality is not None and (abs(abs(lk) - 1) > 0.1 or (chirality != "both" and self.chirality_of(lk) != chirality)):
             return False, None, lk
         c = self.ctg(q)
         if (need_ctg and c is None) or (min_ctg is not None and (c is None or c < min_ctg)):
@@ -213,41 +217,100 @@ class StartSampler:
         r = quat_normalize(quat_mul(quat_from_rotvec(rng.normal(0.0, sr, 3)), q[3:]))
         return np.concatenate([t, r])
 
-    def oracle_path(self) -> np.ndarray:
-        if self._path is None:
-            from ..puzzles import paper_alpha as pa
+    # ------------------------------------------------------------------ per-tie references
+    def base_pose(self, tie: str) -> np.ndarray:
+        """The reference start of a tie: the canonical start, or the canonical start turned over."""
+        return self.q0 if tie == "canonical" else self.flipped_start()
 
-            self._path = np.load(pa.PUZZLE_OUT / f"{self.env.puzzle.name}-reference.npz")["path"]
-        return self._path
+    def base_ctg(self, tie: str) -> float:
+        """Cost-to-go of the tie's reference start; flipped needs a certified corridor (start bank)."""
+        if tie == "canonical":
+            return self.c0
+        c = self.ctg(self.flipped_start())
+        if c is None:
+            raise StartSamplingError("the flipped tie has no certified way out yet (no cost-to-go): build the start bank "
+                                     "(scripts/build_start_bank.py); until then only the canonical tie can be used here")
+        return c
 
-    def _path_arclength(self):
-        P = self.oracle_path()
+    def flipped_ready(self) -> bool:
+        """True once the start bank certified the turned-over start (cost-to-go and reference path exist)."""
+        if getattr(self, "_flipped_ready", None) is None:
+            try:
+                self._flipped_ready = self.ctg(self.flipped_start()) is not None and self.bank().flipped_path is not None
+            except StartSamplingError:
+                self._flipped_ready = False
+        return self._flipped_ready
+
+    def _pick_tie(self, chir: str, rng: np.random.Generator) -> str:
+        """`both` = every usable tie: canonical always, flipped once certified (option 1: no uncertified ties)."""
+        if chir != "both":
+            return chir
+        return str(rng.choice(["canonical", "flipped"])) if self.flipped_ready() else "canonical"
+
+    def reference_path(self, tie: str = "canonical") -> np.ndarray:
+        """Canonical tie: the published solution. Flipped tie: the certified path of the turned-over
+        start from the start bank (its planner corridor followed by the roadmap's shortest route)."""
+        cache = self.__dict__.setdefault("_paths", {})
+        if tie not in cache:
+            if tie == "canonical":
+                from ..puzzles import paper_alpha as pa
+
+                cache[tie] = np.load(pa.PUZZLE_OUT / f"{self.env.puzzle.name}-reference.npz")["path"]
+            else:
+                fp = self.bank().flipped_path
+                if fp is None:
+                    raise StartSamplingError("no certified path for the flipped start in the start bank")
+                cache[tie] = fp
+        return cache[tie]
+
+    def oracle_path(self) -> np.ndarray:  # backwards compatible name
+        return self.reference_path("canonical")
+
+    def _path_arclength(self, tie: str = "canonical"):
+        P = self.reference_path(tie)
         seg = np.array([float(pose_metric(a, b[None], self.w)[0]) for a, b in zip(P[:-1], P[1:])])
         return P, seg, np.concatenate([[0.0], np.cumsum(seg)])
 
-    def _at(self, s: float) -> np.ndarray:
-        P, seg, L = self._path_arclength()
+    def _at(self, s: float, tie: str = "canonical") -> np.ndarray:
+        P, seg, L = self._path_arclength(tie)
         k = int(np.clip(np.searchsorted(L, s, side="right") - 1, 0, len(seg) - 1))
         f = 0.0 if seg[k] == 0 else (s - L[k]) / seg[k]
         return interpolate(P[k], P[k + 1], float(np.clip(f, 0.0, 1.0)))
 
-    def free_arclength(self) -> float:
-        """Path length from the start to the first pose on the oracle path that is free (bisection, 1 mm)."""
-        if getattr(self, "_s_free", None) is None:
-            _, _, L = self._path_arclength()
+    def free_arclength(self, tie: str = "canonical") -> float:
+        """Path length from the start to the first free pose on the tie's reference path (bisection, 1 mm)."""
+        cache = self.__dict__.setdefault("_s_free_by_tie", {})
+        if tie not in cache:
+            _, _, L = self._path_arclength(tie)
             dirs = self.env._escape_dirs
             lo, hi = 0.0, float(L[-1])
             while hi - lo > 1e-3:
                 mid = (lo + hi) / 2
-                if self.env.checker.escape_direction(self._at(mid), dirs) is None:
+                if self.env.checker.escape_direction(self._at(mid, tie), dirs) is None:
                     lo = mid
                 else:
                     hi = mid
-            self._s_free = hi
-        return self._s_free
+            cache[tie] = hi
+        return cache[tie]
 
-    def _along_path(self, d: float) -> np.ndarray:
-        return self._at((1.0 - float(np.clip(d, 0.0, 1.0))) * self.free_arclength())
+    def _along_path(self, d: float, tie: str = "canonical") -> np.ndarray:
+        return self._at((1.0 - float(np.clip(d, 0.0, 1.0))) * self.free_arclength(tie), tie)
+
+    def node_ties(self) -> np.ndarray:
+        """Tie label of every node of the current roadmap (canonical / flipped / unlinked), cached."""
+        rm = self.env.roadmap
+        key = getattr(rm, "sha256", id(rm))
+        if getattr(self, "_node_ties_key", None) != key:
+            if hasattr(rm, "tie") and rm.tie is not None:
+                self._node_ties = np.asarray(rm.tie)
+            else:
+                lab = []
+                for q in np.asarray(rm.nodes):
+                    lk = self.linking(q)
+                    lab.append(self.chirality_of(lk) if abs(abs(lk) - 1) < 0.1 else "unlinked")
+                self._node_ties = np.array(lab)
+            self._node_ties_key = key
+        return self._node_ties
 
     # ------------------------------------------------------------------ sample
     def sample(self, rng: np.random.Generator, **override) -> tuple[np.ndarray, dict]:
@@ -256,19 +319,22 @@ class StartSampler:
         source = override.get("curriculum_source", self.curriculum_source)
         chir = override.get("chirality", self.chirality)
         for tries in range(1, self.max_tries + 1):
-            if mode == "perturb":
-                q = self._jitter(self.q0, rng, self.sigma_t, self.sigma_r)
-                ok, c, lk = self.acceptable(q, self.min_ctg_frac * self.c0, chirality="canonical")
+            tie = self._pick_tie(chir, rng)
+            if mode == "perturb":  # deviations of the tie's reference start, same tie, still far from free
+                base = self.base_pose(tie)
+                q = self._jitter(base, rng, self.sigma_t, self.sigma_r)
+                ok, c, lk = self.acceptable(q, self.min_ctg_frac * self.base_ctg(tie), chirality=tie)
             elif mode == "curriculum" and source == "oracle":
-                q = self._jitter(self._along_path(d + rng.uniform(-0.02, 0.02)), rng, self.jitter_t, self.jitter_r)
-                ok, c, lk = self.acceptable(q)
+                q = self._jitter(self._along_path(d + rng.uniform(-0.02, 0.02), tie), rng, self.jitter_t, self.jitter_r)
+                ok, c, lk = self.acceptable(q, chirality=None)
             elif mode == "curriculum" and source == "roadmap":
                 rm = self.env.roadmap
-                idx = np.flatnonzero(np.abs(rm.cost / self.c0 - d) <= self.band)
+                ref = self.base_ctg(tie)
+                idx = np.flatnonzero((np.abs(np.asarray(rm.cost) / ref - d) <= self.band) & np.isin(self.node_ties(), [tie, "unlinked"]))  # near the goal the loops are unlinked
                 if idx.size == 0:
-                    raise StartSamplingError(f"no roadmap node with ctg/c0 within {self.band} of {d}")
+                    raise StartSamplingError(f"no {tie}-tie roadmap node with ctg/ctg_ref within {self.band} of {d}")
                 q = np.asarray(rm.nodes[rng.choice(idx)], float)
-                ok, c, lk = self.acceptable(q)
+                ok, c, lk = self.acceptable(q, chirality=None)
             elif mode == "interlocked":
                 q = self.interlocked_candidate(rng, chir)
                 ok, c, lk = self.acceptable(q, need_ctg=self.require_ctg, chirality=chir)
@@ -284,6 +350,6 @@ class StartSampler:
             if ok:
                 return q, {"start_mode": mode, "curriculum_distance": d if mode == "curriculum" else None,
                            "curriculum_source": source if mode == "curriculum" else None,
-                           "linking_number": round(lk, 4), "tie": self.chirality_of(lk),
+                           "linking_number": round(lk, 4), "tie": self.chirality_of(lk) if abs(abs(lk) - 1) < 0.1 else "unlinked",
                            "start_ctg": None if c is None else round(c, 5), "canonical_ctg": round(self.c0, 5), "tries": tries}
         raise StartSamplingError(f"no acceptable {mode} start in {self.max_tries} tries")

@@ -90,6 +90,21 @@ def densify(path: list[np.ndarray], w: float, spacing: float = 0.05) -> np.ndarr
     return np.array(out)
 
 
+def roadmap_route(rm: Roadmap, node: int) -> np.ndarray:
+    """Shortest roadmap route from `node` to the separated set (steepest descent on cost-to-go)."""
+    edges = np.asarray(np.load(rm.path)["edges"])
+    nbr: dict[int, list[int]] = {}
+    for i, j in edges:
+        nbr.setdefault(int(i), []).append(int(j))
+        nbr.setdefault(int(j), []).append(int(i))
+    cost, nodes = np.asarray(rm.cost), np.asarray(rm.nodes)
+    route, i = [int(node)], int(node)
+    while cost[i] > 0:
+        i = min(nbr[i], key=lambda j: cost[j] + float(pose_metric(nodes[i], nodes[j][None], float(rm.w))[0]))
+        route.append(i)
+    return nodes[route]
+
+
 def merge_corridors(rm: Roadmap, corridors: list[np.ndarray], targets: list[int], out: Path, **meta) -> Roadmap:
     """Training roadmap = evaluation roadmap + corridors (each corridor's last node is a roadmap node)."""
     base = np.load(rm.path)
@@ -129,6 +144,7 @@ class StartBank:
         self.tie = z["tie"]
         self.ctg = z["ctg"]
         self.linking = z["linking"]
+        self.flipped_path = z["flipped_path"] if "flipped_path" in z.files and len(z["flipped_path"]) else None
 
     def indices(self, tie: str = "both") -> np.ndarray:
         return np.arange(len(self.starts)) if tie == "both" else np.flatnonzero(self.tie == tie)
