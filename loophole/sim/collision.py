@@ -51,9 +51,10 @@ class CollisionChecker:
         self.model = mujoco.MjModel.from_xml_string(built.xml)
         # MuJoCo's body-level midphase culls pairs on un-inflated bounding volumes, so
         # margin queries (is_separated, clearance, planning margins) silently miss nearby
-        # pairs (tens of mm). Disabling it makes margin queries exact; margin-0 results
-        # are unchanged. Regression test: tests/test_alpha.py::test_checker_margin_queries_exact
-        self.model.opt.disableflags |= mujoco.mjtDisableBit.mjDSBL_MIDPHASE
+        # pairs (tens of mm). It is therefore disabled for every margin > 0 query, and kept
+        # for plain penetration checks (margin 0), where it is exact and much faster on
+        # meshes with thousands of convex pieces.
+        # Regression test: tests/test_alpha.py::test_checker_margin_queries_exact
         self.data = mujoco.MjData(self.model)
         m = self.model
         tid = m.body(puzzle.target).id
@@ -68,12 +69,17 @@ class CollisionChecker:
             if not (self._is_target[g] or self._is_frame[g]):
                 m.geom_contype[g] = 0
                 m.geom_conaffinity[g] = 0
-        self._margin = 0.0
+        self._margin = None
+        self._set_margin(0.0)
         self.calls = 0
 
     def _set_margin(self, margin: float) -> None:
         if margin != self._margin:
             self.model.geom_margin[self.target_geoms] = margin
+            if margin > 0:
+                self.model.opt.disableflags |= mujoco.mjtDisableBit.mjDSBL_MIDPHASE
+            else:
+                self.model.opt.disableflags &= ~int(mujoco.mjtDisableBit.mjDSBL_MIDPHASE)
             self._margin = margin
 
     def _pairs(self, pose: Pose, margin: float) -> np.ndarray:

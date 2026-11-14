@@ -396,6 +396,12 @@ class LoopholeEnv:
                 "topology": self.tracker.words if self.cfg.topology.enabled else None,
                 "cost_to_go": self.ctg,
                 "ctg_fallback": fallback,
+                # analysis only (not scored): relative pose of the target w.r.t. the fixed frame,
+                # min distance, and the (flagged-off) progress potential hook
+                "rel_pose": _r(self.target_pose(), 6),
+                "rel_pose_native": None if self.puzzle.unit_scale == 1.0 else to_native(self.target_pose()[:3].tolist(), self.puzzle, 4) + _r(self.target_pose()[3:], 6),
+                "min_distance": goal.get("target_min_distance_to_frame"),
+                "progress_potential": progress_potential(self),
                 "diagnostics": self.diagnostics(),
                 "sim_time": round(self.data.time, 4),
                 "wall_time": time.time(),

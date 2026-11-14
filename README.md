@@ -7,6 +7,80 @@ moves tube B with a grab handle and must separate them. The agent only talks to 
 simulator over MCP (sidecar container), so it never sees the simulator, solver or
 reference.
 
+## The Alpha puzzle task (`tasks/loophole-alpha`)
+
+**What the agent must do.** Two identical rigid tubes, each bent into an alpha, are
+interlocked: each loop threads the other. Tube A is fixed; the agent grabs tube B with
+one handle and moves it with bounded steps (≤ 5 cm and ≤ 0.1 rad per `move`,
+velocity-limited) until the minimum distance between the tubes exceeds **0.4 m**,
+within a fixed action budget. It sees the world only through the MCP tools `get_state`,
+`render`, `grab`, `move`, `release` and `wait`.
+
+**Why it is hard.** The Alpha puzzle is a classic narrow-passage problem in the 6-D
+configuration space SE(3). The way out exists, but it is a thin tunnel of
+configurations that requires coordinated translation *and* rotation. Uniform sampling
+almost never hits it, and greedy "move away" motions stall against the other tube. The
+puzzle was designed by Boris Yamrom (GE Corporate R&D) and became a standard
+motion-planning benchmark through Nancy Amato's Parasol Lab and OMPL. On why such
+puzzles are hard and how their C-space tunnels can be found, see X. Zhang, R. Belfer,
+P. G. Kry, E. Vouga, *C-Space Tunnel Discovery for Puzzle Path Planning*, ACM
+Transactions on Graphics 39(4) (SIGGRAPH 2020).
+
+**Geometry: canonical, fetched, never committed.** We use the OMPL.app Alpha files
+(`resources/3D/` at commit `958884d`): `alpha_env-1.5.dae` (tube A), `alpha_robot.dae`
+(tube B), `alpha-1.5.cfg` (start/goal/volume) and `alpha-1.5.path` (OMPL's own solution,
+used only as a test). Licence: *Rice University Software Distribution License*
+(non-commercial; redistribution not permitted). They are downloaded with sha256 checks
+by `make fetch-alpha` (locally, into gitignored `.ompl_alpha/`) and at Docker build time.
+Derived meshes and hulls are generated there and never committed. The repo contains only
+poses and parameters (`loophole/puzzles/alpha_ompl/alpha-1.5.yaml`).
+* Frame convention, taken from OMPL.app's source: Assimp converts the Z-up Collada files
+  to Y-up, (x, y, z) → (x, z, −y), and the robot mesh is shifted by the mean of its
+  vertices before the `.cfg` pose is applied. With this convention OMPL's own path is
+  collision-free under FCL on the raw triangles (0/103 states); without the up-axis step
+  ~40% of it collides.
+* `unit_scale: 0.01` (native units → metres, scene ≈ ±2 m) is applied once at load time;
+  start-pose round-trip to the `.cfg` values is tested to be exact.
+* **Convex decomposition: face wedges rather than CoACD.** CoACD's threshold is relative
+  to the 2.8 m bounding diagonal, so even threshold 0.03 gave hulls bulging ~8 cm. That is
+  far larger than the narrowest clearance on OMPL's path (1.8 mm). We therefore decompose
+  each canonical triangle into a convex wedge extruded inward, with the inward direction
+  found by ray casting: the outside is exactly the canonical surface. Measured against
+  FCL on the raw triangles along OMPL's path, the max distance error is **0.15 mm**
+  (≈ 8% of the 1.8 mm narrowest clearance). Start clearance is 32.9 mm in both. CoACD
+  stays available (`decompose: coacd`) for other meshes.
+* `d_sep = 0.4 m`: hill-climbing the clearance from the start with collision-free motions
+  saturates at ≈ 0.22 m, so 0.4 m cannot be reached while the tubes are still interlocked.
+
+**Scoring.** The verifier writes one float to `/logs/verifier/reward.txt`:
+`score = success × (1 − 0.5 × actions_used / max_actions)`. Success means the min
+distance exceeded `d_sep` and the per-substep penetration/speed audit recorded zero
+violations. Doing nothing or stopping early scores 0. Per action, the log also records
+(unscored) the min distance, the relative pose of B w.r.t. A (metres and native units)
+and the `progress_potential` hook (cost-to-go roadmap; flagged off).
+
+**Anti-exploit setup.** Harbor supports multi-container environments, so the MuJoCo MCP
+server runs in a **separate sidecar container** (`loophole-sim`). The agent's container
+has no simulator code, meshes, solver or episode log; it can only reach the MCP
+endpoint. After the agent finishes, a collect hook in the sidecar finalises the episode
+(the agent container is already stopped). The sidecar's episode directory goes to a
+**separate verifier container** (sim image, no network). That container replays every
+logged action in a fresh simulator and recomputes the score, checking puzzle hash, config,
+initial state and every per-action state hash. Nothing the agent writes is read.
+
+**One-command reproduction** (Docker + `uv tool install harbor`; the image build fetches
+the meshes):
+```bash
+harbor run -p ./tasks/loophole-alpha -a oracle                       # reference solution
+harbor run -p ./tasks/loophole-alpha -a nop                          # do-nothing baseline
+harbor run -p ./tasks/loophole-alpha -a oracle --ae LOOPHOLE_SOLUTION=stop_early
+OPENAI_API_KEY=... harbor run -p ./tasks/loophole-alpha -a opencode -m openai/<model>
+```
+
+> **Deprecated:** the procedural Alpha-*style* tubes (`loophole/puzzles/alpha/`,
+> `tasks/loophole-alpha-{easy,medium,hard}`) are not the real Alpha geometry. They are
+> kept for reference and tests but are no longer the active task.
+
 ## Quick start
 
 ```bash

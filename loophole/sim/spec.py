@@ -46,7 +46,7 @@ class Geom(BaseModel):
     # mesh: imported and (by default) convex-decomposed with CoACD.
     path: str | None = None
     scale: Vec3 = (1.0, 1.0, 1.0)
-    decompose: Literal["coacd", "convex", "none"] = "coacd"
+    decompose: Literal["coacd", "facewedge", "convex", "none"] = "coacd"
     coacd_threshold: float = 0.05
     rgba: tuple[float, float, float, float] | None = None
 
@@ -239,7 +239,7 @@ def resolve_puzzle(name_or_path: str) -> Path:
     p = Path(name_or_path)
     if p.suffix in (".yaml", ".yml") and p.exists():
         return p
-    for cand in (PUZZLE_DIR / f"{name_or_path}.yaml", PUZZLE_DIR / "alpha" / f"{name_or_path}.yaml"):
+    for cand in (PUZZLE_DIR / f"{name_or_path}.yaml", PUZZLE_DIR / "alpha" / f"{name_or_path}.yaml", PUZZLE_DIR / "alpha_ompl" / f"{name_or_path}.yaml"):
         if cand.exists():
             return cand
     raise FileNotFoundError(f"unknown puzzle {name_or_path!r}")

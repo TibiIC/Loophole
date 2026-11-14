@@ -198,6 +198,55 @@ available to you; the score is computed by independently replaying your actions.
 When you are done (or out of ideas), simply stop.
 """
 
+INSTRUCTION_CANON = """\
+# Loophole: the Alpha puzzle
+
+You are operating a robot in a physics simulator through the **`loophole` MCP server**.
+The scene is the classic **Alpha puzzle** (a motion-planning benchmark): two identical
+rigid tubes, each bent into the shape of the Greek letter alpha, interlocked so that each
+one threads the other.
+
+- **`tube_a`** (grey) is fixed in space; **`{target}`** (blue) is free. There is no gravity
+  and contacts are frictionless.
+- Units are metres and radians, world frame. The tubes are about 2 m across.
+
+## Goal
+
+Separate the tubes: move `{target}` until its **minimum distance to `tube_a` exceeds
+{d_sep} m**. `get_state` reports the current value under
+`goal.target_min_distance_to_frame`. The episode ends as soon as this holds.
+
+Nothing can pass through anything else. The simulator audits every physics step and
+an episode in which the tubes are forced into each other scores 0.
+
+## Tools (MCP server `loophole`)
+
+Free (no action cost):
+- `get_state()`: JSON with the pose of `{target}` (position + quaternion w,x,y,z), the
+  goal distance, handle status, the action budget, and the rig limits.
+- `render(view, azimuth, elevation, distance, lookat)`: PNG image + caption
+  (presets: iso, front, back, side, top).
+
+Each costs one action from a budget of **{max_actions}**:
+- `grab(handle=0, target="{target}")`: grasp the tube. The handle sits at the tube's
+  reference point, and motions are applied about that point.
+- `move(handle, dx, dy, dz, droll, dpitch, dyaw, frame)`: relative motion of the grasped
+  tube. At most **{max_lin} m** of translation and **{max_ang} rad** of rotation per call;
+  larger requests are clamped. Execution is velocity-limited ({lin_speed} m/s,
+  {ang_speed} rad/s) and stops early (`blocked: true`) if the tube is obstructed.
+  `frame` is `"world"` or `"local"` (the tube's own axes).
+- `release(handle)`, `wait(steps)`.
+
+There is one handle (0). The workspace is bounded to the box reported in `get_state`.
+
+## Scoring
+
+If you separate the tubes: score = 1 - 0.5 × (actions used / {max_actions}).
+Otherwise: score = 0. Observation tools are free, so look before you move. The
+simulator's source is not available to you; the score is computed by independently
+replaying your actions. When you are done (or out of ideas), simply stop.
+"""
+
 INSTRUCTION = """\
 # Loophole: {title}
 
@@ -250,7 +299,7 @@ the score is computed by independently replaying your actions. When you are done
 ROADMAP_CFG = "/opt/loophole/loophole/configs/roadmap_reward.yaml"  # path inside the sim image
 
 
-def make_task(puzzle: str, roadmap_reward: bool = False) -> Path:
+def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None = None) -> Path:
     from loophole.sim.spec import resolve_puzzle
 
     spec = yaml.safe_load(resolve_puzzle(puzzle).read_text())
@@ -264,7 +313,7 @@ def make_task(puzzle: str, roadmap_reward: bool = False) -> Path:
     from loophole.sim.spec import load_puzzle
 
     cfg = effective_config(load_config(), load_puzzle(resolve_puzzle(puzzle)))
-    d = TASKS / f"loophole-{puzzle}"
+    d = TASKS / (task_name or f"loophole-{puzzle}")
     if d.exists():
         shutil.rmtree(d)
     (d / "environment").mkdir(parents=True)
@@ -281,9 +330,14 @@ def make_task(puzzle: str, roadmap_reward: bool = False) -> Path:
         "agent_timeout": {"easy": 1800.0, "medium": 2700.0, "hard": 3600.0}.get(spec.get("difficulty"), 1800.0),
         "max_lin": cfg.rig.max_linear_step,
         "max_ang": cfg.rig.max_angular_step,
-        "d_sep": spec.get("goal", {}).get("d_sep"),
+        "d_sep": round(spec.get("goal", {}).get("d_sep", 0) * spec.get("unit_scale", 1.0), 6),
+        "lin_speed": cfg.rig.linear_speed,
+        "ang_speed": cfg.rig.angular_speed,
     }
+    canon = str(spec.get("meta", {}).get("source", "")).startswith("https://github.com/ompl/omplapp")
     alpha = spec.get("goal", {}).get("type") == "separation"
+    if canon:
+        ctx["name"] = task_name or puzzle
     if alpha:
         ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
     toml = TASK_TOML.format(**ctx)
@@ -292,7 +346,7 @@ def make_task(puzzle: str, roadmap_reward: bool = False) -> Path:
         toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{ROADMAP_CFG}" }}')
         compose = compose.replace('      LOOPHOLE_SEED: "0"\n', f'      LOOPHOLE_SEED: "0"\n      LOOPHOLE_CONFIG: "{ROADMAP_CFG}"\n')
     (d / "task.toml").write_text(toml)
-    (d / "instruction.md").write_text((INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
+    (d / "instruction.md").write_text((INSTRUCTION_CANON if canon else INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
     (d / "environment" / "docker-compose.yaml").write_text(compose)
     (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)

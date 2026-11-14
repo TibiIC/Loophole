@@ -49,6 +49,8 @@ class PlannerConfig:
     focus: np.ndarray | None = None  # optional Gaussian focus points for translation sampling
     focus_sigma: float = 0.03
     focus_prob: float = 0.0
+    focus_quat: np.ndarray | None = None  # if set, focused samples also stay near this orientation
+    focus_rot_sigma: float = 0.5  # rad
 
 
 def rrt_connect(ck: CollisionChecker, start: np.ndarray, goal: np.ndarray, cfg: PlannerConfig, log=print) -> list[np.ndarray] | None:
@@ -67,6 +69,10 @@ def rrt_connect(ck: CollisionChecker, start: np.ndarray, goal: np.ndarray, cfg: 
         if cfg.focus is not None and rng.random() < cfg.focus_prob:
             c = cfg.focus[rng.integers(len(cfg.focus))]
             t = c + rng.normal(0, cfg.focus_sigma, 3)
+            if cfg.focus_quat is not None:
+                from ..sim.geometry import quat_from_rotvec, quat_mul, quat_normalize
+
+                return np.concatenate([t, quat_normalize(quat_mul(quat_from_rotvec(rng.normal(0, cfg.focus_rot_sigma, 3)), cfg.focus_quat))])
         else:
             t = cfg.lo + rng.random(3) * (cfg.hi - cfg.lo)
         return np.concatenate([t, random_quat(rng)])

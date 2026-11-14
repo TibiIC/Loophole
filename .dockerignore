@@ -9,3 +9,4 @@ tasks
 *.egg-info
 MUJOCO_LOG.TXT
 .ompl_alpha
+.mesh_cache

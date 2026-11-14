@@ -55,7 +55,9 @@ def decompose_mesh(
     mesh.apply_scale(np.asarray(scale, dtype=float))
     out_dir.mkdir(parents=True, exist_ok=True)
     parts: list[tuple[np.ndarray, np.ndarray]]
-    if method == "coacd":
+    if method == "facewedge":
+        parts = facewedge_decomposition(mesh)
+    elif method == "coacd":
         import coacd
 
         coacd.set_log_level("error")
@@ -70,3 +72,55 @@ def decompose_mesh(
         names.append(name)
     manifest.write_text(json.dumps(names))
     return [out_dir / n for n in names]
+
+
+def facewedge_decomposition(mesh, depth_frac: float = 0.8) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Exact-outside convex decomposition of a thin *tube-like* surface (e.g. a triangle soup).
+
+    Each (deduplicated) triangle becomes the convex wedge spanned by the triangle and
+    its copy pushed inward by `depth_frac` of the local half-thickness. The outer
+    surface of the union is exactly the original triangles (zero outward error), so
+    clearances are preserved; pieces are deep enough that passing through one needs
+    far more penetration than the audit allows.
+
+    Inward direction and thickness come from ray casting along +-normal: the inward
+    ray hits the tube's opposite wall first (about one tube diameter away), which
+    needs no consistent face orientation (triangle soups from SketchUp are double-sided).
+    """
+    import trimesh
+
+    m = mesh.copy()
+    m.merge_vertices(digits_vertex=6)
+    F = np.unique(np.sort(np.asarray(m.faces), axis=1), axis=0)
+    V = np.asarray(m.vertices)
+    F = F[np.linalg.norm(np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]]), axis=1) > 1e-9]
+    clean = trimesh.Trimesh(V, F, process=False)
+    tri = V[F]
+    cen = tri.mean(axis=1)
+    n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    n /= np.linalg.norm(n, axis=1, keepdims=True)
+    eps = 1e-4 * float(np.linalg.norm(clean.extents))
+    first = {}
+    for sgn in (1.0, -1.0):
+        origins = cen + sgn * eps * n
+        dirs = sgn * n
+        loc, ray_idx, _ = clean.ray.intersects_location(origins, dirs, multiple_hits=True)
+        dist = np.full(len(F), np.inf)
+        if len(loc):
+            dd = np.linalg.norm(loc - origins[ray_idx], axis=1)
+            for r, d in zip(ray_idx, dd):
+                if d > 2 * eps and d < dist[r]:
+                    dist[r] = d
+        first[sgn] = dist
+    inward_pos = first[1.0] < first[-1.0]
+    thick = np.where(inward_pos, first[1.0], first[-1.0])
+    if not np.all(np.isfinite(thick)):
+        bad = ~np.isfinite(thick)
+        thick[bad] = np.median(thick[~bad])
+    d = np.where(inward_pos[:, None], n, -n)
+    faces = np.array([[0, 1, 2], [3, 5, 4], [0, 3, 4], [0, 4, 1], [1, 4, 5], [1, 5, 2], [2, 5, 3], [2, 3, 0]])
+    parts = []
+    for k in range(len(F)):
+        depth = depth_frac * 0.5 * thick[k]  # half the wall-to-wall distance ~ to the axis
+        parts.append((np.concatenate([tri[k], tri[k] + depth * d[k]]), faces))
+    return parts

@@ -9,3 +9,4 @@ build/
 .mesh_cache/
 MUJOCO_LOG.TXT
 .ompl_alpha/
+.env*

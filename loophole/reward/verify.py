@@ -99,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--puzzle", default=os.environ.get("LOOPHOLE_PUZZLE"))
     ap.add_argument("--seed", type=int, default=int(os.environ.get("LOOPHOLE_SEED", "0")))
     ap.add_argument("--config", default=os.environ.get("LOOPHOLE_CONFIG"))
-    ap.add_argument("--out", default="/logs/verifier/reward.json")
+    ap.add_argument("--out", default="/logs/verifier/reward.txt")
     ap.add_argument("--report", default=None)
     a = ap.parse_args(argv)
     if not a.puzzle:
@@ -108,9 +108,12 @@ def main(argv: list[str] | None = None) -> int:
         res = verify_episode(a.log, a.puzzle, a.seed, a.config)
     except Exception as e:  # never crash without writing a reward
         res = _zero(f"verifier error: {type(e).__name__}: {e}")
-    numeric = {k: v for k, v in res.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(a.out).write_text(json.dumps(numeric))
+    if a.out.endswith(".txt"):  # Harbor reward.txt: one float in [0, 1]
+        Path(a.out).write_text(f"{float(res['reward']):.6f}\n")
+    else:
+        numeric = {k: v for k, v in res.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+        Path(a.out).write_text(json.dumps(numeric))
     if a.report:
         Path(a.report).write_text(json.dumps(res, indent=1, default=str))
     print(json.dumps({k: res[k] for k in ("reward", "success", "actions_used", "violations", "log_consistent", "reason")}))
