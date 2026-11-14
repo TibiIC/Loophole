@@ -134,6 +134,10 @@ class MJCFBuilder:
                     from ..puzzles.ompl_alpha import resolve_mesh_path
 
                     mpath = resolve_mesh_path(g.path)
+                elif g.path.startswith("paper:"):
+                    from ..puzzles.paper_alpha import resolve_mesh_path as resolve_paper
+
+                    mpath = resolve_paper(g.path)
                 else:
                     mpath = Path(g.path)
                     if not mpath.is_absolute():
@@ -173,7 +177,7 @@ class MJCFBuilder:
             cone="pyramidal",
         )
         has_mesh = any(g.type == "mesh" for b in p.frame + p.objects for g in b.geoms)
-        ET.SubElement(root, "size", memory="1G" if has_mesh else "64M")  # wedge meshes: many candidate pairs
+        ET.SubElement(root, "size", memory="3G" if has_mesh else "64M")  # wedge meshes: many candidate pairs
         vis = ET.SubElement(root, "visual")
         ET.SubElement(vis, "headlight", ambient="0.4 0.4 0.4", diffuse="0.6 0.6 0.6", specular="0.1 0.1 0.1")
         ET.SubElement(vis, "global", offwidth="1280", offheight="960")

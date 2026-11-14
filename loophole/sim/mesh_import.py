@@ -57,6 +57,8 @@ def decompose_mesh(
     parts: list[tuple[np.ndarray, np.ndarray]]
     if method == "facewedge":
         parts = facewedge_decomposition(mesh)
+    elif method == "chunkhull":
+        parts = chunkhull_decomposition(mesh)
     elif method == "coacd":
         import coacd
 
@@ -83,9 +85,10 @@ def facewedge_decomposition(mesh, depth_frac: float = 0.8) -> list[tuple[np.ndar
     clearances are preserved; pieces are deep enough that passing through one needs
     far more penetration than the audit allows.
 
-    Inward direction and thickness come from ray casting along +-normal: the inward
-    ray hits the tube's opposite wall first (about one tube diameter away), which
-    needs no consistent face orientation (triangle soups from SketchUp are double-sided).
+    Inward direction: for a watertight, consistently wound mesh it is exactly -normal
+    (outward winding). For triangle soups (e.g. double-sided SketchUp exports) it is
+    found by ray casting along +-normal: the inward ray hits the tube's opposite wall
+    first. Thickness is the inward ray's distance to the opposite wall.
     """
     import trimesh
 
@@ -95,10 +98,21 @@ def facewedge_decomposition(mesh, depth_frac: float = 0.8) -> list[tuple[np.ndar
     V = np.asarray(m.vertices)
     F = F[np.linalg.norm(np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]]), axis=1) > 1e-9]
     clean = trimesh.Trimesh(V, F, process=False)
+    watertight = False
+    w = mesh.copy()
+    w.merge_vertices(merge_tex=True, merge_norm=True)
+    if w.is_watertight and w.is_winding_consistent:
+        trimesh.repair.fix_normals(w)  # outward
+        if w.volume > 0:
+            watertight = True
+            V = np.asarray(w.vertices)
+            F = np.asarray(w.faces)
+            F = F[np.linalg.norm(np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]]), axis=1) > 1e-9]
+            clean = trimesh.Trimesh(V, F, process=False)
     tri = V[F]
     cen = tri.mean(axis=1)
     n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
-    n /= np.linalg.norm(n, axis=1, keepdims=True)
+    n /= np.linalg.norm(n, axis=1, keepdims=True)  # outward when `watertight`
     eps = 1e-4 * float(np.linalg.norm(clean.extents))
     first = {}
     for sgn in (1.0, -1.0):
@@ -112,15 +126,48 @@ def facewedge_decomposition(mesh, depth_frac: float = 0.8) -> list[tuple[np.ndar
                 if d > 2 * eps and d < dist[r]:
                     dist[r] = d
         first[sgn] = dist
-    inward_pos = first[1.0] < first[-1.0]
-    thick = np.where(inward_pos, first[1.0], first[-1.0])
+    if watertight:
+        inward_pos = np.zeros(len(F), bool)  # inward = -n
+        thick = first[-1.0]
+    else:
+        inward_pos = first[1.0] < first[-1.0]
+        thick = np.where(inward_pos, first[1.0], first[-1.0])
     if not np.all(np.isfinite(thick)):
         bad = ~np.isfinite(thick)
         thick[bad] = np.median(thick[~bad])
     d = np.where(inward_pos[:, None], n, -n)
     faces = np.array([[0, 1, 2], [3, 5, 4], [0, 3, 4], [0, 4, 1], [1, 4, 5], [1, 5, 2], [2, 5, 3], [2, 3, 0]])
+    depth = depth_frac * 0.5 * thick  # half the wall-to-wall distance ~ to the axis
+    if watertight:
+        # every wedge must lie inside the solid (then the union's outside is exactly the
+        # surface): halve the depth of any wedge whose inner vertices fall outside
+        for _ in range(12):
+            inner = (tri + depth[:, None, None] * d[:, None, :]).reshape(-1, 3)
+            bad = ~clean.contains(inner).reshape(-1, 3).all(axis=1)
+            if not bad.any():
+                break
+            depth[bad] *= 0.5
+    return [(np.concatenate([tri[k], tri[k] + depth[k] * d[k]]), faces) for k in range(len(F))]
+
+
+def chunkhull_decomposition(mesh, n_chunks: int = 64, seed: int = 0) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Conservative coarse proxy: convex hulls of spatial chunks of the surface.
+
+    Every triangle lies in its chunk's hull, so the union of hulls is a SUPERSET of
+    the surface: distances measured on it are lower bounds of the true distances.
+    Used only for far-field queries (e.g. "separated by more than d_sep?"), where a
+    lower bound can never claim separation falsely.
+    """
+    import trimesh
+    from scipy.cluster.vq import kmeans2
+
+    V = np.asarray(mesh.vertices)
+    F = np.asarray(mesh.faces)
+    cen = V[F].mean(axis=1)
+    _, label = kmeans2(cen, min(n_chunks, len(F)), seed=seed, minit="++")
     parts = []
-    for k in range(len(F)):
-        depth = depth_frac * 0.5 * thick[k]  # half the wall-to-wall distance ~ to the axis
-        parts.append((np.concatenate([tri[k], tri[k] + depth * d[k]]), faces))
+    for k in np.unique(label):
+        pts = V[np.unique(F[label == k])]
+        hull = trimesh.convex.convex_hull(pts)
+        parts.append((np.asarray(hull.vertices), np.asarray(hull.faces)))
     return parts

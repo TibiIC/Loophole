@@ -8,7 +8,7 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha reference agent noop stop-early eval view clean
+.PHONY: help build dev test tasks alpha fetch-alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean
 
 help:
 	@echo "make build                         build the simulator / verifier image"
@@ -34,6 +34,14 @@ alpha:
 # LOCAL ONLY: canonical OMPL.app Alpha meshes for comparison (Rice licence: never committed or shipped)
 fetch-alpha:
 	scripts/fetch_alpha.sh
+
+# Alpha 1.0 as in Zhang et al. 2020 (meshes + .cfg + solution; fetched, never committed)
+fetch-alpha-paper:
+	scripts/fetch_alpha_paper.sh
+
+# watch the oracle (the paper's published solution) in the MuJoCo viewer
+view-alpha: fetch-alpha-paper
+	.venv/bin/mjpython -m loophole.viewer --trajectory loophole/reference/trajectories/alpha-1.0-paper.jsonl
 
 # regenerate trajectories + Harbor task dirs from puzzles/ and the scripted references
 tasks:

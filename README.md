@@ -83,10 +83,17 @@ OPENAI_API_KEY=... harbor run -p ./tasks/loophole-alpha -a opencode -m openai/<m
 
 ### Model API keys (for `-a opencode`)
 
-Harbor forwards `GEMINI_API_KEY` / `GOOGLE_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY`
-(models `gemini/<id>`) or `OPENAI_API_KEY` (models `openai/<id>`) from your shell.
-Keep keys out of the repo, e.g. in `~/.loophole.env` (chmod 600), then
-`source ~/.loophole.env && harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/<id>`.
+For Gemini with OpenCode, set **`GOOGLE_GENERATIVE_AI_API_KEY`**: that's the only name
+OpenCode's Google provider reads. Harbor forwards whichever of `GOOGLE_API_KEY`,
+`GEMINI_API_KEY` and `GOOGLE_GENERATIVE_AI_API_KEY` it finds first, so leave the other
+two unset in that shell. Models are `gemini/<id>` (list yours with the models API).
+OpenAI: `OPENAI_API_KEY`, models `openai/<id>`. Keep keys in a gitignored `.env`
+(`.env*` is ignored), then:
+
+```bash
+set -a; source .env; set +a
+harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon
+```
 
 ## Quick start
 

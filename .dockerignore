@@ -10,3 +10,4 @@ tasks
 MUJOCO_LOG.TXT
 .ompl_alpha
 .mesh_cache
+.alpha_paper

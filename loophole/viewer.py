@@ -16,6 +16,7 @@ import time
 
 import mujoco
 import mujoco.viewer
+import numpy as np
 
 from .config import load_config
 from .reference.recorder import load_trajectory
@@ -25,8 +26,10 @@ from .sim.rig import RigError
 
 def view_replay(env: LoopholeEnv, steps: list[tuple[str, dict]], speed: float = 1.0, sync_every: int = 8) -> None:
     with mujoco.viewer.launch_passive(env.model, env.data) as v:
-        v.cam.lookat[:] = (env.frame_aabb()[0] + env.frame_aabb()[1]) / 2
-        v.cam.distance, v.cam.azimuth, v.cam.elevation = 1.0, 135, -20
+        lo, hi = env.frame_aabb()
+        v.cam.lookat[:] = (lo + hi) / 2
+        v.cam.distance = max(1.0, 1.5 * float(np.max(hi - lo)))  # fit the scene (Alpha tubes are ~2.5 m)
+        v.cam.azimuth, v.cam.elevation = 135, -20
         inner = env._substep
         counter = {"n": 0}
         dt = env.model.opt.timestep

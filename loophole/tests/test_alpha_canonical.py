@@ -62,9 +62,9 @@ def test_decomposition_error_far_below_narrowest_clearance(setup):
         fcl_d.append(cm.min_distance_single(B, transform=T) * UNIT_SCALE)
         y = np.concatenate([x[:3] * UNIT_SCALE, x[3:]])
         assert ck.is_valid(y), "OMPL's own solution path must be collision-free in our sim"
-        mj_d.append(ck.clearance(y, 0.15))
+        mj_d.append(ck.clearance(y, ck.NEAR))  # exact up to NEAR; beyond it the far-field proxy gives lower bounds
     fcl_d, mj_d = np.array(fcl_d), np.array(mj_d)
-    near = fcl_d < 0.15
+    near = fcl_d < ck.NEAR
     err = float(np.max(np.abs(mj_d[near] - fcl_d[near])))
     narrowest = float(fcl_d.min())
     assert narrowest > 0.001  # ~1.8 mm along OMPL's path

@@ -14,6 +14,10 @@ world origin: ``pose = (x, y, z, qw, qx, qy, qz)``.
 * ``is_separated(pose)``: ``is_valid(pose, margin=d_sep)``, i.e. the minimum
   distance exceeds the goal threshold.
 * ``clearance(pose, dmax)``: minimum frame-target distance, capped at ``dmax``.
+  For mesh puzzles, distances beyond ``near`` (5 cm) come from a conservative
+  proxy (convex hulls of surface chunks, a superset of the shapes), so they are
+  lower bounds; ``is_separated`` uses the same proxy and can therefore never
+  report separation falsely. Distances below ``near`` are exact.
 * ``segment_valid(p, q, step)``: dense straight-line check in SE(3).
 """
 
@@ -45,8 +49,17 @@ def interpolate(p: np.ndarray, q: np.ndarray, f: float) -> np.ndarray:
 
 
 class CollisionChecker:
-    def __init__(self, puzzle: Puzzle):
+    NEAR = 0.05  # m: exact distances up to here; the far-field proxy beyond
+
+    def __init__(self, puzzle: Puzzle, _proxy: bool = True):
         self.puzzle = puzzle
+        self.proxy = None
+        heavy = any(g.type == "mesh" and g.decompose == "facewedge" for b in puzzle.frame + puzzle.objects for g in b.geoms)
+        if heavy and _proxy:
+            def coarse(b):
+                return b.model_copy(update={"geoms": [g.model_copy(update={"decompose": "chunkhull"}) if g.type == "mesh" else g for g in b.geoms]})
+            pz = puzzle.model_copy(update={"frame": [coarse(b) for b in puzzle.frame], "objects": [coarse(b) for b in puzzle.objects]})
+            self.proxy = CollisionChecker(pz, _proxy=False)
         built = build_model(puzzle, num_handles=0)
         self.model = mujoco.MjModel.from_xml_string(built.xml)
         # MuJoCo's body-level midphase culls pairs on un-inflated bounding volumes, so
@@ -103,9 +116,20 @@ class CollisionChecker:
         return bool(np.all(dist >= margin))
 
     def is_separated(self, pose: Pose) -> bool:
+        if self.proxy is not None:  # conservative: proxy distance <= true distance (+1 mm for
+            # MuJoCo's convex-distance tolerance, measured <= 0.6 mm against FCL)
+            return self.proxy.is_valid(pose, margin=self.puzzle.goal.d_sep + 0.001)
         return self.is_valid(pose, margin=self.puzzle.goal.d_sep)
 
     def clearance(self, pose: Pose, dmax: float) -> float:
+        if self.proxy is not None and dmax > self.NEAR:
+            near = self._exact(pose, self.NEAR)
+            if near < self.NEAR:
+                return near
+            return float(max(self.NEAR, self.proxy._exact(pose, dmax)))  # lower bound beyond NEAR
+        return self._exact(pose, dmax)
+
+    def _exact(self, pose: Pose, dmax: float) -> float:
         dist = self._pairs(np.asarray(pose, float), dmax)
         return float(min(dmax, dist.min())) if dist.size else float(dmax)
 

@@ -1,0 +1,9 @@
+{
+ "source": "Zhang, Belfer, Kry, Vouga 2020 (supp-material/puzzles/alpha/alpha-1.0.simplified.txt)",
+ "poses": 22,
+ "dense_states_checked": 28189,
+ "invalid": 0,
+ "reference_actions": 79,
+ "max_actions": 198,
+ "reference_score": 0.800505
+}
