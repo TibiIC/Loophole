@@ -41,16 +41,16 @@ solution paths [JSCP15]. The puzzle was designed by Boris Yamrom (GE Corporate R
 became a standard benchmark through Nancy Amato's Parasol Lab and OMPL.
 
 **Geometry and oracle: from the paper, fetched, never committed.** Alpha 1.0 exactly as
-used in Zhang et al. [ZBKV20]: two congruent tube meshes (volumes 2870.33 / 2869.76), the
+used in Zhang et al. [ZBKV20]: two congruent tube meshes, the
 OMPL problem file and the authors' solution, from their puzzle repository
 (`gitlab.com/xinyazhang/puzzle-geometry` @ `cd05c5d`, byte-identical to the paper's
 supplementary). The geometry derives from the OMPL.app Alpha puzzle (Rice licence:
 non-commercial, no redistribution), so `make fetch-alpha-paper` and the Docker build
 fetch it with sha256 checks; only poses and parameters are committed.
-* OMPL conventions (robot shifted by its vertex mean): all 214 states of the authors'
-  path are collision-free under FCL on the raw meshes, and 66,679 interpolated states at
-  0.8 mm too; our MuJoCo collision model (exact-outside convex face wedges) matches FCL to
-  5.8 µm. `unit_scale: 0.04` (tubes ≈ 2.5 m); the start pose round-trips to the `.cfg`.
+* OMPL conventions (robot shifted by its vertex mean). In our MuJoCo collision model
+  (exact-outside convex face wedges), the authors' 22 keyframe poses, densified to 28,189
+  states, are all collision-free (`loophole/puzzles/alpha_paper/alpha-1.0-paper-build.json`:
+  `dense_states_checked`, `invalid: 0`). `unit_scale: 0.04` (tubes ≈ 2.5 m).
 * Oracle (`solution/`): the authors' simplified 22-pose solution, densely re-validated
   in our simulator (28,189 states, 0 collisions) and replayed through the agent's rig:
   free after 59/198 actions, 0 violations, score **0.851**. Watch it: `make view-alpha`.
@@ -216,10 +216,10 @@ tasks; details and evidence are in [docs/HARNESS_NOTES.md](docs/HARNESS_NOTES.md
   * At OpenCode's default level, and at `medium`, it spends the whole 32k output budget
     reasoning after the first `get_state` and returns nothing. A score of 0 there is a
     configuration result, not a capability one.
-  * The tasks set `low` through `OPENCODE_CONFIG_CONTENT` in
-    `tasks/*/environment/docker-compose.yaml`.
-  * On Alpha, the default level never hit the cap, and the Alpha results were run at the
-    default.
+  * The Rat Trap task sets `low` through `OPENCODE_CONFIG_CONTENT` in
+    `tasks/loophole-rattrap/environment/docker-compose.yaml`.
+  * The Alpha task keeps OpenCode's default level: there it never hit the cap, and the reported
+    Alpha results were produced at the default.
 * **Nemotron 3.5 Super VL truncates at 8k output tokens.** Our function-calling harness now
   allows 32k and re-prompts a cut-off reply instead of ending the run.
 
@@ -357,7 +357,7 @@ Step by step, for development:
 
 ```bash
 make dev                         # python3.11 venv + editable install (.[mesh,dev])
-make test                        # pytest (all green; artifact-dependent tests skip with a reason)
+make test                        # pytest (artifact-dependent tests skip with a reason)
 .venv/bin/python scripts/demo.py # loads the Alpha puzzle, makes a few moves, writes runs/demo/*.png
 ```
 
@@ -424,32 +424,18 @@ make eval MODEL=...                                                     # all of
 
 ## Status
 
-| Component | Status | Notes |
+Each row points at the artifact behind it.
+
+| Component | Status | Evidence |
 |---|---|---|
-| **Alpha 1.0 task `tasks/loophole-alpha`** (Zhang et al. 2020) | done | oracle = the authors' published path, **0.851**; nop **0**; stop-early **0** |
-| **Rat Trap task `tasks/loophole-rattrap`** | done | oracle = Tibi's recorded human solve, **0.833**; nop **0**; random agent **0** (docs/RATTRAP_DESIGN.md) |
-| *Earlier:* Alpha 1.5 task on OMPL.app geometry | superseded | its oracle was our own RRT-Connect plan (0.876); replaced by Alpha 1.0 |
-| Canonical geometry pipeline (fetch, Assimp frame, face-wedge hulls) | done | OMPL's own path collision-free; hull error 0.15 mm vs 1.8 mm clearance |
-| *Earlier:* Alpha 1.5 oracle by our RRT-Connect (20 min box) | superseded | uniform sampling failed in 20 min; orientation-focused solved in 406 s |
-| Real model runs (`-a opencode`) | done | Alpha: Gemini 4 Carbon solves (docs/RESULTS.md); Rat Trap: README results table |
-| Alpha 1.2 on OMPL.app geometry | not planned | Alpha 1.0 (Zhang et al.) is the task |
-| Alpha geometry generator (3 clearances) | done | `make alpha` regenerates; `alpha-medium` is the MVP variant |
-| Sim: fixed A / free B, gravity off, frictionless, capsule-chain collision | done | |
-| Grab handle, velocity-capped moves, stall on contact | done | `rig.num_handles: 1` for Alpha |
-| Penetration / speed / instability audit | done | violations void success |
-| Shared collision checker (`sim/collision.py`) | done | margin queries exact (midphase off) |
-| MCP server (get_state, render, grab, move, release, wait) | done | streamable HTTP, OSMesa in Docker |
-| MVP reward + independent replay verifier | done | |
-| Tests: start valid, no tunnelling at max speed, noop = 0, teleport-apart = success | done | `tests/test_alpha.py` |
-| `scripts/demo.py` | done | |
-| Harbor tasks `tasks/loophole-alpha-{easy,medium,hard}` | done | harbor: oracle 0.938 / 0.903 / 0.935, nop 0, stop-early 0 (all logs independently replayed) |
-| RRT-Connect reference (`loophole/planning/`, `scripts/build_alpha.py`) | done | all 3 variants: dense-valid, replays to separation (easy 15 / medium 29 / hard 26 actions) |
-| Cost-to-go roadmap reward (`reward/roadmap.py`) | in progress | ~8k nodes / ~67k edges per variant, ctg monotone along the reference, wall guard tested; behind `reward.roadmap` (off by default) |
-| Topological diagnostics (linking integral, loop words) | in progress | logged per action; `scripts/episode_report.py` plots them |
-| Alpha easy / hard variants | done | gap clearance 12 / 6 / 3 mm; start ctg 1.12 / 2.60 / 2.42 |
-| Rope puzzles (easy/medium/hard) + Harbor tasks | done | earlier milestones; oracle 0.82 / nop 0 / stop-early 0 via Harbor |
-| Pose stream / recorder / replay | done | |
-| Canonical OMPL comparison (`make fetch-alpha`) | done | local only, never committed |
+| **Alpha 1.0 task `tasks/loophole-alpha`** (Zhang et al. 2020) | done | `runs/20261114-111735/`: oracle **0.851** (the authors' published path), nop **0**, stop-early **0**, Gemini 4 Carbon 0.884 / 0.823 / 0.886 |
+| **Rat Trap task `tasks/loophole-rattrap`** | done | `runs/harbor-rattrap/`: Harbor runs of the oracle (Tibi's recorded human solve), stop-early and nop; the oracle's expected 0.833 is in `loophole/reference/rattrap-checkpoints.npz` (metadata); random agent: `runs/rattrap-random/` |
+| *Earlier:* Alpha 1.5 task on OMPL.app geometry | superseded | its oracle was our own RRT-Connect plan: `runs/harbor/canon-oracle/` (0.876) |
+| Real model runs (`-a opencode`) | done | Alpha: docs/RESULTS.md; Rat Trap: the README results table and `runs/rattrap-agents/` |
+| Cost-to-go roadmap (Alpha partial credit) | done | `loophole/puzzles/alpha_paper/roadmap-alpha-1.0-paper.npz` (8,044 nodes, 60,260 edges) |
+| Independent replay verifiers (Alpha, Rat Trap) | done | `loophole/reward/verify.py`, `loophole/puzzles/rattrap/verify.py`; tests `test_reward.py`, `test_rattrap_verify.py` |
+| Penetration / speed / instability audit; swept-motion certificate | done | `loophole/sim/audit.py`, `loophole/sim/certify.py`; `test_shaping_scaffold.py` |
+| Procedural Alpha variants, rope puzzles, OMPL comparison | kept, not submitted | code and tasks remain; no results are claimed for them |
 
 ## Next steps for teammates
 

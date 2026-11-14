@@ -25,7 +25,16 @@ PUZZLES = ROOT / "loophole" / "puzzles"
 TRAJ = ROOT / "loophole" / "reference" / "trajectories"
 TASKS = ROOT / "tasks"
 
-# OpenCode overlay for the agent container (see COMPOSE); JSON, merged by OpenCode over Harbor's opencode.json
+# Rat Trap only: agent-container environment with an OpenCode overlay (JSON, merged by OpenCode over Harbor's
+# opencode.json). Alpha keeps OpenCode's defaults: its reported Gemini results were produced at the default level.
+RATTRAP_AGENT_ENV = """\
+    environment:
+      # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
+      # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
+      # level spends the whole 32k output budget reasoning on this task and returns nothing; "low" acts.
+      OPENCODE_CONFIG_CONTENT: '{opencode_overlay}'
+"""
+
 OPENCODE_OVERLAY = json.dumps({"provider": {"google": {"models": {"gemini-4-carbon": {"options": {
     "thinkingConfig": {"thinkingLevel": "low", "includeThoughts": True}}}}}}}, separators=(",", ":"))
 
@@ -85,11 +94,6 @@ services:
     depends_on:
       loophole-sim:
         condition: service_healthy
-    environment:
-      # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
-      # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
-      # level can spend the whole 32k output budget reasoning and return nothing; "low" acts.
-      OPENCODE_CONFIG_CONTENT: '{opencode_overlay}'
 
   loophole-sim:
     # Built from the repository root (the agent container never sees this source).
@@ -384,7 +388,7 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
     if alpha:
         ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
     toml = TASK_TOML.format(**ctx)
-    compose = COMPOSE.format(**ctx, opencode_overlay=OPENCODE_OVERLAY)
+    compose = COMPOSE.format(**ctx)  # Alpha: OpenCode defaults (the reported Alpha results were run at the default)
     cfg_path = config_file or (ROADMAP_CFG if roadmap_reward else None)
     if cfg_path:  # same config for the sim sidecar and the verifier
         toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{cfg_path}" }}')
@@ -504,7 +508,7 @@ def make_rattrap_task() -> Path:
     (d / "task.toml").write_text(RATTRAP_TOML.format(T=ep.T, oracle=oracle, agent_timeout=14400.0))
     (d / "instruction.md").write_text(RATTRAP_INSTRUCTION.format(scene=scene_text(spec, ep)))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
-    compose = COMPOSE.format(puzzle="rattrap", opencode_overlay=OPENCODE_OVERLAY)
+    compose = COMPOSE.format(puzzle="rattrap").replace("        condition: service_healthy\n", "        condition: service_healthy\n" + RATTRAP_AGENT_ENV.format(opencode_overlay=OPENCODE_OVERLAY), 1)
     compose = compose.replace('      LOOPHOLE_PUZZLE: "rattrap"\n      LOOPHOLE_SEED: "0"\n', '      LOOPHOLE_TASK: "rattrap"\n')
     compose = compose.replace("    networks: [default]\n", '    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http"]\n    networks: [default]\n')
     (d / "environment" / "docker-compose.yaml").write_text(compose)

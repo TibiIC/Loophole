@@ -7,7 +7,7 @@ services:
     environment:
       # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
       # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
-      # level can spend the whole 32k output budget reasoning and return nothing; "low" acts.
+      # level spends the whole 32k output budget reasoning on this task and returns nothing; "low" acts.
       OPENCODE_CONFIG_CONTENT: '{"provider":{"google":{"models":{"gemini-4-carbon":{"options":{"thinkingConfig":{"thinkingLevel":"low","includeThoughts":true}}}}}}}'
 
   loophole-sim:
