@@ -1,0 +1,48 @@
+{
+    "id": "5fee1749-5726-4d98-80b3-46b71035231b",
+    "started_at": "2026-11-14T19:29:29.572943",
+    "updated_at": "2026-11-14T19:49:19.410213",
+    "finished_at": "2026-11-14T19:49:19.410213",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 2,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__gemini-3.5-flash-lite__adhoc": {
+                "n_trials": 3,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 6.333333333333333e-6
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "loophole-alpha__tyxJ2PC",
+                            "loophole-alpha__UofRoUL"
+                        ],
+                        "1.9e-05": [
+                            "loophole-alpha__o6W9Upt"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "NonZeroAgentExitCodeError": [
+                        "loophole-alpha__tyxJ2PC",
+                        "loophole-alpha__o6W9Upt"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 15523645,
+        "n_cache_tokens": 14472492,
+        "n_output_tokens": 16215,
+        "cost_usd": 0.8899281599999997
+    }
+}

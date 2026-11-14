@@ -1,0 +1,130 @@
+{
+    "id": "4f5754b3-d8ce-432a-beea-0682f7cb5bf9",
+    "task_name": "loophole/loophole-alpha",
+    "trial_name": "loophole-alpha__UpevmKp",
+    "trial_uri": "file:///Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-204530-opencode/loophole-alpha__UpevmKp",
+    "task_id": {
+        "path": "tasks/loophole-alpha"
+    },
+    "source": null,
+    "task_checksum": "488636018833396f78bdc2e250bab90918a45de1865f70ce70bfc93f4348d214",
+    "config": {
+        "task": {
+            "path": "tasks/loophole-alpha",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "loophole-alpha__UpevmKp",
+        "trials_dir": "/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-204530-opencode",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": 1.0,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": 4.0,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "opencode",
+            "import_path": null,
+            "model_name": "verda/kimi-k3-1-pro",
+            "base_url": "https://inference.verda.com/v1",
+            "model_api_key_name": "KIMI_AI_API_KEY",
+            "model_api_format": "openai_chat_completions",
+            "skip_model_parsing": false,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {},
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "stream": false,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {},
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "e0e000c2-2099-40ee-8262-858a84ff688c",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "opencode",
+        "version": "1.19.5",
+        "model_info": {
+            "name": "verda/kimi-k3-1-pro",
+            "provider": null
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 86775101,
+        "n_cache_tokens": 86453184,
+        "n_output_tokens": 70542,
+        "cost_usd": null,
+        "model_usage": {
+            "verda/kimi-k3-1-pro": {
+                "n_input_tokens": 86775101,
+                "n_cache_tokens": 86453184,
+                "n_output_tokens": 70542,
+                "cost_usd": null
+            }
+        },
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "verifier_environment_mode": "separate",
+    "exception_info": null,
+    "started_at": "2026-11-14T18:45:43.534527Z",
+    "finished_at": "2026-11-14T19:41:15.707510Z",
+    "environment_setup": {
+        "started_at": "2026-11-14T18:45:44.093080Z",
+        "finished_at": "2026-11-14T18:45:53.871164Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-11-14T18:45:53.871227Z",
+        "finished_at": "2026-11-14T18:48:38.935509Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-11-14T18:48:38.936732Z",
+        "finished_at": "2026-11-14T19:36:48.076461Z"
+    },
+    "verifier": {
+        "started_at": "2026-11-14T19:37:19.209612Z",
+        "finished_at": "2026-11-14T19:41:15.706402Z"
+    },
+    "step_results": null
+}

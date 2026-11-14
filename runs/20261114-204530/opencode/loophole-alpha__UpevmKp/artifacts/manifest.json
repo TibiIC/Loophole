@@ -1,0 +1,18 @@
+[
+  {
+    "source": "/logs/artifacts",
+    "destination": "artifacts/logs/artifacts",
+    "type": "directory",
+    "status": "ok",
+    "service": null,
+    "exclude": []
+  },
+  {
+    "source": "/var/loophole/episode",
+    "destination": "artifacts/episode",
+    "type": "directory",
+    "status": "ok",
+    "service": "loophole-sim",
+    "exclude": []
+  }
+]

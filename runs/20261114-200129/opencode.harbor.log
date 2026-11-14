@@ -1,0 +1,35 @@
+LiteLLM could not resolve model 'verda/deepseek-4-1-flash-1017'; passing it unchanged to the agent. For an OpenAI-compatible endpoint, use openai/<model-id> with OPENAI_API_KEY and OPENAI_BASE_URL. Use --api-format if supported, or --api-key-name and --base-url to override the connection.
+LiteLLM could not resolve model 'verda/deepseek-4-1-flash-1017'; passing it unchanged to the agent. For an OpenAI-compatible endpoint, use openai/<model-id> with OPENAI_API_KEY and OPENAI_BASE_URL. Use --api-format if supported, or --api-key-name and --base-url to override the connection.
+  3/3 Mean: 0.005 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:43:36 0:00:00
+adhoc • opencode • verda/deepseek-4-1-flash-1017
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      3 │          1 │ 0.005 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━━━┳━━━━━━━┓
+┃ Reward   ┃ Count ┃
+┡━━━━━━━━━━╇━━━━━━━┩
+│ 0.007049 │     1 │
+│ 0.004354 │     1 │
+│ 0.004762 │     1 │
+└──────────┴───────┘
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Exception                 ┃ Count ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ NonZeroAgentExitCodeError │     1 │
+└───────────────────────────┴───────┘
+
+Job Info
+Total runtime: 43m 36s
+Results written to 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-200129-openco
+de/result.json
+Inspect results by running `harbor view 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs`
+Share results by running `harbor upload 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-200129-openco
+de`
+

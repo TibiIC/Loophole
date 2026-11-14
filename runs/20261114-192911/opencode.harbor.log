@@ -1,0 +1,32 @@
+  3/3 Mean: 0.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:19:49 0:00:00
+adhoc • opencode • gemini-3.5-flash-lite
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      3 │          2 │ 0.000 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━━┳━━━━━━━┓
+┃ Reward  ┃ Count ┃
+┡━━━━━━━━━╇━━━━━━━┩
+│ 0.0     │     2 │
+│ 1.9e-05 │     1 │
+└─────────┴───────┘
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Exception                 ┃ Count ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ NonZeroAgentExitCodeError │     2 │
+└───────────────────────────┴───────┘
+
+Job Info
+Total runtime: 19m 49s
+Results written to 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-192911-openco
+de/result.json
+Inspect results by running `harbor view 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs`
+Share results by running `harbor upload 
+/Users/tg4018/Documents/Hackathons/Junction/Loophole/jobs/20261114-192911-openco
+de`
+
