@@ -7,4 +7,5 @@
 - [Harness notes](HARNESS_NOTES.md)
 - [Variants](VARIANTS.md)
 - [References](references.md)
+- [Software and methods](software.md)
 - [Source on GitHub](https://github.com/TibiIC/Loophole)

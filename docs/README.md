@@ -9,7 +9,7 @@ replays every logged action in a fresh simulator to score the episode.
   <img class="clip" src="media/clip-rattrap-contrast.gif" alt="Rat Trap: the human reference solve beside an agent run that never frees the cord">
 </video>
 
-<p class="clip-caption"><strong>The Rat Trap.</strong> Left: the human teleoperated reference solve, replayed in the simulator. Right: Kimi K3 Pro (run <code>kimi-20261114-185131</code>). Aligned by action index. <a href="#/media/CLIPS">Clip notes</a>.</p>
+<p class="clip-caption"><strong>The Rat Trap.</strong> Left: the human teleoperated reference solve, replayed in the simulator. Right: Kimi K3 Pro, run <code>kimi-20261114-185131</code> (an earlier, shorter-budget run), shown to illustrate the failure mode: repeated pushes that end blocked. Aligned by action index. The full-budget run is described below and in the results table. <a href="#/media/CLIPS">Clip notes</a>.</p>
 
 **Try it:** `./run_evaluation.sh alpha <provider/model>` runs the reference, the baselines and three agent runs through Harbor. [Quickstart](QUICKSTART.md) covers evaluating a model, plugging in your own agent, and training.
 
@@ -72,4 +72,5 @@ its plan. Strategy classes, behaviour axes and every run: [Results](RESULTS.md).
 * [Variants](VARIANTS.md): harder puzzles prepared from the published archive.
 * [Clip notes](media/CLIPS.md): which run and which actions each clip shows.
 * [References](references.md): every citation, checked.
+* [Software and methods](software.md): the software and general methods the code uses, and what the Rat Trap reward borrows.
 * [Running the code](https://github.com/TibiIC/Loophole#readme): the repo README, for setup and reproduction.
