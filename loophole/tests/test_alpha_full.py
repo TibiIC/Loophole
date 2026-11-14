@@ -155,3 +155,18 @@ def test_progress_potential_follows_flag():
     _need(ALPHA / f"roadmap-{v}.npz")
     st = LoopholeEnv(v, config=ROADMAP_ON).get_state()
     assert st["progress_potential"] < 0 and st["progress"]["progress"] == pytest.approx(0.0, abs=1e-6)
+
+
+def test_verifier_replays_roadmap_reward_episode(tmp_path, monkeypatch):
+    from loophole.reward.verify import verify_episode
+
+    v = "alpha-medium"
+    _need(ALPHA / f"roadmap-{v}.npz")
+    cfg_file = Path(__file__).resolve().parents[1] / "configs" / "roadmap_reward.yaml"
+    log = tmp_path / "episode.jsonl"
+    steps = load_trajectory(_need(TRAJ / f"{v}_stop_early.jsonl"))
+    final = replay(LoopholeEnv(v, config=load_config(cfg_file), log_path=log), steps)
+    res = verify_episode(log, v, config_path=str(cfg_file))
+    assert res["log_consistent"] == 1 and res["reward"] == pytest.approx(final["score"])
+    # verifying with the default config (roadmap off) must refuse: the reward definition differs
+    assert verify_episode(log, v)["reward"] == 0.0

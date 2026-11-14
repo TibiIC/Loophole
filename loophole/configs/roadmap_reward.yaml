@@ -1,0 +1,5 @@
+# Enable the cost-to-go roadmap reward (WIP, off by default).
+# Use with LOOPHOLE_CONFIG=<path to this file> for the sim server AND the verifier
+# (scripts/sync_tasks.py --roadmap-reward wires both for Harbor tasks).
+reward:
+  roadmap: true

@@ -247,7 +247,10 @@ the score is computed by independently replaying your actions. When you are done
 """
 
 
-def make_task(puzzle: str) -> Path:
+ROADMAP_CFG = "/opt/loophole/loophole/configs/roadmap_reward.yaml"  # path inside the sim image
+
+
+def make_task(puzzle: str, roadmap_reward: bool = False) -> Path:
     from loophole.sim.spec import resolve_puzzle
 
     spec = yaml.safe_load(resolve_puzzle(puzzle).read_text())
@@ -283,10 +286,15 @@ def make_task(puzzle: str) -> Path:
     alpha = spec.get("goal", {}).get("type") == "separation"
     if alpha:
         ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
-    (d / "task.toml").write_text(TASK_TOML.format(**ctx))
+    toml = TASK_TOML.format(**ctx)
+    compose = COMPOSE.format(**ctx)
+    if roadmap_reward:  # same config for the sim sidecar and the verifier
+        toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{ROADMAP_CFG}" }}')
+        compose = compose.replace('      LOOPHOLE_SEED: "0"\n', f'      LOOPHOLE_SEED: "0"\n      LOOPHOLE_CONFIG: "{ROADMAP_CFG}"\n')
+    (d / "task.toml").write_text(toml)
     (d / "instruction.md").write_text((INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
-    (d / "environment" / "docker-compose.yaml").write_text(COMPOSE.format(**ctx))
+    (d / "environment" / "docker-compose.yaml").write_text(compose)
     (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)
     for name, body in (("solution/solve.sh", SOLVE_SH), ("tests/test.sh", TESTS_SH)):
         p = d / name
@@ -300,7 +308,10 @@ def make_task(puzzle: str) -> Path:
 
 
 if __name__ == "__main__":
+    import sys
+
+    roadmap_reward = "--roadmap-reward" in sys.argv
     puzzles = sorted(p.stem for p in [*PUZZLES.glob("*.yaml"), *PUZZLES.glob("alpha/*.yaml")] if (TRAJ / f"{p.stem}.jsonl").exists())
     for pz in puzzles:
-        print("wrote", make_task(pz).relative_to(ROOT))
+        print("wrote", make_task(pz, roadmap_reward and pz.startswith("alpha")).relative_to(ROOT))
     print(json.dumps({"tasks": puzzles}))
