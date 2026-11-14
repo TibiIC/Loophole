@@ -93,12 +93,10 @@ The cord's word w (signed crossings through six declared discs, cyclically reduc
 Przytycki–Sikora norm ‖w‖ (arXiv:math/0007134, Thm 3.2) are still computed and logged after
 every action. They are never scored or shaped, because they are not a sound progress measure here.
 
-* **Evidence.** Along your solve the start word is `Ac`, and the word becomes empty while the
-  cord is still trapped:
-  * at about command 10 of 221 of the earlier conversion;
-  * **after action 15 of 284** of the faithful one (`test_recorded_solve_scores_highest`
-    prints it).
-  Under the old scheme an agent could earn the full 0.3 partial credit in about 10 actions,
+* **Evidence.** Along the reference solve the start word is `Ac`, and the word is already empty
+  **after action 15 of 284**, while the cord is still trapped (`test_recorded_solve_scores_highest`
+  prints it). Under the old scheme an agent could earn the full 0.3 partial credit within about
+  15 actions,
   with no real progress.
 * **Cause: the disc system is not a complete meridian system.** The three frame regions
   (A, B, C), the two hole annuli (U, L) and the ring's interior (R) do not cut the complement
@@ -189,5 +187,6 @@ actually is), 30 mm cap, RDP 0.1 mm.
   * This is difficulty evidence: hundreds of plausible-looking moves don't reproduce even the first stage of a solve.
   * It is also reward-integrity evidence: the partial credit isn't earned by activity, blocked pushing or wandering.
 * **Random agent** (`make rattrap-random`, and `test_random_agent_to_the_full_budget_earns_almost_nothing`): random
-  grabs, moves and releases to the full budget (see the README table for results).
+  grabs, moves and releases to the full budget of 852 actions, three seeds: **p = 0 for all three** (0 of 20
+  checkpoints, no violation, 145 / 96 / 102 blocked moves; `runs/rattrap-random/seed{0,1,2}.json`).
 * Per-model results: the README table.

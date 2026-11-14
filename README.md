@@ -278,7 +278,7 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
   a state hash per action.
 
 ```bash
-harbor run -p ./tasks/loophole-rattrap -a oracle                          # the reference solve over MCP: 0.833
+harbor run -p ./tasks/loophole-rattrap -a oracle                          # the reference solve over MCP (see the known issue below)
 harbor run -p ./tasks/loophole-rattrap -a nop                             # 0
 harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon
 make reference TASKS=tasks/loophole-rattrap    # or: make noop / make agent TASKS=tasks/loophole-rattrap MODEL=...
@@ -309,8 +309,11 @@ PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
 | 1 | Kimi K3 Pro (Verda, function calling) | sparse, T = 400; re-scored² | 0.0 | no | 357 / 400 | 0 / 20 | 47 | 70.1 mm |
 | 1 | Nemotron 3.5 Super VL (Verda, function calling, with images) | sparse, T = 400; re-scored² | 0.0 | no | 343 / 400 | 0 / 20 | 35 | 110.8 mm |
 | 1 | Gemini 4 Carbon (Google OpenAI-compatible API) | sparse, T = 400 | 0.0 | no | 0 / 400 | – | – | – |
-| 2 | DeepSeek, Kimi, Nemotron (as above) | checkpoints, T = 852 | *running* | | | | | |
-| 2 | Gemini 4 Carbon (OpenCode, native Google provider, 3 runs) | checkpoints, T = 852 | *running* | | | | | |
+| 2 | DeepSeek V4.1 Flash (Verda, function calling) | checkpoints, T = 852 | 0.0 | no | 493 / 852 | 0 / 20 | 43 | 88.1 mm |
+| 2 | Kimi K3 Pro (Verda, function calling) | checkpoints, T = 852 | 0.0 | no | 852 / 852 | 0 / 20 | pending re-score | pending |
+| 2 | Nemotron 3.5 Super VL (Verda, function calling, with images) | checkpoints, T = 852 | 0.0 (violation³) | no | 501 / 852 | 0 / 20 | 48 | 94.3 mm |
+| 2 | Gemini 4 Carbon (OpenCode, native Google provider), run 1 | checkpoints, T = 852 | 0.0 (violation³) | no | 89 / 852 | 0 / 20 | – | – |
+| 2 | Gemini 4 Carbon (OpenCode), runs 0 and 2 | checkpoints, T = 852 | in progress | | | | | |
 | – | reference solve (oracle) | checkpoints, T = 852 | **0.833** | yes | 284 / 852 | 20 / 20 | – | 0 |
 | – | noop | checkpoints, T = 852 | 0.0 | no | 0 | 0 / 20 | – | 110.8 mm (the start) |
 
@@ -320,11 +323,20 @@ within ε = 16.6 mm of the first checkpoint: the closest was 70 mm, and Nemotron
 than where it started. This is evidence both of the task's difficulty and of the reward's
 integrity: hundreds of plausible-looking moves buy no partial credit.
 
+³ Both violations came the same way: a move was blocked with the cord strained against the
+frame, and the agent's next `release` registered a penetration over 1 mm. This is under
+investigation as an environment defect (docs/HARNESS_NOTES.md), not an agent error.
+
 The Gemini 4 Carbon row in round 1 is a harness/API issue, not a verdict on the model. Through
 Google's OpenAI-compatible endpoint it spent its whole 32k-token output budget on hidden
 reasoning after the first tool result and returned nothing, with or without images;
 `reasoning_effort` and `thinking_budget` were both ignored. Round 2 runs it through OpenCode's
 native Google provider, the path that solves Alpha.
+**Known issue: the reference does not yet reproduce on Linux.**
+* On macOS (in-process, or over MCP) the 284 commands solve: 20 / 20 checkpoints, score 0.833.
+* Inside the Linux simulator container (Harbor) the same commands reach 18 / 20 checkpoints and end unsolved (0.27).
+* The physics is not bit-identical across platforms, and this solve is sensitive enough near its end to diverge.
+* Until this is fixed, Harbor's Rat Trap oracle does not score 0.833.
 <!-- rattrap-results:end -->
 
 ## Quick start
