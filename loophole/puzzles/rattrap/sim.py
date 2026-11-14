@@ -10,15 +10,96 @@ from __future__ import annotations
 
 import hashlib
 
+import math
+
 import mujoco
 import numpy as np
 
 from ...config import RigConfig
+from ...sim.geometry import quat_conj, quat_mul, quat_slerp, quat_to_axis_angle
 from ...sim.rig import Rig, RigError
 from .build import RatTrapBuilt, build
 from .spec import RatTrapError, RatTrapSpec, load_spec
 
 STATE_SIG = mujoco.mjtState.mjSTATE_INTEGRATION
+
+
+class RatTrapRig(Rig):
+    """The shared rig with Rat Trap blocked-move semantics (rattrap.yaml `rig_block_mode`).
+
+    halt:    as for Alpha: on a block the handle snaps onto the grasped node and stops there, against the obstruction.
+             The cord keeps the strain it was pulled into, and a later release can spring it into a contact.
+    retreat: on a block the handle moves back along the commanded path, at the rig's speed, to the last configuration
+             where the node's lag and the contact depth were both under `rig_retreat_relax` of their stall limits
+             (the move's start if none), and settles there: no strain is stored."""
+
+    def __init__(self, *a, block_mode: str = "halt", relax: float = 0.5, **kw):
+        super().__init__(*a, **kw)
+        if block_mode not in ("halt", "retreat"):
+            raise ValueError(f"rig_block_mode must be halt or retreat (got {block_mode!r})")
+        self.block_mode, self.relax = block_mode, float(relax)
+
+    def move(self, idx: int, dpos, drot, frame: str = "world") -> dict:
+        if self.block_mode == "halt":
+            return super().move(idx, dpos, drot, frame)
+        req = self.clamp_request(idx, dpos, drot, frame)
+        h = self.handles[idx]
+        p0, q0, p1, q1 = req["p0"], req["q0"], req["p1"], req["q1"]
+        lin = float(np.linalg.norm(p1 - p0))
+        _, ang = quat_to_axis_angle(quat_mul(quat_conj(q0), q1))
+        dt = self.m.opt.timestep
+        n = max(1, math.ceil(max(lin / self.cfg.linear_speed, abs(ang) / self.cfg.angular_speed) / dt))
+        blocked, done_frac, safe_f = None, 0.0, 0.0
+        for k in range(1, n + 1):
+            if self.abort():
+                break
+            if h.body is not None and (blocked := self._lagging(h) or self._strained()):
+                done_frac = self._retreat(h, p0, q0, p1, q1, done_frac, safe_f)
+                break
+            f = k / n
+            self.d.mocap_pos[h.mocap_id] = p0 + f * (p1 - p0)
+            self.d.mocap_quat[h.mocap_id] = quat_slerp(q0, q1, f)
+            done_frac = f
+            self.substep()
+            if h.body is not None and self._relaxed(h):
+                safe_f = f
+        if not blocked:
+            for _ in range(self.cfg.settle_steps):
+                if self.abort():
+                    break
+                self.substep()
+        pf, qf = self.handle_pose(h)
+        out = {"handle": idx, "holding": h.body, "requested_fraction_executed": round(done_frac, 3), "blocked": bool(blocked),
+               "blocked_reason": blocked or None, "clamped": req["clamped"], "handle_pos": pf.round(5).tolist(), "handle_quat": qf.round(5).tolist()}
+        if blocked:
+            out["retreated"] = True
+        if h.body is not None:
+            out["grasp_point"] = self.grasp_point_world(h).round(5).tolist()
+        return out
+
+    def _relaxed(self, h) -> bool:
+        gp = self.grasp_point_world(h)
+        lag = float(np.linalg.norm(self.d.mocap_pos[h.mocap_id] - gp))
+        pen, _ = self.strain()
+        return lag <= self.relax * self.cfg.lag_limit and pen <= self.relax * self.cfg.stall_penetration
+
+    def _retreat(self, h, p0, q0, p1, q1, f_now: float, f_safe: float) -> float:
+        """Move the handle back from fraction f_now to f_safe along the commanded path at the rig's speed, then settle."""
+        dt = self.m.opt.timestep
+        dist = float(np.linalg.norm((p1 - p0) * (f_now - f_safe)))
+        m = max(1, math.ceil(dist / self.cfg.linear_speed / dt))
+        for j in range(1, m + 1):
+            if self.abort():
+                break
+            f = f_now + (f_safe - f_now) * j / m
+            self.d.mocap_pos[h.mocap_id] = p0 + f * (p1 - p0)
+            self.d.mocap_quat[h.mocap_id] = quat_slerp(q0, q1, f)
+            self.substep()
+        for _ in range(self.cfg.settle_steps):
+            if self.abort():
+                break
+            self.substep()
+        return f_safe
 
 
 def rig_config(spec: RatTrapSpec) -> RigConfig:
@@ -40,7 +121,10 @@ class RatTrapSim:
         self.model = mujoco.MjModel.from_xml_string(self.built.xml)
         self.data = mujoco.MjData(self.model)
         self.cfg = rig_config(self.spec)
-        self.rig = Rig(self.model, self.data, self.built, self.cfg, self._substep, strain=self._strain)
+        self.rig = RatTrapRig(self.model, self.data, self.built, self.cfg, self._substep, strain=self._strain,
+                              block_mode=str(self.spec.raw.get("rig_block_mode", "halt")), relax=float(self.spec.raw.get("rig_retreat_relax", 0.5)))
+        self._quiet = False  # release settling: contact depth is watched separately (see release)
+        self._window_peak = 0.0
         m = self.model
         self.part_of_geom = {}
         for g in range(m.ngeom):
@@ -81,7 +165,10 @@ class RatTrapSim:
 
     def _substep(self) -> None:
         mujoco.mj_step(self.model, self.data)
-        self.max_penetration = max(self.max_penetration, self.deepest())
+        if self._quiet:
+            self._window_peak = max(self._window_peak, self.deepest())
+        else:
+            self.max_penetration = max(self.max_penetration, self.deepest())
         if self.certifier is not None:
             self.certifier.after_substep()
 
@@ -174,7 +261,26 @@ class RatTrapSim:
         return res
 
     def release(self, handle: int) -> dict:
-        return self.rig.release(handle)
+        """Open a gripper. rattrap.yaml `release_settle_audit`: the rig's settle after a release is watched separately;
+        a penetration counts only if it persists after settling (deepest contact at the end), or if a transient during
+        the settle exceeds `release_transient_limit` (below the cord's diameter, so a release cannot spring the cord
+        through a wall). Letting go of a strained strand otherwise produces a brief overshoot that is not the agent's
+        doing (docs/HARNESS_NOTES.md)."""
+        if not self.spec.raw.get("release_settle_audit", False):
+            return self.rig.release(handle)
+        self._quiet, self._window_peak = True, 0.0
+        try:
+            out = self.rig.release(handle)
+        finally:
+            self._quiet = False
+        end = self.deepest()
+        limit = float(self.spec.raw.get("release_transient_limit", 0.002))
+        if end > float(self.spec["penetration_tolerance"]) or self._window_peak > limit:
+            self.max_penetration = max(self.max_penetration, end, self._window_peak)
+        else:
+            self.max_penetration = max(self.max_penetration, end)
+        out["release_transient_peak_m"] = round(self._window_peak, 6)
+        return out
 
     # ------------------------------------------------------------------ rendering
     def render(self, view: str = "iso", azimuth=None, elevation=None, distance=None, lookat=None, width=640, height=480) -> np.ndarray:

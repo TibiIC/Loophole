@@ -10,6 +10,7 @@ from loophole.puzzles.rattrap.spec import load_spec
 
 SPEC = load_spec()
 SOLVE = Path(__file__).resolve().parents[1] / "reference" / "rattrap-solve.commands.jsonl"
+WAYPOINTS = Path(__file__).resolve().parents[2] / "tasks" / "loophole-rattrap" / "solution" / "waypoints.jsonl"
 
 
 @pytest.fixture(scope="module")
@@ -87,13 +88,15 @@ def test_oscillation_through_a_hole_earns_nothing():
 
 @pytest.mark.skipif(not SOLVE.exists(), reason="no recorded solve yet (scripts/teleop_rattrap.py)")
 def test_recorded_solve_scores_highest():
-    from loophole.puzzles.rattrap.teleop import load_commands
+    from loophole.puzzles.rattrap.agent_tools import Harness
+    from loophole.reference.follow_waypoints import follow, load
+
+    # the reference replay: Tibi's fixed waypoints, followed closed-loop through the agent's own tools
+    import tempfile
 
     ep = RatTrapEpisode(SPEC, training=True)
-    for tool, a in load_commands(SOLVE):
-        if ep.done:
-            break
-        ep.act(tool, a)
+    hz = Harness(SPEC, ep, Path(tempfile.mkdtemp()), False, {})
+    follow(load(WAYPOINTS), lambda tool, a: hz.call(tool, a)[0])
     assert ep.solved and not ep.violation and ep.score() >= 0.5
     assert ep.progress() == 1.0  # every checkpoint of the reference reached, in order, before it came free
     assert ep.score() > float(SPEC["score_progress_cap"])  # above any non-solve

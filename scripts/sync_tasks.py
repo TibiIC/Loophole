@@ -490,6 +490,25 @@ is computed afterwards by independently replaying your actions. When you are don
 """
 
 
+RATTRAP_SOLVE_SH = """\
+#!/bin/bash
+# Oracle for the Rat Trap. The reference is Tibi's recorded human solve: fixed, committed waypoints
+# (solution/waypoints.jsonl), followed closed-loop from the gripper's actual position, the same correction the offline
+# conversion made, done live so cross-platform numerical differences do not accumulate. No search, no planning.
+#   LOOPHOLE_SOLUTION=reference   (default) the recorded human solve
+#   LOOPHOLE_SOLUTION=stop_early  stop-early baseline: grab + five random moves, then stop
+#   LOOPHOLE_SOLUTION=noop        do nothing (same as `-a nop`)
+set -euo pipefail
+URL="${LOOPHOLE_MCP_URL:-http://loophole-sim:8000/mcp}"
+case "${LOOPHOLE_SOLUTION:-reference}" in
+  reference)  exec python3 /solution/follow_waypoints.py /solution/waypoints.jsonl --url "$URL" ;;
+  stop_early) exec python3 /solution/replay_mcp.py /solution/stop_early.jsonl --url "$URL" ;;
+  noop)       echo "noop baseline: no actions"; exit 0 ;;
+  *) echo "unknown LOOPHOLE_SOLUTION=${LOOPHOLE_SOLUTION}" >&2; exit 2 ;;
+esac
+"""
+
+
 def make_rattrap_task() -> Path:
     import sys as _sys
 
@@ -513,7 +532,7 @@ def make_rattrap_task() -> Path:
     compose = compose.replace("    networks: [default]\n", '    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http"]\n    networks: [default]\n')
     (d / "environment" / "docker-compose.yaml").write_text(compose)
     (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)
-    solve = SOLVE_SH
+    solve = RATTRAP_SOLVE_SH
     # stop-early baseline, as for Alpha: grab (the reference's first grab), five seeded random moves, stop
     import random
 
@@ -530,6 +549,7 @@ def make_rattrap_task() -> Path:
         p.write_text(body)
         p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     shutil.copy(ROOT / "loophole" / "reference" / "replay_mcp.py", d / "solution" / "replay_mcp.py")
+    shutil.copy(ROOT / "loophole" / "reference" / "follow_waypoints.py", d / "solution" / "follow_waypoints.py")
     return d
 
 

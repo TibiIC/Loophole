@@ -388,3 +388,43 @@ def replay_exact(records: list, spec, sim: RatTrapSim | None = None) -> RatTrapS
         sim._substep()
         step += 1
     return sim
+
+
+def extract_waypoints(records: list, tolerance: float = 0.0001) -> list[dict]:
+    """The fixed waypoints of a recording, for the closed-loop reference replay (loophole/reference/follow_waypoints.py):
+    grabs and releases in order, and for each stretch of one handle's motion the recorded hand positions kept by
+    Ramer-Douglas-Peucker at `tolerance` (the points convert_closed_loop approaches). Positions in millimetres."""
+    out: list[dict] = []
+    pos: dict[int, np.ndarray] = {}
+    stretch: list[np.ndarray] = []
+    stretch_h: int | None = None
+
+    def flush():
+        nonlocal stretch, stretch_h
+        if stretch_h is not None and len(stretch) >= 2:
+            P = np.array(stretch)
+            for idx in _rdp(P, tolerance)[1:]:
+                out.append({"kind": "waypoint", "handle": stretch_h, "mm": [round(float(x) * 1000.0, 6) for x in P[idx]]})
+        stretch, stretch_h = [], None
+
+    for r in records:
+        t = r.get("type")
+        if t in ("header", "undo_marker", "state"):
+            continue
+        if t in ("grab", "release"):
+            flush()
+            if t == "grab":
+                out.append({"kind": "grab", "handle": r["handle"], "node": r["node"]})
+                pos[r["handle"]] = np.asarray(r["pos"], float)
+            else:
+                out.append({"kind": "release", "handle": r["handle"]})
+            continue
+        h, p = r["h"], np.asarray(r["p"], float)
+        if stretch_h != h:
+            flush()
+            stretch_h = h
+            stretch = [pos[h]] if h in pos else []
+        stretch.append(p)
+        pos[h] = p
+    flush()
+    return out

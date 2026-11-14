@@ -169,7 +169,7 @@ class Harness:
             self.held[h] = None
         out = {k: res[k] for k in ("solved", "violation", "done")}
         sim = ep.sim
-        out["gripper_mm"] = mm(sim.rig.handle_pose(sim.rig.handles[h])[0])
+        out["gripper_mm"] = [round(float(x) * MM, 3) for x in sim.rig.handle_pose(sim.rig.handles[h])[0]]  # µm: the closed-loop reference replay aims from it
         if tool == "move":
             out.update(blocked=res.get("blocked"), blocked_reason=res.get("blocked_reason"), executed_fraction=res.get("executed_fraction"))
         out["actions_left"] = ep.T - ep.actions

@@ -95,6 +95,15 @@ rig_angle_lag_limit: 0.5
 rig_stall_penetration: 0.0008
 rig_grasp_tolerance: 0.01
 rig_weld_solref: [0.002, 1.0]
+# Blocked moves: halt (the Alpha rig, and the semantics the reference solve was recorded under) or retreat (back along the move to the
+# last configuration with lag and contact depth under rig_retreat_relax of their stall limits, then settle: no strain
+# stored). Releases: release_settle_audit watches the settle after a release separately; a penetration counts if it
+# persists after settling, or if a transient exceeds release_transient_limit (below the cord diameter). Before these
+# (runs up to commit 2b275b1): halt, and every substep audited; see docs/HARNESS_NOTES.md.
+rig_block_mode: halt        # retreat breaks the recorded reference solve (it was recorded under halt): 0 / 20 checkpoints
+rig_retreat_relax: 0.5
+release_settle_audit: true
+release_transient_limit: 0.002
 rig_workspace_min: [-0.20, -0.20, 0.0]
 rig_workspace_max: [0.20, 0.20, 0.32]
 

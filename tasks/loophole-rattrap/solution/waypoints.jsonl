@@ -1,0 +1,256 @@
+{"type": "header", "puzzle": "rattrap", "source": "loophole/reference/rattrap-solve.jsonl (Tibi's teleoperated solve)", "extraction": "teleop.extract_waypoints, RDP 0.1 mm per stretch (the points the offline conversion followed)", "replay": "solution/follow_waypoints.py: closed-loop, from the gripper's actual position; no search"}
+{"kind": "grab", "handle": 0, "node": 142}
+{"kind": "waypoint", "handle": 0, "mm": [15.5669, -5.5588, 92.8796]}
+{"kind": "waypoint", "handle": 0, "mm": [15.5673, -5.5508, 90.8532]}
+{"kind": "waypoint", "handle": 0, "mm": [15.5635, -5.6863, 92.9]}
+{"kind": "waypoint", "handle": 0, "mm": [15.5619, -5.7424, 90.8514]}
+{"kind": "waypoint", "handle": 0, "mm": [15.5599, -5.8146, 92.9001]}
+{"kind": "waypoint", "handle": 0, "mm": [15.56, -5.8124, 90.8574]}
+{"kind": "waypoint", "handle": 0, "mm": [15.6901, -5.1131, 92.8864]}
+{"kind": "waypoint", "handle": 0, "mm": [15.6777, -5.1781, 90.8517]}
+{"kind": "waypoint", "handle": 0, "mm": [15.8623, -4.1861, 93.73]}
+{"kind": "waypoint", "handle": 0, "mm": [16.3794, -3.335, 91.9783]}
+{"kind": "waypoint", "handle": 0, "mm": [16.6124, -2.083, 95.6115]}
+{"kind": "waypoint", "handle": 0, "mm": [16.4316, -1.6621, 93.646]}
+{"kind": "waypoint", "handle": 0, "mm": [18.3682, 8.7449, 123.8444]}
+{"kind": "waypoint", "handle": 0, "mm": [4.2112, 11.3792, 123.8444]}
+{"kind": "waypoint", "handle": 0, "mm": [2.6973, 11.4799, 123.3366]}
+{"kind": "waypoint", "handle": 0, "mm": [-0.4224, 11.8464, 122.7363]}
+{"kind": "waypoint", "handle": 0, "mm": [-8.2997, 13.1353, 122.2401]}
+{"kind": "waypoint", "handle": 0, "mm": [-44.6728, 19.8028, 121.957]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [-39.7656, -10.7731, 118.0488]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 139}
+{"kind": "waypoint", "handle": 0, "mm": [-38.1957, -3.6943, 151.0273]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 140}
+{"kind": "waypoint", "handle": 0, "mm": [-38.5069, 7.812, 185.8553]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [-46.8251, -2.6157, 173.9961]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 141}
+{"kind": "waypoint", "handle": 0, "mm": [-44.4849, 4.3313, 189.7381]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 136}
+{"kind": "waypoint", "handle": 0, "mm": [-35.2863, -13.026, 174.204]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.3468, -13.4283, 175.8278]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 1}
+{"kind": "waypoint", "handle": 0, "mm": [-26.6019, 3.1413, 184.0578]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 142}
+{"kind": "waypoint", "handle": 0, "mm": [-21.8037, -5.6641, 147.4612]}
+{"kind": "waypoint", "handle": 0, "mm": [-22.0553, -6.3646, 149.3236]}
+{"kind": "waypoint", "handle": 0, "mm": [-24.8879, -7.8535, 149.3236]}
+{"kind": "waypoint", "handle": 0, "mm": [-25.45, -8.5035, 147.3484]}
+{"kind": "waypoint", "handle": 0, "mm": [-30.761, -11.2951, 147.3484]}
+{"kind": "waypoint", "handle": 0, "mm": [-28.7166, -15.1845, 119.6953]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 7}
+{"kind": "waypoint", "handle": 0, "mm": [-47.2952, 6.3705, 146.719]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 6}
+{"kind": "waypoint", "handle": 0, "mm": [-43.9577, 8.5328, 142.5272]}
+{"kind": "waypoint", "handle": 0, "mm": [-42.9226, 9.6833, 142.1212]}
+{"kind": "waypoint", "handle": 0, "mm": [-41.4895, 11.3435, 141.1467]}
+{"kind": "waypoint", "handle": 0, "mm": [-40.6474, 12.3711, 140.2551]}
+{"kind": "waypoint", "handle": 0, "mm": [-38.627, 15.0455, 136.8367]}
+{"kind": "waypoint", "handle": 0, "mm": [-37.3737, 16.5794, 135.4817]}
+{"kind": "waypoint", "handle": 0, "mm": [-36.6925, 17.4782, 134.3467]}
+{"kind": "waypoint", "handle": 0, "mm": [-35.8748, 18.4873, 133.4122]}
+{"kind": "waypoint", "handle": 0, "mm": [-30.9153, 24.3497, 129.3228]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 138}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [-35.4424, -6.5268, 138.0285]}
+{"kind": "waypoint", "handle": 0, "mm": [-35.2551, -7.5425, 136.8065]}
+{"kind": "waypoint", "handle": 0, "mm": [-35.0575, -8.2609, 136.5153]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.9433, -12.0167, 135.7073]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.459, -13.541, 135.6625]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.4501, -14.099, 134.163]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.6423, -14.3422, 131.7831]}
+{"kind": "waypoint", "handle": 0, "mm": [-31.8175, -20.0669, 131.6656]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 1}
+{"kind": "waypoint", "handle": 0, "mm": [7.5756, 4.6012, 118.0026]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 23}
+{"kind": "waypoint", "handle": 0, "mm": [-19.2124, 23.1439, 206.9334]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 8}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 15}
+{"kind": "waypoint", "handle": 0, "mm": [-31.6852, 26.9493, 224.5525]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 126}
+{"kind": "waypoint", "handle": 0, "mm": [-25.1453, 10.5068, 232.4786]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [19.3337, 17.6547, 197.2863]}
+{"kind": "waypoint", "handle": 0, "mm": [22.158, 19.0793, 196.831]}
+{"kind": "waypoint", "handle": 0, "mm": [24.9046, 20.2934, 195.7394]}
+{"kind": "waypoint", "handle": 0, "mm": [26.7979, 20.9864, 194.4424]}
+{"kind": "waypoint", "handle": 0, "mm": [29.0615, 21.6552, 192.2865]}
+{"kind": "waypoint", "handle": 0, "mm": [31.013, 22.0624, 189.7864]}
+{"kind": "waypoint", "handle": 0, "mm": [32.6686, 22.2469, 187.0559]}
+{"kind": "waypoint", "handle": 0, "mm": [33.3103, 22.2109, 185.5906]}
+{"kind": "waypoint", "handle": 0, "mm": [33.7504, 22.0477, 184.061]}
+{"kind": "waypoint", "handle": 0, "mm": [34.9178, 20.0043, 173.9057]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 133}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 132}
+{"kind": "waypoint", "handle": 0, "mm": [39.4336, -23.492, 190.908]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 139}
+{"kind": "waypoint", "handle": 0, "mm": [-7.4304, -14.8904, 184.1399]}
+{"kind": "waypoint", "handle": 0, "mm": [-9.1834, -8.7514, 188.9607]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 141}
+{"kind": "waypoint", "handle": 0, "mm": [-17.978, 0.6785, 190.2296]}
+{"kind": "waypoint", "handle": 0, "mm": [-17.898, -0.0417, 178.1013]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.128, -0.0611, 179.071]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.1122, -0.2033, 176.6753]}
+{"kind": "waypoint", "handle": 0, "mm": [-15.9773, -0.2145, 178.6732]}
+{"kind": "waypoint", "handle": 0, "mm": [-15.9622, -0.3509, 176.3773]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.0028, -0.3819, 178.3962]}
+{"kind": "waypoint", "handle": 0, "mm": [-15.9877, -0.5183, 176.1003]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.0673, -0.6, 178.1044]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.0515, -0.7423, 175.7086]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.1706, -0.9411, 177.7152]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.1535, -1.0952, 175.1199]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.384, -1.5061, 177.0872]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.3639, -1.6869, 174.0427]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.8149, -2.2956, 175.9004]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.6438, -3.8367, 149.9466]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 142}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 141}
+{"kind": "waypoint", "handle": 0, "mm": [-15.4775, -5.5026, 146.9026]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.9408, -6.1474, 148.7251]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.2908, -7.0129, 145.502]}
+{"kind": "waypoint", "handle": 0, "mm": [-13.5727, -7.888, 147.1729]}
+{"kind": "waypoint", "handle": 0, "mm": [-12.5786, -9.2117, 142.2434]}
+{"kind": "waypoint", "handle": 0, "mm": [-11.5959, -10.4244, 143.5077]}
+{"kind": "waypoint", "handle": 0, "mm": [-9.6842, -12.9701, 134.028]}
+{"kind": "waypoint", "handle": 0, "mm": [-12.8827, -15.3721, 134.028]}
+{"kind": "waypoint", "handle": 0, "mm": [-11.7356, -16.8995, 128.3402]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [-27.0325, -22.5256, 143.868]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 5}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 6}
+{"kind": "waypoint", "handle": 0, "mm": [-16.1395, -7.7709, 149.2649]}
+{"kind": "waypoint", "handle": 0, "mm": [-15.562, -7.5505, 148.757]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.2921, -6.9015, 148.0317]}
+{"kind": "waypoint", "handle": 0, "mm": [-12.9836, -6.1301, 147.5287]}
+{"kind": "waypoint", "handle": 0, "mm": [-11.0104, -4.8686, 147.0043]}
+{"kind": "waypoint", "handle": 0, "mm": [-9.8079, -4.3521, 146.0839]}
+{"kind": "waypoint", "handle": 0, "mm": [-7.9094, -3.998, 143.5323]}
+{"kind": "waypoint", "handle": 0, "mm": [-7.0058, -4.2473, 141.323]}
+{"kind": "waypoint", "handle": 0, "mm": [-5.7056, -3.5115, 140.7501]}
+{"kind": "waypoint", "handle": 0, "mm": [-4.6807, -3.6514, 138.5845]}
+{"kind": "waypoint", "handle": 0, "mm": [-4.2904, -4.1616, 136.6716]}
+{"kind": "waypoint", "handle": 0, "mm": [-1.0919, -1.7596, 136.6716]}
+{"kind": "waypoint", "handle": 0, "mm": [-0.7095, -2.2687, 134.7757]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 7}
+{"kind": "waypoint", "handle": 0, "mm": [-1.3113, 1.259, 137.7074]}
+{"kind": "waypoint", "handle": 0, "mm": [-2.4317, 3.0279, 136.5344]}
+{"kind": "waypoint", "handle": 0, "mm": [-3.033, 3.9732, 135.3922]}
+{"kind": "waypoint", "handle": 0, "mm": [-3.707, 5.0266, 133.3438]}
+{"kind": "waypoint", "handle": 0, "mm": [-4.4742, 6.2143, 129.602]}
+{"kind": "waypoint", "handle": 0, "mm": [-4.8435, 6.7973, 129.1973]}
+{"kind": "waypoint", "handle": 0, "mm": [-5.6655, 8.0985, 128.7602]}
+{"kind": "waypoint", "handle": 0, "mm": [-7.7845, 11.4583, 128.3057]}
+{"kind": "waypoint", "handle": 0, "mm": [-8.4119, 12.4454, 127.214]}
+{"kind": "waypoint", "handle": 0, "mm": [-8.7232, 12.9275, 125.7204]}
+{"kind": "waypoint", "handle": 0, "mm": [-9.0691, 13.4475, 122.0956]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 2}
+{"kind": "waypoint", "handle": 0, "mm": [-6.0879, -3.2494, 125.2027]}
+{"kind": "waypoint", "handle": 0, "mm": [-7.4128, -3.5215, 124.3479]}
+{"kind": "waypoint", "handle": 0, "mm": [-10.3587, -4.1262, 123.2693]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.2281, -4.9202, 122.652]}
+{"kind": "waypoint", "handle": 0, "mm": [-18.1338, -5.7217, 122.3373]}
+{"kind": "waypoint", "handle": 0, "mm": [-25.1817, -7.1678, 122.0682]}
+{"kind": "waypoint", "handle": 0, "mm": [-42.7581, -10.7742, 121.7683]}
+{"kind": "waypoint", "handle": 0, "mm": [-42.7582, -10.7737, 123.7683]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 126}
+{"kind": "waypoint", "handle": 0, "mm": [-17.8248, -3.6447, 228.0732]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 135}
+{"kind": "waypoint", "handle": 0, "mm": [-60.1971, -11.6924, 192.7811]}
+{"kind": "waypoint", "handle": 0, "mm": [-63.3133, -12.3319, 192.4529]}
+{"kind": "waypoint", "handle": 0, "mm": [-65.5837, -12.7978, 191.8355]}
+{"kind": "waypoint", "handle": 0, "mm": [-67.7617, -13.245, 190.936]}
+{"kind": "waypoint", "handle": 0, "mm": [-71.0685, -13.924, 188.8008]}
+{"kind": "waypoint", "handle": 0, "mm": [-89.1921, -17.6465, 172.7811]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 13}
+{"kind": "waypoint", "handle": 0, "mm": [-21.9415, 9.448, 183.9645]}
+{"kind": "waypoint", "handle": 0, "mm": [-22.6145, 9.8293, 184.1686]}
+{"kind": "waypoint", "handle": 0, "mm": [-24.1122, 10.3666, 184.3364]}
+{"kind": "waypoint", "handle": 0, "mm": [-31.8542, 12.3678, 184.4896]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.0869, 13.2381, 185.0216]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.4232, 13.8073, 185.4721]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.7468, 14.9949, 186.4943]}
+{"kind": "waypoint", "handle": 0, "mm": [-34.0898, 18.8977, 190.0109]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 6}
+{"kind": "waypoint", "handle": 0, "mm": [-63.2291, 12.2339, 144.7106]}
+{"kind": "waypoint", "handle": 0, "mm": [-63.7818, 13.0819, 142.5345]}
+{"kind": "waypoint", "handle": 0, "mm": [-64.0069, 13.7878, 141.1164]}
+{"kind": "waypoint", "handle": 0, "mm": [-64.0785, 14.6282, 139.7568]}
+{"kind": "waypoint", "handle": 0, "mm": [-63.3419, 22.9947, 128.6497]}
+{"kind": "waypoint", "handle": 0, "mm": [-63.8329, 23.4272, 127.1896]}
+{"kind": "waypoint", "handle": 0, "mm": [-62.8921, 24.6893, 126.9033]}
+{"kind": "waypoint", "handle": 0, "mm": [-58.6675, 29.5383, 126.8246]}
+{"kind": "waypoint", "handle": 0, "mm": [-59.895, 30.6197, 123.1744]}
+{"kind": "waypoint", "handle": 0, "mm": [-58.5729, 32.1204, 123.1744]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 12}
+{"kind": "waypoint", "handle": 0, "mm": [-29.5663, 38.5223, 141.7499]}
+{"kind": "waypoint", "handle": 0, "mm": [-26.6127, 39.6974, 141.3821]}
+{"kind": "waypoint", "handle": 0, "mm": [-24.5366, 40.5811, 140.5786]}
+{"kind": "waypoint", "handle": 0, "mm": [-23.2731, 41.1518, 139.7799]}
+{"kind": "waypoint", "handle": 0, "mm": [-21.1055, 42.2076, 137.6853]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.0079, 45.9841, 127.818]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 137}
+{"kind": "waypoint", "handle": 0, "mm": [-48.0186, 3.754, 138.4744]}
+{"kind": "waypoint", "handle": 0, "mm": [-47.5543, 3.2627, 138.0465]}
+{"kind": "waypoint", "handle": 0, "mm": [-46.8485, 2.4482, 136.864]}
+{"kind": "waypoint", "handle": 0, "mm": [-46.3951, 1.9645, 136.4162]}
+{"kind": "waypoint", "handle": 0, "mm": [-44.8485, 0.3898, 135.4826]}
+{"kind": "waypoint", "handle": 0, "mm": [-42.6219, -1.796, 134.7777]}
+{"kind": "waypoint", "handle": 0, "mm": [-38.0453, -6.2019, 134.0149]}
+{"kind": "waypoint", "handle": 0, "mm": [-37.5207, -6.7325, 133.7265]}
+{"kind": "waypoint", "handle": 0, "mm": [-36.6327, -7.6863, 132.7982]}
+{"kind": "waypoint", "handle": 0, "mm": [-35.938, -8.4919, 131.6031]}
+{"kind": "waypoint", "handle": 0, "mm": [-35.0608, -9.4378, 130.6565]}
+{"kind": "waypoint", "handle": 0, "mm": [-33.0086, -11.531, 129.388]}
+{"kind": "waypoint", "handle": 0, "mm": [-31.3384, -13.1705, 128.8605]}
+{"kind": "waypoint", "handle": 0, "mm": [-29.0617, -15.3719, 128.4051]}
+{"kind": "waypoint", "handle": 0, "mm": [-22.7088, -21.4293, 127.8078]}
+{"kind": "waypoint", "handle": 0, "mm": [-21.6076, -22.5174, 127.4034]}
+{"kind": "waypoint", "handle": 0, "mm": [-18.6506, -25.5824, 125.1894]}
+{"kind": "waypoint", "handle": 0, "mm": [-18.1133, -26.1199, 124.9396]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.9442, -27.2011, 125.095]}
+{"kind": "waypoint", "handle": 0, "mm": [-16.4475, -27.6083, 125.5719]}
+{"kind": "waypoint", "handle": 0, "mm": [-14.4316, -29.0238, 129.3784]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 7}
+{"kind": "waypoint", "handle": 0, "mm": [14.6514, 20.2771, 122.7668]}
+{"kind": "release", "handle": 0}
+{"kind": "grab", "handle": 0, "node": 75}
+{"kind": "waypoint", "handle": 0, "mm": [12.391, -123.1345, 63.7041]}
+{"kind": "waypoint", "handle": 0, "mm": [-216.2278, -323.5077, 63.7041]}
