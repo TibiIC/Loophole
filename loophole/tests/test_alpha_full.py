@@ -84,8 +84,6 @@ def rm(request):
     return v, p, CollisionChecker(p), Roadmap.for_puzzle(p)
 
 
-@pytest.mark.xfail(reason="WIP: the RRT reference can detour relative to the roadmap optimum; "
-                          "build_alpha.reference_from_roadmap replaces it with the roadmap shortest path", strict=False)
 def test_roadmap_ctg_decreases_along_reference(rm):
     v, p, ck, road = rm
     dense = np.load(_need(ALPHA / f"{v}-reference.npz"))["dense"]
@@ -97,19 +95,30 @@ def test_roadmap_ctg_decreases_along_reference(rm):
 
 
 def test_roadmap_does_not_leak_cost_through_walls(rm):
+    """Poses near the reference often have a metrically close, much cheaper node on the
+    other side of tube A. Without the visibility check they would inherit its cost."""
+    from loophole.sim.geometry import quat_from_rotvec, quat_mul, quat_normalize
+
     v, p, ck, road = rm
     dense = np.load(_need(ALPHA / f"{v}-reference.npz"))["dense"]
-    found = 0
-    for q in dense[: len(dense) // 2 : 10]:
+    rng = np.random.default_rng(0)
+    found = tried = 0
+    while tried < 250:
+        b = dense[rng.integers(len(dense))]
+        q = np.concatenate([b[:3] + rng.normal(0, 0.02, 3), quat_normalize(quat_mul(quat_from_rotvec(rng.normal(0, 0.3, 3)), b[3:]))])
+        if not ck.is_valid(q):
+            continue
+        tried += 1
         ctg_q, node = road.cost_to_go(q, ck)
+        if ctg_q is None:
+            continue
         d = pose_metric(q, road.nodes, road.w)
-        for n in np.argsort(d)[:30]:
+        for n in np.argsort(d)[:10]:
             through_wall = d[n] + road.cost[n]
             if through_wall < ctg_q - 0.05 and not ck.segment_valid(q, road.nodes[n], road.w, road.resolution):
                 found += 1
-                assert node != n and ctg_q > through_wall
-    if not found:
-        pytest.skip("no near-but-occluded cheap node found along this reference (guard not exercised)")
+                assert node != n and ctg_q > through_wall  # the occluded cheap node was not used
+    assert found > 0, "expected occluded cheap nodes near the reference (the guard is exercised)"
 
 
 def test_roadmap_goal_nodes_are_really_separated(rm):

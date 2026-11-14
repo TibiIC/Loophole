@@ -1,0 +1,41 @@
+{
+ "alpha-easy": {
+  "planning_margin_mm": 4.8,
+  "path_min_clearance_mm": 5.13,
+  "reference_actions": 15,
+  "reference_score": 0.9375,
+  "waypoints": 7,
+  "roadmap_nodes": 7999,
+  "roadmap_edges": 66712,
+  "roadmap_goal_nodes": 5721,
+  "roadmap_unreachable_dropped": 19,
+  "start_cost_to_go": 1.1199,
+  "roadmap_build_s": 71.6
+ },
+ "alpha-medium": {
+  "planning_margin_mm": 2.4,
+  "path_min_clearance_mm": 2.487,
+  "reference_actions": 29,
+  "reference_score": 0.903333,
+  "waypoints": 12,
+  "roadmap_nodes": 8260,
+  "roadmap_edges": 67514,
+  "roadmap_goal_nodes": 4770,
+  "roadmap_unreachable_dropped": 13,
+  "start_cost_to_go": 2.5988,
+  "roadmap_build_s": 142.7
+ },
+ "alpha-hard": {
+  "planning_margin_mm": 0.9,
+  "path_min_clearance_mm": 1.061,
+  "reference_actions": 26,
+  "reference_score": 0.935,
+  "waypoints": 12,
+  "roadmap_nodes": 8185,
+  "roadmap_edges": 67235,
+  "roadmap_goal_nodes": 5284,
+  "roadmap_unreachable_dropped": 29,
+  "start_cost_to_go": 2.4187,
+  "roadmap_build_s": 265.6
+ }
+}

@@ -89,8 +89,8 @@ make eval MODEL=...                                                     # all of
 | Tests: start valid, no tunnelling at max speed, noop = 0, teleport-apart = success | done | `tests/test_alpha.py` |
 | `scripts/demo.py` | done | |
 | Harbor task `tasks/loophole-alpha-medium` | in progress | generated, lint-clean; Harbor run not yet re-verified for Alpha |
-| RRT-Connect reference (`loophole/planning/`, `scripts/build_alpha.py`) | in progress | plans, validates densely and replays for all 3 variants; easy/hard artifacts being regenerated |
-| Cost-to-go roadmap reward (`reward/roadmap.py`) | in progress | built and tested; behind `reward.roadmap` (off); ctg-along-reference test xfail until the roadmap-shortest-path reference lands |
+| RRT-Connect reference (`loophole/planning/`, `scripts/build_alpha.py`) | done | all 3 variants: dense-valid, replays to separation (easy 15 / medium 29 / hard 26 actions) |
+| Cost-to-go roadmap reward (`reward/roadmap.py`) | in progress | ~8k nodes / ~67k edges per variant, ctg monotone along the reference, wall guard tested; behind `reward.roadmap` (off by default) |
 | Topological diagnostics (linking integral, loop words) | in progress | logged per action; `scripts/episode_report.py` plots them |
 | Alpha easy / hard variants | in progress | generated, not yet exposed as tasks |
 | Rope puzzles (easy/medium/hard) + Harbor tasks | done | earlier milestones; oracle 0.82 / nop 0 / stop-early 0 via Harbor |
@@ -99,9 +99,9 @@ make eval MODEL=...                                                     # all of
 
 ## Next steps for teammates
 
-1. **Roadmap reward**: switch the reference to the roadmap's shortest path
-   (`build_alpha.reference_from_roadmap`), flip `reward.roadmap` on for Alpha, and remove
-   the xfail.
+1. **Roadmap reward**: flip `reward.roadmap` on for the Alpha tasks once an agent run
+   confirms the progress signal is useful; optionally switch the reference to the roadmap
+   shortest path (`build_alpha.reference_from_roadmap`).
 2. **Reference solution**: commit regenerated reference + stop-early trajectories for
    every variant; verify `harbor run -a oracle` on the Alpha task(s).
 3. **Harbor tasks**: `tasks/loophole-alpha-{easy,medium,hard}` via `scripts/sync_tasks.py`;
