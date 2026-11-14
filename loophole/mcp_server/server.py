@@ -66,7 +66,11 @@ READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotent
 ACTION = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 
 
-def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> FastMCP:
+def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000, training: dict | None = None) -> FastMCP:
+    """`training` (admin only, off by default; never set by the Harbor tasks): enables a `reset` tool
+    that starts a new episode from a sampled *training* start (never the canonical one) with its
+    own log file, and adds the per-step shaping reward to action results. Evaluation mode keeps
+    one episode per process and exposes no shaping."""
     lock = threading.Lock()
     mcp = FastMCP(
         "loophole",
@@ -81,9 +85,15 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> F
     def physics(tool: str, args: dict) -> dict:
         with lock:
             try:
-                return env.act(tool, args)
+                out = env.act(tool, args)
             except (RigError, EpisodeOver, ValueError, TypeError) as e:
                 raise ToolError(str(e)) from None
+            if training is not None:
+                out["shaping_reward"] = round(env.last_step_reward, 6)
+                out["rewards"] = env.composer.last_step
+                if env.done:
+                    out["score"] = env.finalize()["score"]
+            return out
 
     tools = set(env.tools)
 
@@ -168,6 +178,38 @@ def build_server(env: LoopholeEnv, host: str = "0.0.0.0", port: int = 8000) -> F
     register("get_geometry", get_geometry, """Planning query: triangle meshes of both pieces in their own body
         frames (metres) and their current poses. Large (~2-3k triangles per piece). Free.""")
 
+    if training is not None:
+        import numpy as np
+
+        from ..training.starts import StartSampler
+
+        sampler = StartSampler(env, training["q0"])
+        episodes = {"n": 0}
+
+        @mcp.tool(annotations=ACTION)
+        def reset(
+            seed: Annotated[int, Field(description="episode seed (start sampling and simulator)")],
+            start: Annotated[Literal["perturb", "curriculum"], Field(description="training start distribution")] = "perturb",
+            curriculum_distance: Annotated[float | None, Field(description="curriculum: 0 = just before free, 1 = as far as the canonical start")] = None,
+            curriculum_source: Annotated[Literal["oracle", "roadmap"], Field(description="curriculum: poses along the oracle path or roadmap nodes")] = "oracle",
+        ) -> dict:
+            """TRAINING MODE ONLY. End the current episode and start a new one from a sampled training
+            start (never the canonical start). Returns the new episode's start and state."""
+            with lock:
+                if env.finalized is None:
+                    env.finalize()
+                kw = {"mode": start, "curriculum_source": curriculum_source}
+                if curriculum_distance is not None:
+                    kw["curriculum_distance"] = curriculum_distance
+                try:
+                    q, info = sampler.sample(np.random.default_rng(seed), **kw)
+                except (ValueError, RuntimeError) as e:
+                    raise ToolError(str(e)) from None
+                episodes["n"] += 1
+                env.start_pose, env.episode_meta = q, {**info, "mcp_training": True}
+                env.reset(seed=seed, log_path=Path(training["log_dir"]) / f"episode-{episodes['n']:05d}-seed{seed}.jsonl")
+                return {"episode": episodes["n"], "start": info, "state": env.get_state()}
+
     @mcp.tool(annotations=ACTION)
     def grab(
         handle: Annotated[int, Field(description="handle index: 0 or 1")],
@@ -230,13 +272,21 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--log-dir", default=os.environ.get("LOOPHOLE_LOG_DIR", "/var/loophole/episode"))
     ap.add_argument("--host", default=os.environ.get("LOOPHOLE_HOST", "0.0.0.0"))
     ap.add_argument("--port", type=int, default=int(os.environ.get("LOOPHOLE_PORT", "8000")))
+    ap.add_argument("--training", action="store_true", default=os.environ.get("LOOPHOLE_TRAINING") == "1",
+                    help="admin: training mode (reset tool with sampled starts, shaping reward in results); never for evaluation")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
-    log_path = Path(a.log_dir) / "episode.jsonl"
+    log_path = None if a.training else Path(a.log_dir) / "episode.jsonl"
     env = LoopholeEnv(a.puzzle, config=load_config(a.config), seed=a.seed, log_path=log_path)
+    if a.training:  # the canonical start is held out: no actions until reset() samples a training start
+        env.done, env.done_reason, env.finalized = True, "training mode: call reset(seed) to start an episode", {}
     log.info("puzzle=%s seed=%s log=%s initial_hash=%s", a.puzzle, a.seed, log_path, env.initial_hash)
     (Path(a.log_dir) / "server.json").write_text(json.dumps({"puzzle": a.puzzle, "seed": a.seed, "pid": os.getpid()}))
-    build_server(env, a.host, a.port).run(transport="streamable-http")
+    training = None
+    if a.training:
+        log.warning("TRAINING MODE: reset tool and shaping rewards exposed; not an evaluation server")
+        training = {"q0": env.target_pose().copy(), "log_dir": a.log_dir}
+    build_server(env, a.host, a.port, training).run(transport="streamable-http")
 
 
 if __name__ == "__main__":
