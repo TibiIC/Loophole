@@ -138,17 +138,17 @@ def play(env: LoopholeEnv, rec: dict, speed: float = 1.0) -> None:
     vm, act_id = _viewing_model(env)
     vd = mujoco.MjData(vm)
     vd.ctrl[act_id] = speed
-    state = {"paused": False, "restart": False}
+    state = {"paused": False, "restart": False, "scale": 1.0}
 
-    def keys(code: int) -> None:
+    def keys(code: int) -> None:  # GUI thread: only set flags; the loop applies them under the lock
         if code == 32:  # space
             state["paused"] = not state["paused"]
         elif code == 259:  # backspace
             state["restart"] = True
         elif code == 265:  # up
-            vd.ctrl[act_id] = min(50.0, vd.ctrl[act_id] * 1.5)
+            state["scale"] *= 1.5
         elif code == 264:  # down
-            vd.ctrl[act_id] = max(0.1, vd.ctrl[act_id] / 1.5)
+            state["scale"] /= 1.5
 
     T = rec["time"]
     with mujoco.viewer.launch_passive(vm, vd, key_callback=keys) as v:
@@ -156,11 +156,14 @@ def play(env: LoopholeEnv, rec: dict, speed: float = 1.0) -> None:
         v.cam.lookat[:] = (lo + hi) / 2
         v.cam.distance = max(1.0, 1.5 * float(np.max(hi - lo)))
         v.cam.azimuth, v.cam.elevation = 135, -20
-        sim_t, last, i = 0.0, time.time(), 0
+        sim_t, last, i, shown = 0.0, time.time(), 0, 0.0
         while v.is_running():
             now = time.time()
             with v.lock():
-                spd = float(vd.ctrl[act_id])
+                if state["scale"] != 1.0:
+                    vd.ctrl[act_id] = float(np.clip(vd.ctrl[act_id] * state["scale"], 0.1, 50.0))
+                    state["scale"] = 1.0
+                spd = float(np.clip(vd.ctrl[act_id], 0.1, 50.0))
                 if state["restart"]:
                     sim_t, state["restart"] = 0.0, False
                 if not state["paused"]:
@@ -171,14 +174,19 @@ def play(env: LoopholeEnv, rec: dict, speed: float = 1.0) -> None:
                 vd.mocap_quat[:] = rec["mocap_quat"][i]
                 mujoco.mj_forward(vm, vd)
                 status = "paused" if state["paused"] else ("end" if sim_t >= T[-1] else "")
-                try:
-                    v.set_texts((mujoco.mjtFontScale.mjFONTSCALE_150, mujoco.mjtGridPos.mjGRID_BOTTOMLEFT,
-                                 "speed\naction\nsim time\n",
-                                 f"{spd:.1f}x {status}\n{int(rec['action'][i])}/{int(rec['max_actions'])}  {rec['label'][i]}\n"
-                                 f"{T[i]:.2f} s / {T[-1]:.1f} s\n"))
-                except Exception:
-                    pass
+            # outside the lock: set_texts takes the viewer lock itself (holding it here deadlocks)
+            try:
+                v.set_texts((int(mujoco.mjtFontScale.mjFONTSCALE_150), int(mujoco.mjtGridPos.mjGRID_BOTTOMLEFT),
+                             "speed\naction\nsim time\n",
+                             f"{spd:.1f}x {status}\n{int(rec['action'][i])}/{int(rec['max_actions'])}  {rec['label'][i]}\n"
+                             f"{T[i]:.2f} s / {T[-1]:.1f} s\n"))
+            except Exception:
+                pass
             v.sync()
+            if now - shown > 1.0:  # terminal status once a second
+                print(f"\r{spd:5.1f}x  action {int(rec['action'][i])}/{int(rec['max_actions'])}  sim {T[i]:6.2f}/{T[-1]:.1f} s  {status:6s}",
+                      end="", flush=True)
+                shown = now
             last = now
             time.sleep(1 / 60)
 
