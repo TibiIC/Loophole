@@ -93,6 +93,9 @@ def one_run(a, i: int) -> Path:
         except subprocess.TimeoutExpired:
             rc = "timeout"
     shutil.copytree(home, run / "opencode-home", dirs_exist_ok=True)
+    from scrub_logs import scrub_tree  # keys and environment dumps out, OpenCode's internal state dropped
+
+    scrub_tree(run)
     res = json.loads((run / "result.json").read_text()) if (run / "result.json").exists() else {"error": "no result (the MCP server never started?)"}
     res.update(thinking_level=a.thinking_level if a.model.startswith("google/") else None, opencode_exit=rc, opencode_version=subprocess.run([a.opencode, "--version"], capture_output=True, text=True).stdout.strip())
     (run / "result.json").write_text(json.dumps(res, indent=1))
