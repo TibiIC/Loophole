@@ -1,0 +1,11 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__KxdHUCb",
+    "trials_dir": "jobs/20261114-093603-v2-noop",
+    "agent": {
+        "name": "nop"
+    },
+    "job_id": "22febc95-8fff-4368-bd43-a1722c30009a"
+}

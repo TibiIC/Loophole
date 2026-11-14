@@ -1,0 +1,14 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__JdPjHvj",
+    "trials_dir": "jobs/20261114-093603-v2-stop-early",
+    "agent": {
+        "name": "oracle",
+        "env": {
+            "LOOPHOLE_SOLUTION": "stop_early"
+        }
+    },
+    "job_id": "6245bff1-3cb2-4cb3-9090-f0895ecb874a"
+}
