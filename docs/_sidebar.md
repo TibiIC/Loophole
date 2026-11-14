@@ -6,5 +6,5 @@
 - [Exploits](EXPLOITS.md)
 - [Harness notes](HARNESS_NOTES.md)
 - [Variants](VARIANTS.md)
-- [References](https://github.com/TibiIC/Loophole/blob/HEAD/REFERENCES.md)
+- [References](references.md)
 - [Source on GitHub](https://github.com/TibiIC/Loophole)

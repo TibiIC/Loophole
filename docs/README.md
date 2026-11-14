@@ -63,5 +63,5 @@ and never acted; Alpha uses the default. Details: [Results](RESULTS.md) and the
 * [Harness notes](HARNESS_NOTES.md): task scope, geometry provenance and licence.
 * [Variants](VARIANTS.md): harder puzzles prepared from the published archive.
 * [Clip notes](media/CLIPS.md): which run and which actions each clip shows.
-* [References](https://github.com/TibiIC/Loophole/blob/HEAD/REFERENCES.md): every citation, checked.
+* [References](references.md): every citation, checked.
 * [Running the code](https://github.com/TibiIC/Loophole#readme): the repo README, for setup and reproduction.
