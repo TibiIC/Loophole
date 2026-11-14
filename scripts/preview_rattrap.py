@@ -29,12 +29,51 @@ from loophole.puzzles.rattrap.sim import RatTrapSim  # noqa: E402
 from loophole.puzzles.rattrap.spec import load_spec  # noqa: E402
 from loophole.sim.render import encode_png  # noqa: E402
 
-VIEWS = ("front", "side", "top", "iso")
+VIEWS = ("front", "side", "iso")
+GEOMETRY_KEYS = ["base_length", "base_depth", "base_thickness", "frame_inner_width", "frame_inner_height", "rail_thickness",
+                 "post_thickness", "post_upper_z_frac", "post_upper_length", "post_lower_z_frac", "post_lower_length",
+                 "hole_radius", "hole_sides", "hole_wall", "dowel_radius", "dowel_left_x_frac", "dowel_right_x_frac",
+                 "sphere_radius", "sphere_z_frac", "ring_major_radius", "ring_tube_radius", "ring_segments",
+                 "cord_radius", "mouse_enabled", "mouse_radius", "cord_ball_enabled"]
 
 
-def snapshots(sim: RatTrapSim, out: Path, prefix: str) -> None:
+def annotate(img: np.ndarray, spec, title: str, with_cord: bool) -> np.ndarray:
+    """The render with the current YAML values (and derived landmarks) printed beside it."""
+    from PIL import Image, ImageDraw, ImageFont
+
+    try:
+        font = ImageFont.load_default(size=14)
+        small = ImageFont.load_default(size=12)
+    except TypeError:
+        font = small = ImageFont.load_default()
+    h = img.shape[0]
+    panel = Image.new("RGB", (430, h), (250, 250, 247))
+    d = ImageDraw.Draw(panel)
+    y = 8
+    d.text((10, y), title, fill=(0, 0, 0), font=font)
+    y += 22
+    d.text((10, y), "rattrap.yaml (metres; fractions of the inner opening)", fill=(90, 90, 90), font=small)
+    y += 18
+    for k in GEOMETRY_KEYS:
+        d.text((10, y), f"{k}: {spec[k]}", fill=(0, 0, 0), font=small)
+        y += 15
+    y += 4
+    d.text((10, y), "derived:", fill=(90, 90, 90), font=small)
+    y += 15
+    for k, v in spec.landmarks.items():
+        d.text((10, y), f"{k}: {v}", fill=(40, 40, 120), font=small)
+        y += 15
+    if with_cord:
+        sd = spec.segment_derivation
+        d.text((10, y), f"cord: {sd['segments']} segments of {sd['segment_length_m'] * 1000:.2f} mm "
+                        f"(binding: {sd['binding_aperture']})", fill=(40, 40, 120), font=small)
+    return np.concatenate([img, np.asarray(panel)], axis=1)
+
+
+def snapshots(sim: RatTrapSim, out: Path, prefix: str, title: str) -> None:
     for v in VIEWS:
-        (out / f"{prefix}_{v}.png").write_bytes(encode_png(sim.render(v, distance=0.6)))
+        img = sim.render(v, distance=0.5, width=640, height=720)
+        (out / f"{prefix}_{v}.png").write_bytes(encode_png(annotate(img, sim.spec, f"{title}: {v}", sim.built.rope is not None)))
 
 
 class Recorder:
@@ -85,32 +124,40 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=ROOT / "runs" / "rattrap-preview")
     ap.add_argument("--yaml", type=Path, default=None)
+    ap.add_argument("--stills-only", action="store_true", help="only the annotated renders, no videos")
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)
     spec = load_spec(a.yaml)
     report = {"segment_derivation": spec.segment_derivation}
 
+    for old in a.out.glob("*_top.png"):
+        old.unlink()
     rigid = RatTrapSim(spec, include_cord=False)
-    snapshots(rigid, a.out, "rigid")
+    snapshots(rigid, a.out, "rigid", "rigid structure (no cord)")
     rigid.close()
     sim = RatTrapSim(spec)
     report["nodes"] = sim.n_nodes
     report["ball_node"] = sim.built.ball_node
-    snapshots(sim, a.out, "start")
+    snapshots(sim, a.out, "start", "start configuration (placeholder route)")
+    if a.stills_only:
+        (a.out / "preview.json").write_text(json.dumps({**report, "landmarks": spec.landmarks}, indent=1, default=float))
+        print(json.dumps(report, indent=1, default=float))
+        return
     if not shutil.which("ffmpeg"):
         sys.exit("ffmpeg not found (needed for the videos)")
 
     # 1. pull: grab a mid-cord node (on the strand between the two bars) and translate it
     P = sim.node_positions()
-    zmid = spec.z0 + (spec["bar_upper_z"] + spec["bar_lower_z"]) / 2
-    inside = np.abs(P[:, 1]) < 0.005  # the strand inside the frame plane, between the two bars
-    mid = int(np.argmin(np.where(inside, np.abs(P[:, 2] - zmid), np.inf)))
+    lm = spec.landmarks
+    # a node on one strand of the loop, out in front of the frame
+    target = np.array([lm["dowel_right_x"] + 0.01, -0.08, spec["base_thickness"] + 0.0022])
+    mid = int(np.argmin(np.linalg.norm(P - target, axis=1)))
     rec = Recorder(sim, a.out / "pull.mp4", label=f"pull: grab node {mid}, translate")
     rec.hold(25)
     sim.grab_node(0, mid)
     P0 = sim.node_positions()
     pulls = []
-    for d in ([0, -0.03, 0], [0, -0.03, 0], [-0.03, 0, 0], [0, 0, -0.02]):
+    for d in ([0.02, 0, 0], [0, 0, 0.02], [0.02, 0, 0], [0, -0.02, 0]):
         rec.text = f"move {d}"
         r = sim.move(0, d)
         pulls.append({"move": d, "blocked": r["blocked"], "fraction": r["requested_fraction_executed"]})
@@ -126,18 +173,20 @@ def main() -> None:
 
     # 2. blocked: drive the free end (slack: nothing else resists it) straight back into the right vertical rail
     sim = RatTrapSim(spec)
-    end = sim.n_nodes - 1
+    P = sim.node_positions()
+    end = int(np.argmin(P[:, 1]))  # the loop's far end, out in front
     sim.grab_node(0, end)
-    rec = Recorder(sim, a.out / "blocked.mp4", views=("iso", "top"), label=f"blocked: drive the free end (node {end}) into the right rail")
+    rec = Recorder(sim, a.out / "blocked.mp4", views=("iso", "top"), label=f"blocked: drive the loop's far end (node {end}) into the right rail")
     rec.hold(25)
     P = sim.node_positions()
     rail_x = spec["frame_inner_width"] / 2 + spec["rail_thickness"] / 2
     rec.text = "align with the rail"
     sim.move(0, [rail_x - P[end][0], 0, 0])
-    target_y = -0.05  # behind the rail: impossible without passing through it
+    side = np.sign(P[end][1]) or -1.0
+    target_y = -side * 0.05  # the other side of the rail: impossible without passing through it
     last = None
     for _ in range(10):
-        rec.text = "move -y into the rail"
+        rec.text = "move into the rail"
         last = sim.move(0, [0, target_y - sim.rig.handle_pose(sim.rig.handles[0])[0][1], 0])
         if last["blocked"]:
             break
@@ -146,8 +195,8 @@ def main() -> None:
     rec.close()
     y_node = float(sim.node_positions()[end][1])
     report["blocked"] = {"node": end, "blocked": last["blocked"], "reason": last["blocked_reason"], "fraction": last["requested_fraction_executed"],
-                         "node_y_m": round(y_node, 4), "rail_front_face_y_m": spec["rail_thickness"] / 2,
-                         "cord_surface_to_rail_m": round(y_node - spec["cord_radius"] - spec["rail_thickness"] / 2, 5),
+                         "node_y_m": round(y_node, 4), "rail_face_y_m": side * spec["rail_thickness"] / 2,
+                         "cord_surface_to_rail_m": round(abs(y_node) - spec["cord_radius"] - spec["rail_thickness"] / 2, 5),
                          "max_penetration_m": sim.max_penetration}
     sim.close()
     (a.out / "preview.json").write_text(json.dumps(report, indent=1, default=float))

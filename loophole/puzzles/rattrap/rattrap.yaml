@@ -1,112 +1,140 @@
 # The Rat Trap: geometry and cord physics scaffold.
-# PLACEHOLDER VALUES throughout: replace each named key with a measurement of the physical puzzle.
-# Units: metres, radians. Coordinates: origin at the centre of the base's underside, x across the
-# frame, y through it (front = -y), z up. The frame stands in the plane y = 0.
+# PROVISIONAL VALUES throughout (proportions read off a product photo): replace each named key with a
+# measurement. Units: metres, radians. Origin: centre of the base's underside; x across the frame
+# (left -> right as seen from the front), y through it (front = -y, the side the "front" camera sees),
+# z up. The frame stands in the plane y = 0. "Inner" = the opening inside the frame; fractions are of
+# the inner width / height.
 
 timestep: 0.001
 
 # --- base: the foot plank the frame stands on --------------------------------------------------
-base_length: 0.30          # x
-base_depth: 0.10           # y
-base_thickness: 0.015      # z
+base_length: 0.22          # x
+base_depth: 0.12           # y
+base_thickness: 0.02       # z
 
-# --- frame: two vertical rails, top rail, bottom rail (square cross-section) --------------------
-frame_inner_width: 0.20    # clear width between the vertical rails
-frame_inner_height: 0.24   # clear height between bottom and top rail
-rail_thickness: 0.015      # cross-section side of every rail (x/z) and its depth (y)
+# --- frame: two vertical rails, top rail, bottom rail (portrait) -----------------------------------
+frame_inner_width: 0.12
+frame_inner_height: 0.20
+rail_thickness: 0.015      # square cross-section of every rail
 
-# --- bars spanning the frame (same cross-section as the rails) ----------------------------------
-bar_thickness: 0.015
-bar_upper_z: 0.17          # bar centre height above the top face of the bottom rail
-bar_lower_z: 0.08
-# vertical through-holes (axis z), square windows; built as boxes around the window, never meshes
-bar_upper_holes: [{x: 0.05, size: 0.010}]
-bar_lower_holes: [{x: 0.05, size: 0.010}]
+# --- two horizontal posts, each cantilevered from one side rail (neither reaches the other side) ----
+post_thickness: 0.02       # square cross-section of both posts
+post_upper_z_frac: 0.6667  # upper post: from the RIGHT rail, at 2/3 of the inner height
+post_upper_length: 0.095   # leftwards from the right rail's inner face (~2/3 of the width, past the hole)
+post_lower_z_frac: 0.3333  # lower post: from the LEFT rail, at 1/3 of the inner height
+post_lower_length: 0.095   # rightwards from the left rail's inner face
 
-# --- post: cylinder descending inside the frame, from the top rail down to the upper bar ----------
-post_radius: 0.006
-post_x: 0.0
-post_hole: true            # optional transverse hole through the post (axis y)
-post_hole_height: 0.010    # window size along z
-post_hole_width: 0.006     # window size along x (<= 2 * post_radius)
-post_hole_frac: 0.75       # hole centre as a fraction of the post's length, from its bottom
+# --- vertical cylindrical holes through the posts, around the dowels (the string passes in the annulus) --
+hole_radius: 0.0065        # same for both holes
+hole_sides: 6              # the round hole is a regular hexagon of thin wall boxes (apothem = hole_radius)
+hole_wall: 0.0015          # radial thickness of those walls
 
-# --- ring: captive torus around the post (N capsules), the only rigid part not welded to world ----
-ring_major_radius: 0.025
-ring_tube_radius: 0.003
-ring_segments: 24
-ring_z: 0.205              # centre height above the bottom rail's top face
-ring_mass: 0.005
-ring_damping: 0.0005       # light damping on its free joint (gravity off: otherwise a nudge keeps it drifting)
+# --- two thin dark dowels ----------------------------------------------------------------------------
+dowel_radius: 0.003
+dowel_left_x_frac: 0.3333  # left dowel: 1/3 of the width from the LEFT edge, hangs from the top rail
+dowel_right_x_frac: 0.3333 # right dowel: 1/3 of the width from the RIGHT edge, rises from the bottom rail
 
-# --- ball: sphere welded to a cord node -------------------------------------------------------------
-ball_radius: 0.010
-ball_node: -12             # cord node index (0 = anchored start; negative = counted from the free end)
-ball_mode: fixed           # fixed: welded to the node (only mode implemented)
+# --- sphere: the end of the left dowel (rigid), below the upper post, above the lower post -----------
+sphere_radius: 0.015
+sphere_z_frac: 0.5         # centre at half the inner height
 
-# --- mouse: sphere at the cord's free end -------------------------------------------------------
-mouse_enabled: false
-mouse_radius: 0.012
+# --- ring: the end of the right dowel (rigid); axis left-right; the upper post passes through it -------
+ring_major_radius: 0.023
+ring_tube_radius: 0.004
+ring_segments: 24          # N capsules around the circle (never a mesh)
+# the ring's centre is on the upper post's axis, directly above the right dowel
+
+# --- optional bodies on the cord ------------------------------------------------------------------
+cord_ball_enabled: false   # a sphere welded to a cord node (ball_mode: fixed)
+cord_ball_radius: 0.010
+cord_ball_node: -12
+ball_mode: fixed
+mouse_enabled: false       # sphere on the cord (blocker or not: to be confirmed)
+mouse_radius: 0.011        # placeholder sphere for the mouse's body
+mouse_node: auto           # cord node it is welded to; auto = the node farthest from the start (open cord: the free end)
 
 # --- cord: capsule chain with ball joints (joint coordinates: inextensible by construction) --------
-cord_radius: 0.0015
+cord_radius: 0.0012
 cord_length: auto          # auto = the route's polyline length; a number must match it within 1 %
-cord_segments: auto        # auto = derived from the tightest aperture (see spec.derive_segments)
+cord_segments: auto        # auto = derived from the apertures (see spec._derive_segments)
 cord_mass: 0.01            # total
-cord_damping: 0.00002      # per ball joint (light: quasi-static, no ringing)
+cord_damping: 0.00002      # per ball joint
 cord_armature: 0.000001
-cord_anchor_start: true    # node 0 is pinned (ball joint to the world) at the route's first point
-# route: the cord's path through holes and around parts, start (anchored) to free end. PLACEHOLDER:
-# up from the base through the lower and upper bar holes, through the ring beside the post, then out
-# to the front and down, ending in free space. z values are absolute.
+cord_closed: true          # the string is a closed loop: the last node is joined back to the first
+cord_anchor_start: false   # open cords only: pin node 0 to the world at the route's first point
+# PLACEHOLDER route, [x, y, z] in metres (absolute), a closed loop (the first point is repeated at the end
+# automatically): wrapped around the right dowel between the bottom rail and the lower post, both strands
+# running out over the front of the base into a wide loop in front of it (loop length 2x the first placeholder).
 cord_route:
-  - [0.05, 0.045, 0.017]
-  - [0.05, 0.020, 0.040]
-  - [0.05, 0.0, 0.080]
-  - [0.05, 0.0, 0.140]
-  - [0.05, 0.0, 0.215]
-  - [0.015, 0.0, 0.225]
-  - [0.015, 0.0, 0.250]
-  - [0.015, 0.035, 0.262]
-  - [0.050, 0.070, 0.240]
-  - [0.090, 0.075, 0.180]
-  - [0.110, 0.075, 0.120]
+  - [0.0156, -0.0044, 0.0600]
+  - [0.0138, 0.0000, 0.0600]
+  - [0.0156, 0.0044, 0.0600]
+  - [0.0200, 0.0062, 0.0600]
+  - [0.0244, 0.0044, 0.0600]
+  - [0.0262, 0.0000, 0.0600]
+  - [0.0244, -0.0044, 0.0600]
+  - [0.0300, -0.0300, 0.0450]
+  - [0.0400, -0.0500, 0.0222]
+  - [0.0800, -0.1000, 0.0222]
+  - [0.0800, -0.1862, 0.0222]
+  - [-0.0600, -0.1862, 0.0222]
+  - [-0.0600, -0.1000, 0.0222]
+  - [0.0000, -0.0500, 0.0222]
+  - [0.0100, -0.0300, 0.0450]
 
 # --- rig: grab handles (the Alpha rig, unchanged: incremental moves that halt when resisted) -------
 rig_num_handles: 2
-rig_max_linear_step: 0.03      # m per move request
-rig_max_angular_step: 0.5      # rad per move request
-rig_linear_speed: 0.05         # m/s while executing ("maximum speed")
+rig_max_linear_step: 0.03
+rig_max_angular_step: 0.5
+rig_linear_speed: 0.05
 rig_angular_speed: 1.0
 rig_settle_steps: 200
-rig_lag_limit: 0.002           # m: the held node lagging its handle this far = blocked
+rig_lag_limit: 0.002
 rig_angle_lag_limit: 0.5
-rig_stall_penetration: 0.0008  # m: any contact pressed this deep = blocked
+rig_stall_penetration: 0.0008
 rig_grasp_tolerance: 0.01
 rig_weld_solref: [0.002, 1.0]
-rig_workspace_min: [-0.25, -0.20, 0.0]
-rig_workspace_max: [0.25, 0.20, 0.35]
+rig_workspace_min: [-0.20, -0.20, 0.0]
+rig_workspace_max: [0.20, 0.20, 0.32]
 
 # --- physics ----------------------------------------------------------------------------------
 contact_solref: [0.002, 1.0]
 contact_solimp: [0.95, 0.99, 0.0005, 0.5, 2.0]
-penetration_tolerance: 0.001   # m: deepest allowed contact at initialisation and in tests
+penetration_tolerance: 0.001
 settle_after_route_steps: 300
-medium_viscosity: 0.05       # Pa s: light viscous medium so whole-cord and ring motion dies out (quasi-static)
+medium_viscosity: 0.05     # Pa s: light viscous medium so whole-cord motion dies out (quasi-static)
 
 # --- declared clearances: what passes through which aperture (a wrong value fails a test) ---------
-# apertures: <bar>.hole<i> (vertical), post.hole (along y), ring.annulus (between post and ring, along z),
-# window.lower (between bottom rail and lower bar), window.middle (between the bars), both along y.
+# post_upper.hole / post_lower.hole: the annulus between a dowel and its hole (along z);
+# ring.inside: between the upper post and the ring (along x); gap.sphere_upper / gap.sphere_lower:
+# between the sphere and the upper / lower post, beside the dowel (along y); gap.upper_left /
+# gap.lower_right: between a post's free end and the opposite rail (along z).
 clearance_table:
-  - {aperture: bar_upper.hole0, object: cord, expect: pass}
-  - {aperture: bar_upper.hole0, object: ball, expect: block}
-  - {aperture: bar_lower.hole0, object: cord, expect: pass}
-  - {aperture: bar_lower.hole0, object: ball, expect: block}
-  - {aperture: post.hole, object: cord, expect: pass}
-  - {aperture: post.hole, object: ball, expect: block}
-  - {aperture: ring.annulus, object: cord, expect: pass}
-  - {aperture: ring.annulus, object: ball, expect: block}
-  - {aperture: window.lower, object: cord, expect: pass}
-  - {aperture: window.lower, object: ball, expect: pass}
-  - {aperture: window.middle, object: cord, expect: pass}
-  - {aperture: window.middle, object: ball, expect: pass}
+  - {aperture: post_upper.hole, object: cord, expect: pass}
+  - {aperture: post_upper.hole, object: mouse, expect: block}
+  - {aperture: post_lower.hole, object: cord, expect: pass}
+  - {aperture: post_lower.hole, object: mouse, expect: block}
+  - {aperture: ring.inside, object: cord, expect: pass}
+  - {aperture: ring.inside, object: mouse, expect: block}
+  - {aperture: gap.sphere_upper, object: cord, expect: pass}
+  - {aperture: gap.sphere_upper, object: mouse, expect: block}
+  - {aperture: gap.sphere_lower, object: cord, expect: pass}
+  - {aperture: gap.sphere_lower, object: mouse, expect: block}
+  - {aperture: gap.upper_left, object: cord, expect: pass}
+  - {aperture: gap.upper_left, object: mouse, expect: pass}
+  - {aperture: gap.lower_right, object: cord, expect: pass}
+  - {aperture: gap.lower_right, object: mouse, expect: pass}
+
+# --- topological state: one generator per independent passage of the rigid structure -------------------
+# The frame opening is split into separate regions by chains of the structure that the cord cannot cross:
+# region B (above the upper post, right of the left dowel: top rail, right rail, upper post, left dowel) and
+# region C (below the lower post, left of the right dowel: bottom rail, left rail, lower post, right dowel);
+# A is the rest of the opening. U / L are the hole annuli around the dowels, R the ring's interior.
+# Upper case = crossing in the positive direction, lower case = the inverse.
+topology_alphabet:
+  A: {disc: frame_main, positive: "front to back (+y)"}
+  B: {disc: frame_upper_right, positive: "front to back (+y)"}
+  C: {disc: frame_lower_left, positive: "front to back (+y)"}
+  U: {disc: hole_upper, positive: "upwards (+z)"}
+  L: {disc: hole_lower, positive: "upwards (+z)"}
+  R: {disc: ring, positive: "left to right (+x)"}

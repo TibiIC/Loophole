@@ -1,76 +1,76 @@
 {
  "segment_derivation": {
-  "tightest_aperture": "post.hole",
-  "aperture_radius_m": 0.003,
-  "cord_radius_m": 0.0015,
-  "clearance_m": 0.0015,
-  "bend_radius_m": 0.003,
-  "max_segment_length_m": 0.006,
-  "cord_length_m": 0.501789,
-  "segments": 84,
-  "segment_length_m": 0.005974,
-  "sagitta_at_segment_length_m": 0.001487
+  "binding_aperture": "post_upper.hole",
+  "aperture_half_width_m": 0.00175,
+  "cord_radius_m": 0.0012,
+  "clearance_m": 0.00055,
+  "bend_radius_m": 0.0042,
+  "max_segment_length_m": 0.004299,
+  "cord_length_m": 0.607317,
+  "segments": 142,
+  "segment_length_m": 0.004277,
+  "sagitta_at_segment_length_m": 0.000544
  },
- "nodes": 85,
- "ball_node": 73,
+ "nodes": 143,
+ "ball_node": null,
  "pull": {
-  "node": 26,
+  "node": 25,
   "moves": [
    {
     "move": [
-     0,
-     -0.03,
-     0
-    ],
-    "blocked": true,
-    "fraction": 0.893
-   },
-   {
-    "move": [
-     0,
-     -0.03,
-     0
-    ],
-    "blocked": true,
-    "fraction": 0.125
-   },
-   {
-    "move": [
-     -0.03,
+     0.02,
      0,
      0
     ],
-    "blocked": true,
-    "fraction": 0.558
+    "blocked": false,
+    "fraction": 1.0
    },
    {
     "move": [
      0,
      0,
-     -0.02
+     0.02
+    ],
+    "blocked": false,
+    "fraction": 1.0
+   },
+   {
+    "move": [
+     0.02,
+     0,
+     0
+    ],
+    "blocked": false,
+    "fraction": 1.0
+   },
+   {
+    "move": [
+     0,
+     -0.02,
+     0
     ],
     "blocked": false,
     "fraction": 1.0
    }
   ],
-  "node_displacement_m": 0.04,
+  "node_displacement_m": 0.049,
   "neighbours_moved_m": {
-   "16": 0.0026,
-   "23": 0.0199,
-   "29": 0.037,
-   "36": 0.0338
+   "15": 0.0367,
+   "22": 0.0491,
+   "28": 0.0468,
+   "35": 0.0281
   },
-  "max_segment_stretch_m": 4.619756834023381e-12,
-  "max_penetration_m": 0.0002726068219725548
+  "max_segment_stretch_m": 4.594555638726128e-12,
+  "max_penetration_m": 2.3464471485806944e-05
  },
  "blocked": {
-  "node": 84,
+  "node": 57,
   "blocked": true,
-  "reason": "cord_83 lags the handle by 0.002 m (blocked by contact or constraint)",
-  "fraction": 0.282,
-  "node_y_m": 0.0086,
-  "rail_front_face_y_m": 0.0075,
-  "cord_surface_to_rail_m": -0.00041,
-  "max_penetration_m": 0.00041078464167849287
+  "reason": "cord_57 lags the handle by 0.002 m (blocked by contact or constraint)",
+  "fraction": 0.995,
+  "node_y_m": -0.0084,
+  "rail_face_y_m": -0.0075,
+  "cord_surface_to_rail_m": -0.00033,
+  "max_penetration_m": 0.0003448283454456384
  }
 }

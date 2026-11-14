@@ -33,10 +33,10 @@ def rig_config(spec: RatTrapSpec) -> RigConfig:
 
 
 class RatTrapSim:
-    def __init__(self, spec: RatTrapSpec | None = None, include_cord: bool = True, ring_free: bool = True,
+    def __init__(self, spec: RatTrapSpec | None = None, include_cord: bool = True, ring_free: bool | None = None,
                  probe: dict | None = None, check_route: bool = True):
         self.spec = spec or load_spec()
-        self.built: RatTrapBuilt = build(self.spec, include_cord=include_cord, ring_free=ring_free, probe=probe)
+        self.built: RatTrapBuilt = build(self.spec, include_cord=include_cord, probe=probe)
         self.model = mujoco.MjModel.from_xml_string(self.built.xml)
         self.data = mujoco.MjData(self.model)
         self.cfg = rig_config(self.spec)
@@ -70,14 +70,17 @@ class RatTrapSim:
         p = self.part_of_geom.get(g, self.model.geom(g).name)
         return f"cord segment {self.cord_geoms[g]}" if p == "cord" else p
 
+    def deepest(self) -> float:
+        """Deepest current contact penetration (m), vectorised (used every physics step)."""
+        n = self.data.ncon
+        return float(max(0.0, -np.min(self.data.contact.dist[:n]))) if n else 0.0
+
     def _strain(self) -> tuple[float, float]:
-        pen = max((x[0] for x in self.penetrations()), default=0.0)
-        return pen, 0.0
+        return self.deepest(), 0.0
 
     def _substep(self) -> None:
         mujoco.mj_step(self.model, self.data)
-        pen = max((x[0] for x in self.penetrations()), default=0.0)
-        self.max_penetration = max(self.max_penetration, pen)
+        self.max_penetration = max(self.max_penetration, self.deepest())
 
     def reset(self, check_route: bool = True) -> None:
         m, d = self.model, self.data
@@ -125,11 +128,18 @@ class RatTrapSim:
         return int(k) % n
 
     def node_positions(self) -> np.ndarray:
-        d, names, L = self.data, self.built.rope.body_names, self.built.rope.seg_lengths
-        pts = [d.xpos[self.model.body(b).id].copy() for b in names]
-        last = self.model.body(names[-1]).id
-        pts.append(d.xpos[last] + d.xmat[last].reshape(3, 3) @ np.array([L[-1], 0.0, 0.0]))
-        return np.array(pts)
+        """Node k = start of segment k (k < n), node n = end of the last segment. Segments built backwards (from the
+        middle-rooted tree) have their frame origin at their end node."""
+        d, L = self.data, self.built.rope.seg_lengths
+        if not hasattr(self, "_seg_ids"):
+            self._seg_ids = np.array([self.model.body(b).id for b in self.built.rope.body_names])
+            self._rev = np.array(self.built.seg_reversed or [False] * len(L), bool)
+            self._L = np.asarray(L, float)
+        pos = d.xpos[self._seg_ids]
+        far = pos + d.xmat[self._seg_ids].reshape(-1, 3, 3)[:, :, 0] * self._L[:, None]  # origin + L * local x axis
+        start = np.where(self._rev[:, None], far, pos)
+        end_last = pos[-1] if self._rev[-1] else far[-1]
+        return np.vstack([start, end_last[None]])
 
     def grab_node(self, handle: int, k: int) -> dict:
         k = self.node_index(k)
