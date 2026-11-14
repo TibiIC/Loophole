@@ -87,6 +87,8 @@ def main() -> None:
     ap.add_argument("--task", default="./tasks/loophole-alpha")
     ap.add_argument("--agent-timeout-multiplier", type=float, default=1.0)
     ap.add_argument("--allow-dirty", action="store_true", help="run even if files baked into the sim image have uncommitted changes")
+    ap.add_argument("--agents-only", action="store_true", help="skip the oracle / noop / stop-early runs (agent runs only)")
+    ap.add_argument("--harbor-args", default="", help="extra arguments for the agent runs, e.g. '--agent-setup-timeout-multiplier 4'")
     a = ap.parse_args()
     # Harbor rebuilds the sim image from the working tree for every sidecar and every verifier, so
     # editing loophole/ during an eval changes the code mid-run (verifier != simulator -> score 0).
@@ -101,11 +103,12 @@ def main() -> None:
                                                  "dirty": bool(dirty)}, indent=1))
     print("[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)", flush=True)
     rows = []
-    rows += run("oracle", ["-a", "oracle"], out, a.task)
-    rows += run("noop", ["-a", "nop"], out, a.task)
-    rows += run("stop-early", ["-a", "oracle", "--ae", "LOOPHOLE_SOLUTION=stop_early"], out, a.task)
+    if not a.agents_only:
+        rows += run("oracle", ["-a", "oracle"], out, a.task)
+        rows += run("noop", ["-a", "nop"], out, a.task)
+        rows += run("stop-early", ["-a", "oracle", "--ae", "LOOPHOLE_SOLUTION=stop_early"], out, a.task)
     rows += run("opencode", ["-a", "opencode", "-m", a.model, "-k", str(a.runs), "-n", str(a.runs),
-                             "--agent-timeout-multiplier", str(a.agent_timeout_multiplier)], out, a.task)
+                             "--agent-timeout-multiplier", str(a.agent_timeout_multiplier), *a.harbor_args.split()], out, a.task)
     print(summary(out, a.model, rows))
     print(f"[eval] wrote {out}")
 
