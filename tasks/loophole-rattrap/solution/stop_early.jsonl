@@ -1,0 +1,7 @@
+{"type": "trajectory", "puzzle": "rattrap", "source": "baseline:stop_early(5 random moves)"}
+{"tool": "grab", "args": {"handle": 0, "node": 142}}
+{"tool": "move", "args": {"handle": 0, "dx": 17.221, "dy": 12.898, "dz": -3.971}}
+{"tool": "move", "args": {"handle": 0, "dx": -12.054, "dy": 0.564, "dz": -4.753}}
+{"tool": "move", "args": {"handle": 0, "dx": 14.19, "dy": -9.834, "dz": -1.17}}
+{"tool": "move", "args": {"handle": 0, "dx": 4.169, "dy": 20.406, "dz": 0.234}}
+{"tool": "move", "args": {"handle": 0, "dx": -10.908, "dy": 12.79, "dz": 5.918}}

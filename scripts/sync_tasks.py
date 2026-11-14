@@ -509,7 +509,16 @@ def make_rattrap_task() -> Path:
     compose = compose.replace("    networks: [default]\n", '    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http"]\n    networks: [default]\n')
     (d / "environment" / "docker-compose.yaml").write_text(compose)
     (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)
-    solve = SOLVE_SH.replace("  stop_early) TRAJ=/solution/stop_early.jsonl ;;\n", "")
+    solve = SOLVE_SH
+    # stop-early baseline, as for Alpha: grab (the reference's first grab), five seeded random moves, stop
+    import random
+
+    rng = random.Random(0)
+    first = next(json.loads(l) for l in (d / "solution" / "reference.jsonl").read_text().splitlines() if l.strip() and json.loads(l).get("tool") == "grab")
+    se = [{"type": "trajectory", "puzzle": "rattrap", "source": "baseline:stop_early(5 random moves)"},
+          {"tool": "grab", "args": first["args"]}]
+    se += [{"tool": "move", "args": {"handle": first["args"]["handle"], **{k: round(rng.uniform(-25, 25), 3) for k in ("dx", "dy", "dz")}}} for _ in range(5)]
+    (d / "solution" / "stop_early.jsonl").write_text("\n".join(json.dumps(r) for r in se) + "\n")
     for name, body in (("solution/solve.sh", solve), ("tests/test.sh", TESTS_SH.replace(
             "exec python -m loophole.reward.verify --log /var/loophole/episode/episode.jsonl --out /logs/verifier/reward.json",
             "exec python -m loophole.puzzles.rattrap.verify --log /var/loophole/episode/commands.jsonl --out /logs/verifier/reward.txt"))):

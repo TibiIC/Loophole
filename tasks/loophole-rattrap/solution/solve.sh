@@ -6,6 +6,7 @@
 set -euo pipefail
 case "${LOOPHOLE_SOLUTION:-reference}" in
   reference)  TRAJ=/solution/reference.jsonl ;;
+  stop_early) TRAJ=/solution/stop_early.jsonl ;;
   noop)       echo "noop baseline: no actions"; exit 0 ;;
   *) echo "unknown LOOPHOLE_SOLUTION=${LOOPHOLE_SOLUTION}" >&2; exit 2 ;;
 esac
