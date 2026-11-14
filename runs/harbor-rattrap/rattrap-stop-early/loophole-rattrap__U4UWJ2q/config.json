@@ -1,0 +1,14 @@
+{
+    "task": {
+        "path": "tasks/loophole-rattrap"
+    },
+    "trial_name": "loophole-rattrap__U4UWJ2q",
+    "trials_dir": "jobs/rattrap-stop-early",
+    "agent": {
+        "name": "oracle",
+        "env": {
+            "LOOPHOLE_SOLUTION": "stop_early"
+        }
+    },
+    "job_id": "59be2c5d-5542-4885-acd3-e17810fff0ec"
+}

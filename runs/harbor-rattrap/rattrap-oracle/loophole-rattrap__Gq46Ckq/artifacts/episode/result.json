@@ -1,0 +1,18 @@
+{
+ "model": "",
+ "harness": "mcp",
+ "score": 0.27,
+ "solved": false,
+ "violation": false,
+ "actions": 284,
+ "max_actions": 852,
+ "gave_up": false,
+ "reward": "checkpoints",
+ "progress": 0.9,
+ "checkpoints_reached": 18,
+ "checkpoints": 20,
+ "word": "ARar",
+ "uncertified_substeps": 0,
+ "minutes": 41.9,
+ "end": "running/stopped"
+}

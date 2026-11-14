@@ -1,0 +1,13 @@
+{
+    "job_name": "rattrap-noop",
+    "agents": [
+        {
+            "name": "nop"
+        }
+    ],
+    "tasks": [
+        {
+            "path": "tasks/loophole-rattrap"
+        }
+    ]
+}

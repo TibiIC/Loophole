@@ -1,0 +1,7 @@
+[0] grab {"handle": 0, "node": 142} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [15.6, -4.4, 60.0], "actions_left": 851}
+[1] move {"handle": 0, "dx": 17.221, "dy": 12.898, "dz": -3.971} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [18.2, -3.4, 59.2], "blocked": true, "blocked_reason": "cord_141 lags the handle by 0.002 m (blocked by contact or constraint)", "executed_fraction": 0.215, "actions_left": 850}
+[2] move {"handle": 0, "dx": -12.054, "dy": 0.564, "dz": -4.753} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [6.2, -2.8, 54.4], "blocked": false, "blocked_reason": null, "executed_fraction": 1.0, "actions_left": 849}
+[3] move {"handle": 0, "dx": 14.19, "dy": -9.834, "dz": -1.17} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [20.4, -12.6, 53.3], "blocked": false, "blocked_reason": null, "executed_fraction": 1.0, "actions_left": 848}
+[4] move {"handle": 0, "dx": 4.169, "dy": 20.406, "dz": 0.234} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [24.5, 7.8, 53.5], "blocked": false, "blocked_reason": null, "executed_fraction": 1.0, "actions_left": 847}
+[5] move {"handle": 0, "dx": -10.908, "dy": 12.79, "dz": 5.918} -> {"solved": false, "violation": false, "done": false, "gripper_mm": [13.6, 20.6, 59.4], "blocked": false, "blocked_reason": null, "executed_fraction": 1.0, "actions_left": 846}
+{"action": null, "done": false, "done_reason": null, "success": null, "violations": null}

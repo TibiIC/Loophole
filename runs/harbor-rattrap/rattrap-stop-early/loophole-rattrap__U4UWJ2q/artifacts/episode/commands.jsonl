@@ -1,0 +1,7 @@
+{"type": "header", "puzzle": "rattrap", "spec": "rattrap.yaml", "overrides": {}, "spec_sha256": "6b1b2e17af5450bb34af1ef36134542b20c0c46a30dfa137532a01a66cde0741", "checkpoints_sha256": "ca86f2d7c69b9256d366f5d19b1b70a76138be7d612087deae341a73d51e4850", "max_actions": 852, "initial_state_hash": "91d2bbacbb05a99ad797a225d06b422dd8e78419de7de1cfe02d25bf84bf7ecb"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 142}, "i": 1, "state_hash": "4cd943fea97cf6e9a95d893c5ce5fbdf5b0ee91a4c588ee6af22232460612006"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.017221, "dy": 0.012898, "dz": -0.003971}, "i": 2, "state_hash": "fae1bcd4e522df359ee27eddf454150efe245d94fcdd3818acd5395d918e2ef8"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.012054, "dy": 0.0005639999999999999, "dz": -0.004753}, "i": 3, "state_hash": "603fa97cc3fb9f29716f177ae6ec321617f994f14a1e2be7b586f8e4be78e00f"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01419, "dy": -0.009833999999999999, "dz": -0.00117}, "i": 4, "state_hash": "c0eaec00b9fceda65ea34601eba17093f58563745f47e5bfb73a13285cfb72c8"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.004169, "dy": 0.020406, "dz": 0.00023400000000000002}, "i": 5, "state_hash": "6b1408717ae70c14d39271141667f19cfe8cec58ba9bdcdde545f2c39fe9d584"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.010908, "dy": 0.01279, "dz": 0.0059180000000000005}, "i": 6, "state_hash": "1c6ad11781d0ca09b3bc41f004e757166e231187a7fd2d408980066dbb221092"}

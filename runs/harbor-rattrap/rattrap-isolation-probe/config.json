@@ -1,0 +1,13 @@
+{
+    "job_name": "rattrap-isolation-probe",
+    "agents": [
+        {
+            "import_path": "loophole.harbor_probe:IsolationProbe"
+        }
+    ],
+    "tasks": [
+        {
+            "path": "tasks/loophole-rattrap"
+        }
+    ]
+}

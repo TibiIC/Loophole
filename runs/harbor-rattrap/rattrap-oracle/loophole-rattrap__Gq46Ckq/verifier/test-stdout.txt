@@ -1,0 +1,2 @@
+{"reward": 0.27, "reason": "not solved", "solved": false, "violation": false, "actions": 284, "max_actions": 852, "progress": 0.9, "checkpoints_reached": 18, "checkpoints": 20, "log_consistent": 1}
+0.270000

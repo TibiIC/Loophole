@@ -1,0 +1,14 @@
+== paths (expect: absent)
+absent  /solution
+absent  /tests
+absent  /opt/loophole
+absent  /var/loophole
+absent  /app/solution
+== filesystem search for trajectories, checkpoints, references, roadmaps, meshes, episode logs (expect: none)
+(end of search)
+== network
+internet (expect 000 = blocked): 000
+sidecar /healthz (expect ok): ok
+sidecar /admin/finalize (expect forbidden): {"error":"forbidden"}
+== MCP tools offered by the sidecar
+['get_state', 'give_up', 'grab', 'move', 'release']

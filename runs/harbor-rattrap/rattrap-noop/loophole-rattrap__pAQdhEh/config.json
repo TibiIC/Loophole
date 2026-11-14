@@ -1,0 +1,11 @@
+{
+    "task": {
+        "path": "tasks/loophole-rattrap"
+    },
+    "trial_name": "loophole-rattrap__pAQdhEh",
+    "trials_dir": "jobs/rattrap-noop",
+    "agent": {
+        "name": "nop"
+    },
+    "job_id": "e773e0aa-37ff-4696-ab60-26663cced5a1"
+}

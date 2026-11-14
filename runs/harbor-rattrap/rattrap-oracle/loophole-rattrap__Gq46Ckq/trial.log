@@ -1,0 +1,9 @@
+Skipping image OS validation for hb__13ef15e80ac147b220950fecdee8d6d3: docker inspect returned 1
+Agent 'oracle' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+Collecting main service artifacts
+Stopping main service before sidecar evidence collection
+Main service stopped
+Collecting sidecar artifacts from services: ['loophole-sim']
+Running collect hook in service 'loophole-sim': 'python -m loophole.puzzles.rattrap.finalize'
+Collect hook in service 'loophole-sim' completed
+Skipping image OS validation for hb__0078cda1d7a32145623be682fda30ba4: docker inspect returned 1
