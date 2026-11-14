@@ -66,3 +66,13 @@ consistent, sidecar agrees.
 OpenCode with Gemini reads only `GOOGLE_GENERATIVE_AI_API_KEY`. Harbor forwards the first
 of `GOOGLE_API_KEY` / `GEMINI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` it finds, so set
 only that one. Models: `gemini/<id>` (e.g. `gemini/gemini-4-carbon`).
+
+## Baselines
+
+* **noop**: Harbor's built-in `nop` agent (`harbor run -p ./tasks/loophole-alpha -a nop`):
+  no actions; score 0.
+* **stop-early**: a scripted agent. The oracle harness runs `solution/solve.sh` with
+  `LOOPHOLE_SOLUTION=stop_early`, which replays `solution/stop_early.jsonl` over MCP: `grab`
+  plus 5 seeded random valid moves (each within the rig caps), then stops
+  (`harbor run -p ./tasks/loophole-alpha -a oracle --ae LOOPHOLE_SOLUTION=stop_early`).
+  Score 0: it never holds a lower cost-to-go for 3 consecutive actions.
