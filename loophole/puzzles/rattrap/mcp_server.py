@@ -21,7 +21,8 @@ import threading
 import time
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+import anyio
+from mcp.server.fastmcp import Context, FastMCP
 
 from .agent_tools import Harness, scene_text
 from .reward import RatTrapEpisode
@@ -51,6 +52,29 @@ def build(out: Path, sparse: bool = False, label: str = "", host: str = "0.0.0.0
         (out / "result.json").write_text(json.dumps(res, indent=1))
         return res
 
+    async def acall(name: str, args: dict, ctx: Context | None) -> str:
+        """Run the (blocking) simulation step in a worker thread and, while it runs, send a log notification every
+        2 s on the request's stream: a physics step can take tens of seconds, and a silent connection can be cut by
+        a proxy on the way (Harbor's egress control sits between the agent and this sidecar)."""
+        done = anyio.Event()
+        out: dict = {}
+
+        async def work():
+            out["r"] = await anyio.to_thread.run_sync(call, name, args)
+            done.set()
+
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(work)
+            while not done.is_set():
+                with anyio.move_on_after(2.0):
+                    await done.wait()
+                if not done.is_set() and ctx is not None:
+                    try:
+                        await ctx.info(f"{name}: simulating")
+                    except Exception:
+                        pass
+        return out["r"]
+
     def call(name: str, args: dict) -> str:
         with lock:
             try:
@@ -63,33 +87,33 @@ def build(out: Path, sparse: bool = False, label: str = "", host: str = "0.0.0.0
 
     from mcp.server.transport_security import TransportSecuritySettings
 
-    mcp = FastMCP("rattrap", instructions=INSTRUCTIONS, host=host, port=port, stateless_http=True, json_response=True,
+    mcp = FastMCP("rattrap", instructions=INSTRUCTIONS, host=host, port=port, stateless_http=True, json_response=False,
                   transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
 
     @mcp.tool()
-    def get_state() -> str:
+    async def get_state(ctx: Context) -> str:
         """Current state: string nodes (every 6th, mm), grippers, mouse, actions left. Free (no action)."""
-        return call("get_state", {})
+        return await acall("get_state", {}, ctx)
 
     @mcp.tool()
-    def grab(handle: int, node: int) -> str:
+    async def grab(handle: int, node: int, ctx: Context) -> str:
         """Close gripper `handle` (0 or 1) on the string at node index `node`. One action."""
-        return call("grab", {"handle": handle, "node": node})
+        return await acall("grab", {"handle": handle, "node": node}, ctx)
 
     @mcp.tool()
-    def move(handle: int, dx: float, dy: float, dz: float) -> str:
+    async def move(handle: int, dx: float, dy: float, dz: float, ctx: Context) -> str:
         """Move gripper `handle` by (dx, dy, dz) millimetres (each |d| <= 30). Stops early if blocked. One action."""
-        return call("move", {"handle": handle, "dx": dx, "dy": dy, "dz": dz})
+        return await acall("move", {"handle": handle, "dx": dx, "dy": dy, "dz": dz}, ctx)
 
     @mcp.tool()
-    def release(handle: int) -> str:
+    async def release(handle: int, ctx: Context) -> str:
         """Open gripper `handle`. One action."""
-        return call("release", {"handle": handle})
+        return await acall("release", {"handle": handle}, ctx)
 
     @mcp.tool()
-    def give_up() -> str:
+    async def give_up(ctx: Context) -> str:
         """End the episode now."""
-        return call("give_up", {})
+        return await acall("give_up", {}, ctx)
 
     from starlette.requests import Request
     from starlette.responses import JSONResponse, PlainTextResponse
