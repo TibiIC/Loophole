@@ -49,9 +49,10 @@ cord_ball_enabled: false   # a sphere welded to a cord node (ball_mode: fixed)
 cord_ball_radius: 0.010
 cord_ball_node: -12
 ball_mode: fixed
-mouse_enabled: false       # sphere on the cord (blocker or not: to be confirmed)
+mouse_enabled: true        # the mouse is tied to the loop: a genuine blocker for the small holes and the ring
 mouse_radius: 0.011        # placeholder sphere for the mouse's body
-mouse_node: auto           # cord node it is welded to; auto = the node farthest from the start (open cord: the free end)
+mouse_node: auto           # cord node it is welded to; auto = the loop's far end (node n/2; open cord: the free end).
+                           # Node 0 cannot hold it in this start: it sits in the wrap around the right dowel.
 
 # --- cord: capsule chain with ball joints (joint coordinates: inextensible by construction) --------
 cord_radius: 0.0012
@@ -132,9 +133,21 @@ clearance_table:
 # A is the rest of the opening. U / L are the hole annuli around the dowels, R the ring's interior.
 # Upper case = crossing in the positive direction, lower case = the inverse.
 topology_alphabet:
-  A: {disc: frame_main, positive: "front to back (+y)"}
-  B: {disc: frame_upper_right, positive: "front to back (+y)"}
-  C: {disc: frame_lower_left, positive: "front to back (+y)"}
-  U: {disc: hole_upper, positive: "upwards (+z)"}
-  L: {disc: hole_lower, positive: "upwards (+z)"}
-  R: {disc: ring, positive: "left to right (+x)"}
+  A: {disc: frame_main, positive: "front to back (+y)", aperture: null, passable: true}
+  B: {disc: frame_upper_right, positive: "front to back (+y)", aperture: null, passable: true}
+  C: {disc: frame_lower_left, positive: "front to back (+y)", aperture: null, passable: true}
+  U: {disc: hole_upper, positive: "upwards (+z)", aperture: post_upper.hole, passable: false}
+  L: {disc: hole_lower, positive: "upwards (+z)", aperture: post_lower.hole, passable: false}
+  R: {disc: ring, positive: "left to right (+x)", aperture: ring.inside, passable: false}
+# passable: whether a conjugate of the generator may be inserted / deleted at cost 1 in the Przytycki-Sikora
+# norm (the cord, with everything it carries, can pass through that hole). A hole that a body on the cord
+# (mouse, cord ball) cannot fit through is NOT passable; the bare loop fits through every hole, so all are
+# passable while mouse_enabled / cord_ball_enabled are false. test_rattrap_reward checks this against the
+# clearance table (aperture: the clearance-table row of the hole; null = a frame-opening region, wide open).
+
+# --- reward (verifier-side score; shaping is training-only) -------------------------------------------
+max_actions: 400            # T: action budget (placeholder until a recorded solve sets the scale)
+score_alpha: 0.5            # solved -> 1 - alpha * a / T
+score_progress_cap: 0.3     # unsolved -> cap * p, p = 1 - min_t ||w_t|| / ||w_0||
+shaping_gamma: 1.0          # training shaping gamma * Phi(s') - Phi(s), Phi = -||w||
+escape_directions: 64       # free-escape test of the frozen cord assembly (Fibonacci sphere)

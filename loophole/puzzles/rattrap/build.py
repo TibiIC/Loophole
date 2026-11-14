@@ -213,6 +213,10 @@ def _attach_sphere(names, elems, bi, local, nm, radius, r, contact, lengths, geo
                   rgba=_f(RGBA[nm]))
     geom_part[nm] = nm
     reach = int(math.ceil((radius + r["cord_radius"]) / float(np.min(lengths)))) + 1
-    for j in range(max(0, bi - reach), min(len(names), bi + reach + 1)):
-        if j != bi:
-            ET.SubElement(contact, "exclude", body1=names[bi], body2=names[j])
+    n = len(names)
+    if r.get("cord_closed"):  # a closed loop wraps around: the neighbours across the closure are also overlapped
+        js = {(bi + o) % n for o in range(-reach, reach + 1)}
+    else:
+        js = set(range(max(0, bi - reach), min(n, bi + reach + 1)))
+    for j in sorted(js - {bi}):
+        ET.SubElement(contact, "exclude", body1=names[bi], body2=names[j])

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Replay a recorded Rat Trap solve headlessly from its converted commands and check it reaches the same state.
 
-    .venv/bin/python scripts/replay_rattrap.py [loophole/reference/rattrap-solve.commands.jsonl]
+    .venv/bin/python scripts/replay_rattrap.py [--mode commands|exact] [loophole/reference/rattrap-solve.commands.jsonl]
 
-Asserts that the replay's final reduced topological word equals the live session's, that no node ends more
-than --tol from its live position, and that nothing penetrated. A failure means the conversion or the
-determinism is broken (or the live session used something the rig cannot reproduce).
+--mode commands (default): replay the converted discrete commands (the agent's tool interface).
+--mode exact: re-execute the raw recording step for step (the determinism check; also how a recorded solve is
+              re-validated after the model changes, e.g. with the mouse tied on).
+Asserts that the final state is free (the frozen cord assembly can slide out), that no node ends more than --tol
+from the live final position, and that nothing penetrated beyond the audit tolerance. A failure in "commands" mode
+with a pass in "exact" mode means the conversion is broken, not the determinism.
 """
 
 from __future__ import annotations
@@ -29,19 +32,30 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("commands", type=Path, nargs="?", default=ROOT / "loophole" / "reference" / "rattrap-solve.commands.jsonl")
     ap.add_argument("--tol", type=float, default=0.01, help="max node deviation from the live final state (m)")
+    ap.add_argument("--mode", choices=["commands", "exact"], default="commands")
     a = ap.parse_args()
     hdr = json.loads(a.commands.open().readline())
     live = hdr.get("live_final") or {}
     spec = load_spec()
-    cmds = load_commands(a.commands)
-    sim = replay(cmds, spec)
+    if a.mode == "exact":
+        from loophole.puzzles.rattrap.teleop import load_records, replay_exact
+
+        raw = a.commands.with_name(a.commands.name.replace(".commands.jsonl", ".jsonl"))
+        cmds = []
+        sim = replay_exact(load_records(raw), spec)
+    else:
+        cmds = load_commands(a.commands)
+        sim = replay(cmds, spec)
     nodes = sim.node_positions()
     word = read_word(nodes, build_discs(spec), closed=bool(spec["cord_closed"]))
+    from loophole.puzzles.rattrap.reward import FrozenEscape
+
+    free = FrozenEscape(spec, sim).escape_direction(nodes) is not None
     dev = float(np.max(np.linalg.norm(nodes - np.asarray(live["nodes"]), axis=1))) if live.get("nodes") else None
-    out = {"commands": len(cmds), "replay_word": word, "live_word": live.get("word"), "max_node_deviation_m": dev,
-           "max_penetration_m": sim.max_penetration}
+    out = {"mode": a.mode, "commands": len(cmds), "free": free, "replay_word": word, "live_word": live.get("word"),
+           "max_node_deviation_m": dev, "max_penetration_m": sim.max_penetration}
     print(json.dumps(out, indent=1))
-    ok = word == live.get("word") and (dev is None or dev <= a.tol) and sim.max_penetration < spec["penetration_tolerance"]
+    ok = free and (dev is None or dev <= a.tol) and sim.max_penetration < spec["penetration_tolerance"]
     if not ok:
         sys.exit("REPLAY DIVERGES from the live solve: the conversion or the determinism is broken")
     print("replay reaches the live solve's final state")
