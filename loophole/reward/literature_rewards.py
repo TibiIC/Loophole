@@ -135,6 +135,7 @@ class ClearanceShapingReward(RewardComponent):
 
         Phi(s) = exp(-max(0, d_sep - d(s)) / sigma)        d(s): min distance A-B
         r      = gamma * Phi(s') - Phi(s) - w_pen * max(0, pen - pen_thr) - w_act * |a|^2
+        (|a|: the executed handle motion - translation^2 + 0.1 * rotation^2 - not the raw request)
 
     Potential-based, so doing nothing (or returning to the same pose) earns 0 from the
     kernel; stalling no longer accumulates reward. Caveat: clearance can still grow
@@ -166,9 +167,8 @@ class ClearanceShapingReward(RewardComponent):
     def step(self, prev: RewardState, cur: RewardState, info: dict) -> float:
         shaping = self.gamma * self.phi(cur) - self.phi(prev)
         pen = max(0.0, float(info.get("last_penetration", 0.0) or 0.0) - self.pen_thr)
-        a = info.get("args") or {}
-        act = sum(float(a.get(k, 0.0)) ** 2 for k in ("dx", "dy", "dz")) + 0.1 * sum(
-            float(a.get(k, 0.0)) ** 2 for k in ("droll", "dpitch", "dyaw"))
+        ex = info.get("executed") or {}  # the motion the rig actually executed (clamped), never raw requests
+        act = float(ex.get("translation", 0.0)) ** 2 + 0.1 * float(ex.get("rotation", 0.0)) ** 2
         return float(shaping - self.w_pen * pen - self.w_act * act)
 
     def terminal(self, final: RewardState, info: dict) -> float:

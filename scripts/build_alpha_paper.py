@@ -58,7 +58,7 @@ def config_for(cfg: dict) -> dict:
             "num_handles": 1, "max_linear_step": MAX_LIN, "max_angular_step": MAX_ANG, "linear_speed": 0.1, "angular_speed": 0.1,
             "weld_solref": [0.002, 1.0], "lag_limit": 0.006, "angle_lag_limit": 0.02,
             "workspace_min": [v * s for v in cfg["volume"]["min"]], "workspace_max": [v * s for v in cfg["volume"]["max"]],
-            "grasp_tolerance": 3.0,
+            "grasp_tolerance": 0.05,  # grasp points must lie on the tube (no remote pivots)
         },
         "topology": {"enabled": False},
     }

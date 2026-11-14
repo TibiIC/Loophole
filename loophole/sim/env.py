@@ -52,6 +52,17 @@ def _load_centerline(ref: str, puzzle: Puzzle) -> np.ndarray:
     return np.load(resolve(ref)) * puzzle.unit_scale
 
 
+def _gap_indices(P: np.ndarray, min_sep: int = 15) -> tuple[int, int] | None:
+    """Indices of the alpha's crossing: closest pair of centre-line points far apart along it."""
+    if len(P) < 2 * min_sep:
+        return None
+    D = np.linalg.norm(P[:, None] - P[None], axis=2)
+    idx = np.arange(len(P))
+    D[np.abs(idx[:, None] - idx[None]) < min_sep] = np.inf
+    i, j = sorted(np.unravel_index(int(np.argmin(D)), D.shape))
+    return int(i), int(j)
+
+
 def _closed_loop(P: np.ndarray, min_sep: int = 15) -> np.ndarray | None:
     """An alpha's loop closed across its gap: the centre-line between its crossing
     (closest pair of points far apart along the curve) plus the closing segment."""
@@ -127,6 +138,7 @@ class LoopholeEnv:
             if b.centerline:
                 self.curves[b.name] = _load_centerline(b.centerline, self.puzzle)
         self.loops = {name: _closed_loop(c) for name, c in self.curves.items()}
+        self._tube_radius = self._estimate_tube_radius()
         self.tracker = TopologyTracker(
             [
                 Disc(h.name, h.body, np.asarray(h.center, float), np.asarray(h.normal, float) / np.linalg.norm(h.normal), h.radius)
@@ -368,6 +380,7 @@ class LoopholeEnv:
                 raise RigError(f"unknown action {tool!r}")
             norm = self._normalise(tool, args)
             self.audit.window_penetration = 0.0
+            self._handles_before = [self.rig.handle_pose(h) for h in self.rig.handles]
             result = self._execute(tool, norm)
         except (RigError, EpisodeOver, TypeError, ValueError) as e:
             self.log.write({"type": "rejected", "tool": tool, "args": args, "error": str(e), "wall_time": time.time()})
@@ -377,28 +390,42 @@ class LoopholeEnv:
     def _normalise(self, tool: str, a: dict) -> dict:
         def need_handle():
             h = a.get("handle")
-            if isinstance(h, bool) or not isinstance(h, (int, float)) or int(h) != h:
+            if isinstance(h, bool) or not isinstance(h, (int, float)) or not np.isfinite(h) or int(h) != h:
                 raise RigError("handle must be an integer")
             return int(h)
 
+        def finite(x, name):
+            if isinstance(x, bool) or not isinstance(x, (int, float)) or not np.isfinite(x):
+                raise RigError(f"{name} must be a finite number")
+            return float(x)
+
         if tool == "grab":
-            norm = {"handle": need_handle(), "target": str(a.get("target", ""))}
+            norm = {"handle": need_handle(), "target": str(a.get("target", ""))[:64]}
             if a.get("point") is not None:
-                norm["point"] = [float(x) for x in a["point"]]
+                pt = a["point"]
+                if not isinstance(pt, (list, tuple)) or len(pt) != 3:
+                    raise RigError("point must be [x, y, z]")
+                norm["point"] = [finite(x, "point") for x in pt]
             if a.get("segment") is not None:
-                norm["segment"] = int(a["segment"])
+                seg = a["segment"]
+                if isinstance(seg, bool) or not isinstance(seg, (int, float)) or not np.isfinite(seg) or int(seg) != seg:
+                    raise RigError("segment must be a finite integer")
+                norm["segment"] = int(seg)
             return norm
         if tool == "move":
             norm = {"handle": need_handle(), "frame": str(a.get("frame", "world"))}
             for k in ("dx", "dy", "dz", "droll", "dpitch", "dyaw"):
-                norm[k] = float(a.get(k, 0.0) or 0.0)
+                v = a.get(k, 0.0)
+                norm[k] = finite(0.0 if v is None else v, k)  # huge finite values are clamped by the rig
             return norm
         if tool == "release":
             return {"handle": need_handle()}
         steps = a.get("steps", 100)
-        if isinstance(steps, bool) or int(steps) != steps:
-            raise RigError("steps must be an integer")
-        return {"steps": int(np.clip(int(steps), 1, self.cfg.rig.max_wait_steps))}
+        if isinstance(steps, bool) or not isinstance(steps, (int, float)) or not np.isfinite(steps) or int(steps) != steps:
+            raise RigError("steps must be a finite integer")
+        if not 1 <= int(steps) <= self.cfg.rig.max_wait_steps:
+            raise RigError(f"steps must be in [1, {self.cfg.rig.max_wait_steps}]")
+        return {"steps": int(steps)}
 
     def _execute(self, tool: str, a: dict) -> dict:
         if tool == "grab":
@@ -435,7 +462,8 @@ class LoopholeEnv:
             "goal": goal,
             "min_distance": goal.get("target_min_distance_to_frame"),
             "last_penetration": self.audit.window_penetration,
-            "args": norm,
+            "args": norm,  # as requested (validated, but not clamped)
+            "executed": self._executed_motion(),  # what the rig actually did (clamped, maybe blocked)
             "tool": tool,
             "diagnostics": diag,
             "linking_integral": diag.get("linking_integral"),
@@ -602,6 +630,7 @@ class LoopholeEnv:
             "goal": self.goal_metrics(),
             "progress": self.progress_summary(),
             "progress_potential": progress_potential(self),  # 0 unless reward.roadmap is on (see reward/progress.py)
+            "geometry": self.geometry_description(),
             "scene": self.scene_description(),
             "limits": {
                 "max_linear_step_m": self.cfg.rig.max_linear_step,
@@ -623,18 +652,97 @@ class LoopholeEnv:
             center = (lo + hi) / 2
             span = float(np.max(hi - lo))
             self._renderer = SceneRenderer(self.model, self.cfg.render.width, self.cfg.render.height, center, max(0.6, 1.1 * span))
+        for name, v in (("azimuth", azimuth), ("elevation", elevation), ("distance", distance)):
+            if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or not np.isfinite(v)):
+                raise ValueError(f"{name} must be a finite number")
+        if distance is not None and not 0.05 <= distance <= 20.0:
+            raise ValueError("distance must be in [0.05, 20] m")
+        if lookat is not None:
+            if not isinstance(lookat, (list, tuple)) or len(lookat) != 3 or not all(
+                isinstance(x, (int, float)) and not isinstance(x, bool) and np.isfinite(x) for x in lookat):
+                raise ValueError("lookat must be three finite numbers")
         cam = self._renderer.camera(view, azimuth, elevation, distance, lookat)
         png = self._renderer.render(self.data, cam)
         t = self._target_summary()
         held = ", ".join(f"handle{h['id']}={'holding ' + h['holding'] if h['holding'] else 'empty'}" for h in self.rig.status())
+        extra = ""
+        if self.puzzle.goal.type == "separation":
+            g = self.goal_metrics()
+            prog = self.progress_summary()
+            extra = f" | min distance {g['target_min_distance_to_frame']:.3f} m (goal > {g['required_separation']} m)"
+            if prog and prog.get("progress") is not None:
+                extra += f" | progress {prog['progress']:.3f} (best {prog['best_progress']:.3f})"
         caption = (
             f"view={view or 'iso'} az={cam.azimuth:.0f} el={cam.elevation:.0f} dist={cam.distance:.2f} "
-            f"lookat={_r(cam.lookat, 3)} | {t['name']} at {t['pos']} | {held} | "
+            f"lookat={_r(cam.lookat, 3)} | {t['name']} at {t['pos']} quat {t['quat']}{extra} | {held} | "
             f"actions {self.actions_used}/{self.puzzle.max_actions}"
             f"{' | DONE: ' + str(self.done_reason) if self.done else ''}. "
-            "Colours: frame grey, rope orange, target blue, handle0 red, handle1 green."
+            + self._colour_legend()
         )
         return png, caption
+
+    def _estimate_tube_radius(self) -> float | None:
+        """Tube radius from mesh volume and centre-line length (V = pi r^2 L), simulator units."""
+        for b in self.puzzle.objects:
+            if b.centerline and any(g.type == "mesh" for g in b.geoms):
+                try:
+                    import trimesh
+
+                    from .builder import MJCFBuilder  # noqa: F401  (same mesh resolution as the builder)
+                    g = next(g for g in b.geoms if g.type == "mesh")
+                    if g.path.startswith("paper:"):
+                        from ..puzzles.paper_alpha import resolve_mesh_path as res
+                    else:
+                        from ..puzzles.ompl_alpha import resolve_mesh_path as res
+                    m = trimesh.load(res(g.path), force="mesh")
+                    m.merge_vertices()
+                    L = float(np.sum(np.linalg.norm(np.diff(self.curves[b.name], axis=0), axis=1)))
+                    s = self.puzzle.unit_scale
+                    return float(np.sqrt(abs(m.volume) * s**3 / (np.pi * L))) if L > 0 else None
+                except Exception:
+                    return None
+        return None
+
+    def geometry_description(self) -> dict | None:
+        """Text description of the tubes for agents (no image needed): centre-lines (world
+        frame, decimated), each alpha's gap endpoints, tube radius, and B's pose relative to A."""
+        if not self.curves or self.puzzle.goal.type != "separation":
+            return None
+        out = {"tube_radius_m": None if self._tube_radius is None else round(self._tube_radius, 4)}
+        for name, c in self.curves.items():
+            world = self.curve_points(name)
+            idx = np.linspace(0, len(world) - 1, 24).round().astype(int)
+            entry = {"centerline_world_m": _r(world[idx], 3),
+                     "note": "polyline along the tube's axis, end to end"}
+            gap = _gap_indices(c)
+            if gap is not None:
+                entry["gap_endpoints_world_m"] = [_r(world[gap[0]], 3), _r(world[gap[1]], 3)]
+                entry["gap_note"] = "the two axis points where this alpha's loop closes on itself (its opening)"
+            out[name] = entry
+        out["relative_pose_target_in_frame"] = _r(self.target_pose(), 5)
+        out["relative_pose_note"] = "x y z qw qx qy qz of the target in the fixed tube's frame (the world frame)"
+        return out
+
+    def _executed_motion(self) -> dict:
+        """Largest handle translation (m) and rotation (rad) actually executed by the last action."""
+        from .geometry import quat_conj, quat_mul, quat_to_axis_angle
+
+        dp, dr = 0.0, 0.0
+        for h, (p0, q0) in zip(self.rig.handles, getattr(self, "_handles_before", [])):
+            p1, q1 = self.rig.handle_pose(h)
+            if h.body is None:
+                continue
+            dp = max(dp, float(np.linalg.norm(p1 - p0)))
+            dr = max(dr, abs(float(quat_to_axis_angle(quat_mul(quat_conj(q0), q1))[1])))
+        return {"translation": dp, "rotation": dr}
+
+    def _colour_legend(self) -> str:
+        parts = ["Colours: frame grey"]
+        if self.built.rope is not None:
+            parts.append("rope orange")
+        parts.append("target blue")
+        parts += [f"handle{h} {c}" for h, c in zip(range(len(self.rig.handles)), ("red", "green"))]
+        return ", ".join(parts) + "."
 
     def close(self) -> None:
         if self._renderer is not None:
