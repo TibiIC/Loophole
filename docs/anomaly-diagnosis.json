@@ -1,0 +1,593 @@
+[
+ {
+  "trial": "loophole-alpha__sbMy6Ld",
+  "observation_profile": "sensors",
+  "solution_signals_exposed": false,
+  "score": 0.886364,
+  "success": true,
+  "actions": 45,
+  "max_actions": 198,
+  "a_over_T": 0.2273,
+  "moves": 44,
+  "blocked_moves": 0,
+  "probe_then_reverse_pairs": 0,
+  "probe_examples": [],
+  "exploratory_moves": 0,
+  "committed_moves": 44,
+  "observations": {
+   "get_contacts": 43,
+   "render": 31,
+   "get_state": 89
+  },
+  "observations_between_actions": 43,
+  "action_burst": {
+   "median_gap_s": 0.86,
+   "max_gap_s": 41.5,
+   "span_s": 109.8
+  },
+  "path_length_se3": 5.7945,
+  "fields_referenced": {
+   "get_state": {
+    "objects": {
+     "code": 10,
+     "reasoning": 0
+    },
+    "pos": {
+     "code": 9,
+     "reasoning": 1
+    },
+    "quat": {
+     "code": 8,
+     "reasoning": 1
+    },
+    "blocked": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "clamped": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "actions_used": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "max_actions": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "done": {
+     "code": 5,
+     "reasoning": 1
+    },
+    "success": {
+     "code": 4,
+     "reasoning": 1
+    },
+    "violations": {
+     "code": 2,
+     "reasoning": 2
+    },
+    "limits": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "max_linear_step_m": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "max_angular_step_rad": {
+     "code": 1,
+     "reasoning": 0
+    }
+   },
+   "get_contacts": {
+    "contacts": {
+     "code": 1,
+     "reasoning": 1
+    },
+    "n_contacts": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "in_contact": {
+     "code": 3,
+     "reasoning": 1
+    },
+    "distance_m": {
+     "code": 1,
+     "reasoning": 0
+    }
+   },
+   "render caption": {
+    "camera": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "position": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "forward": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "up": {
+     "code": 6,
+     "reasoning": 0
+    },
+    "right": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "intrinsics": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "fx": {
+     "code": 17,
+     "reasoning": 0
+    },
+    "fy": {
+     "code": 11,
+     "reasoning": 0
+    },
+    "cx": {
+     "code": 9,
+     "reasoning": 0
+    },
+    "cy": {
+     "code": 18,
+     "reasoning": 0
+    },
+    "depth": {
+     "code": 3,
+     "reasoning": 2
+    },
+    "images": {
+     "code": 3,
+     "reasoning": 0
+    }
+   },
+   "solution signals (never in the sensors profile)": {
+    "progress": {
+     "code": 1,
+     "reasoning": 0
+    }
+   }
+  },
+  "code_chars": 125346,
+  "reasoning_chars": 1207
+ },
+ {
+  "trial": "loophole-alpha__AbJs9Px",
+  "observation_profile": "sensors",
+  "solution_signals_exposed": false,
+  "score": 0.883838,
+  "success": true,
+  "actions": 46,
+  "max_actions": 198,
+  "a_over_T": 0.2323,
+  "moves": 45,
+  "blocked_moves": 0,
+  "probe_then_reverse_pairs": 0,
+  "probe_examples": [],
+  "exploratory_moves": 0,
+  "committed_moves": 45,
+  "observations": {
+   "get_contacts": 45,
+   "render": 53,
+   "get_state": 93
+  },
+  "observations_between_actions": 45,
+  "action_burst": {
+   "median_gap_s": 1.05,
+   "max_gap_s": 56.0,
+   "span_s": 199.3
+  },
+  "path_length_se3": 6.7566,
+  "fields_referenced": {
+   "get_state": {
+    "objects": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "pos": {
+     "code": 20,
+     "reasoning": 1
+    },
+    "quat": {
+     "code": 21,
+     "reasoning": 1
+    },
+    "handles": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "blocked": {
+     "code": 6,
+     "reasoning": 1
+    },
+    "clamped": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "actions_used": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "done": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "success": {
+     "code": 3,
+     "reasoning": 1
+    },
+    "violations": {
+     "code": 2,
+     "reasoning": 2
+    },
+    "limits": {
+     "code": 1,
+     "reasoning": 0
+    }
+   },
+   "get_contacts": {
+    "contacts": {
+     "code": 1,
+     "reasoning": 2
+    },
+    "in_contact": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "distance_m": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "grip_lag": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "lag_m": {
+     "code": 1,
+     "reasoning": 0
+    }
+   },
+   "render caption": {
+    "camera": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "position": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "forward": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "up": {
+     "code": 10,
+     "reasoning": 0
+    },
+    "right": {
+     "code": 28,
+     "reasoning": 0
+    },
+    "intrinsics": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "fx": {
+     "code": 12,
+     "reasoning": 0
+    },
+    "fy": {
+     "code": 12,
+     "reasoning": 0
+    },
+    "cx": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "cy": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "depth": {
+     "code": 3,
+     "reasoning": 1
+    },
+    "images": {
+     "code": 0,
+     "reasoning": 1
+    }
+   },
+   "solution signals (never in the sensors profile)": {}
+  },
+  "code_chars": 185030,
+  "reasoning_chars": 2685
+ },
+ {
+  "trial": "loophole-alpha__fVDVriY",
+  "observation_profile": "sensors",
+  "solution_signals_exposed": false,
+  "score": 0.85101,
+  "success": true,
+  "actions": 59,
+  "max_actions": 198,
+  "a_over_T": 0.298,
+  "moves": 58,
+  "blocked_moves": 0,
+  "probe_then_reverse_pairs": 0,
+  "probe_examples": [],
+  "exploratory_moves": 0,
+  "committed_moves": 58,
+  "observations": {},
+  "observations_between_actions": 0,
+  "action_burst": {
+   "median_gap_s": 1.3,
+   "max_gap_s": 2.4,
+   "span_s": 76.2
+  },
+  "path_length_se3": 15.9197,
+  "fields_referenced": {
+   "get_state": {},
+   "get_contacts": {},
+   "render caption": {},
+   "solution signals (never in the sensors profile)": {}
+  },
+  "code_chars": 0,
+  "reasoning_chars": 0
+ },
+ {
+  "trial": "loophole-alpha__5oFTZb8",
+  "observation_profile": "full (legacy interface)",
+  "solution_signals_exposed": true,
+  "score": 0.838384,
+  "success": true,
+  "actions": 64,
+  "max_actions": 198,
+  "a_over_T": 0.3232,
+  "moves": 63,
+  "blocked_moves": 0,
+  "probe_then_reverse_pairs": 0,
+  "probe_examples": [],
+  "exploratory_moves": 0,
+  "committed_moves": 63,
+  "observations": {
+   "render": 329,
+   "get_state": 7
+  },
+  "observations_between_actions": 3,
+  "action_burst": {
+   "median_gap_s": 0.83,
+   "max_gap_s": 876.5,
+   "span_s": 1131.3
+  },
+  "path_length_se3": 10.5702,
+  "fields_referenced": {
+   "get_state": {
+    "objects": {
+     "code": 9,
+     "reasoning": 0
+    },
+    "pos": {
+     "code": 28,
+     "reasoning": 0
+    },
+    "quat": {
+     "code": 19,
+     "reasoning": 0
+    },
+    "blocked": {
+     "code": 3,
+     "reasoning": 1
+    },
+    "actions_used": {
+     "code": 7,
+     "reasoning": 0
+    },
+    "max_actions": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "done": {
+     "code": 4,
+     "reasoning": 1
+    },
+    "success": {
+     "code": 3,
+     "reasoning": 1
+    },
+    "violations": {
+     "code": 3,
+     "reasoning": 2
+    },
+    "limits": {
+     "code": 1,
+     "reasoning": 0
+    }
+   },
+   "get_contacts": {
+    "contacts": {
+     "code": 13,
+     "reasoning": 0
+    }
+   },
+   "render caption": {
+    "camera": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "up": {
+     "code": 22,
+     "reasoning": 0
+    },
+    "right": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "cx": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "cy": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "depth": {
+     "code": 3,
+     "reasoning": 0
+    }
+   },
+   "solution signals (never in the sensors profile)": {
+    "progress": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "cost_to_go": {
+     "code": 2,
+     "reasoning": 0
+    },
+    "target_min_distance_to_frame": {
+     "code": 1,
+     "reasoning": 1
+    }
+   }
+  },
+  "code_chars": 178773,
+  "reasoning_chars": 684
+ },
+ {
+  "trial": "loophole-alpha__Kt5DJ3h",
+  "observation_profile": "full (legacy interface)",
+  "solution_signals_exposed": true,
+  "score": 0.13941,
+  "success": false,
+  "actions": 157,
+  "max_actions": 198,
+  "a_over_T": 0.7929,
+  "moves": 156,
+  "blocked_moves": 36,
+  "probe_then_reverse_pairs": 2,
+  "probe_examples": [
+   {
+    "moves": [
+     25,
+     26
+    ],
+    "observations_between": [
+     "get_state"
+    ]
+   },
+   {
+    "moves": [
+     39,
+     40
+    ],
+    "observations_between": [
+     "get_state"
+    ]
+   }
+  ],
+  "exploratory_moves": 4,
+  "committed_moves": 152,
+  "observations": {
+   "render": 11,
+   "get_state": 82
+  },
+  "observations_between_actions": 50,
+  "action_burst": {
+   "median_gap_s": 0.8,
+   "max_gap_s": 278.6,
+   "span_s": 6518.1
+  },
+  "path_length_se3": 21.9069,
+  "fields_referenced": {
+   "get_state": {
+    "pos": {
+     "code": 81,
+     "reasoning": 0
+    },
+    "quat": {
+     "code": 12,
+     "reasoning": 0
+    }
+   },
+   "get_contacts": {},
+   "render caption": {
+    "camera": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "position": {
+     "code": 1,
+     "reasoning": 0
+    },
+    "forward": {
+     "code": 3,
+     "reasoning": 0
+    },
+    "right": {
+     "code": 4,
+     "reasoning": 0
+    },
+    "fy": {
+     "code": 7,
+     "reasoning": 0
+    },
+    "cx": {
+     "code": 18,
+     "reasoning": 0
+    },
+    "cy": {
+     "code": 14,
+     "reasoning": 0
+    }
+   },
+   "solution signals (never in the sensors profile)": {
+    "cost_to_go": {
+     "code": 6,
+     "reasoning": 0
+    }
+   }
+  },
+  "code_chars": 87343,
+  "reasoning_chars": 0
+ },
+ {
+  "trial": "loophole-alpha__Xx78e6N",
+  "observation_profile": "full (legacy interface)",
+  "solution_signals_exposed": true,
+  "score": 0.800505,
+  "success": true,
+  "actions": 79,
+  "max_actions": 198,
+  "a_over_T": 0.399,
+  "moves": 78,
+  "blocked_moves": 0,
+  "probe_then_reverse_pairs": 0,
+  "probe_examples": [],
+  "exploratory_moves": 0,
+  "committed_moves": 78,
+  "observations": {},
+  "observations_between_actions": 0,
+  "action_burst": {
+   "median_gap_s": 0.73,
+   "max_gap_s": 1.9,
+   "span_s": 59.4
+  },
+  "path_length_se3": 22.5421,
+  "fields_referenced": {
+   "get_state": {},
+   "get_contacts": {},
+   "render caption": {},
+   "solution signals (never in the sensors profile)": {}
+  },
+  "code_chars": 0,
+  "reasoning_chars": 0
+ }
+]
