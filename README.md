@@ -329,6 +329,32 @@ native Google provider, the path that solves Alpha.
 
 ## Quick start
 
+**The whole evaluation of one task, one command** (Docker must be running; model key in the environment or `.env`):
+
+```bash
+./run_evaluation.sh alpha   [gemini/gemini-4-carbon]    # or: make judge TASK=alpha
+./run_evaluation.sh rattrap [gemini/gemini-4-carbon]    # or: make judge TASK=rattrap
+```
+
+It installs Harbor 0.25.0 (and `uv`) if missing, builds the simulator image, and runs through Harbor:
+* the reference (`oracle`, replaying `solution/`);
+* the stop-early baseline;
+* the do-nothing baseline (`nop`);
+* three agent runs (OpenCode with the given model).
+
+It prints one score per run (`jobs/judge-<task>-<time>/summary.md`).
+
+Wall-clock on one loaded laptop (m = measured from the committed run logs; e = estimate):
+
+| | Alpha | Rat Trap |
+|---|---|---|
+| first image build | 10–15 min (e; fetches the meshes) | same image |
+| reference | 2.9 min (m) | ~1.5 h (e, from a 30-action Harbor run at ~9 s/action, replayed again by the verifier) |
+| each baseline | ≤ 0.5 min (m) | noop 0.6 min (m) |
+| each agent run | 55–74 min (m, Gemini 4 Carbon) | up to 4 h of agent time, plus up to ~2 h of verification (e) |
+
+Step by step, for development:
+
 ```bash
 make dev                         # python3.11 venv + editable install (.[mesh,dev])
 make test                        # pytest (all green; artifact-dependent tests skip with a reason)

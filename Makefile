@@ -8,7 +8,7 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random
+.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random judge
 
 help:
 	@echo "make build                         build the simulator / verifier image"
@@ -65,6 +65,10 @@ stop-early: build
 # API keys from the environment; a local .env (gitignored) is sourced if present.
 eval: build
 	set -a; [ -f .env ] && . ./.env; set +a; HARBOR=$(HARBOR) .venv/bin/python scripts/eval.py --model $(MODEL) --runs $(RUNS)
+
+# One command for the whole evaluation of one task: reference, stop-early, noop, three agent runs (run_evaluation.sh)
+judge:
+	./run_evaluation.sh $(or $(TASK),alpha) $(if $(filter command line environment,$(origin MODEL)),$(MODEL),gemini/gemini-4-carbon)
 
 # Rat Trap (in-process, no Docker): the oracle (reference solve), noop and a random agent, scored by the real reward
 rattrap-oracle:
