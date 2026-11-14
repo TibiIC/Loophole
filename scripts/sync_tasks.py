@@ -446,7 +446,8 @@ network_mode = "allowlist"
 allowed_hosts = ["loophole-sim"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)
 
 [verifier]
-timeout_sec = 1800.0
+# the verifier replays every action in a fresh simulator: ~7 s per action in a 2-CPU container, so up to ~100 min at T
+timeout_sec = 7200.0
 env = {{ LOOPHOLE_TASK = "rattrap" }}
 
 # Runs inside the sim sidecar after the agent container is stopped: writes the final record next to the log.
@@ -499,7 +500,7 @@ def make_rattrap_task() -> Path:
     d = TASKS / "loophole-rattrap"
     for sub in ("environment", "tests", "solution"):
         (d / sub).mkdir(parents=True, exist_ok=True)
-    (d / "task.toml").write_text(RATTRAP_TOML.format(T=ep.T, oracle=oracle, agent_timeout=10800.0))
+    (d / "task.toml").write_text(RATTRAP_TOML.format(T=ep.T, oracle=oracle, agent_timeout=14400.0))
     (d / "instruction.md").write_text(RATTRAP_INSTRUCTION.format(scene=scene_text(spec, ep)))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
     compose = COMPOSE.format(puzzle="rattrap", opencode_overlay=OPENCODE_OVERLAY)
