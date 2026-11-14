@@ -6,6 +6,25 @@ marked `[unverified]`. How each is used is noted in brackets.
 
 ## Alpha puzzle geometry, planning and scoring
 
+- **[LaV06]** Steven M. LaValle. *Planning Algorithms.* Cambridge University Press, 2006.
+  [doi:10.1017/CBO9780511546877](https://doi.org/10.1017/CBO9780511546877) (ISBN 978-0-521-86205-9) ·
+  [online edition, §1.2](https://lavalle.pl/planning/node7.html)
+  *[Origin of the Alpha puzzle. Verbatim (§1.2): the Alpha 1.0 Puzzle "was created by Boris Yamrom and posted as a
+  research benchmark by Nancy Amato at Texas A&M University." LaValle's RRT gallery
+  ([lavalle.pl/rrt/gallery_alpha.html](https://lavalle.pl/rrt/gallery_alpha.html)) adds the affiliation: "constructed
+  by Boris Yamrom, GE Corporate Research & Development Center, and posted as a research benchmark by Nancy Amato at
+  Texas A&M University." Checked 2026-11-15 (Crossref record; both pages read).]*
+
+- **[ABDJV98]** Nancy M. Amato, O. Burchan Bayazit, Lucia K. Dale, Christopher Jones, Daniel Vallejo. *Choosing Good
+  Distance Metrics and Local Planners for Probabilistic Roadmap Methods.* Proceedings of the 1998 IEEE International
+  Conference on Robotics and Automation (ICRA), vol. 1, pp. 630–637.
+  [doi:10.1109/ROBOT.1998.677043](https://doi.org/10.1109/ROBOT.1998.677043)
+  *[The work [JSCP15] cites for the Alpha 1.5 puzzle ("the famous 1.5 Alpha puzzle (Amato et al., 1998)"); Amato's
+  group (Parasol Lab, then at Texas A&M) made the Alpha puzzle a standard benchmark, later distributed with OMPL.app.
+  The abstract does not itself mention the puzzle, so this entry rests on that citation. Checked 2026-11-15 (Crossref
+  record). Parasol Lab's own benchmark page could not be checked: its current URL returns 404, and its archived copy
+  was not reachable.]*
+
 - **[ZBKV20]** Xinya Zhang, Robert Belfer, Paul G. Kry, Etienne Vouga.
   *C-Space Tunnel Discovery for Puzzle Path Planning.* ACM Transactions on Graphics
   39(4), Article 104 (pp. 104:1–104:14), SIGGRAPH 2020.
