@@ -1,0 +1,34 @@
+{
+ "initial_state_matches_log": true,
+ "max_pose_deviation_from_log_m": 4.999999974608649e-07,
+ "outcome_mismatches": [],
+ "max_penetration_m": 0.0,
+ "blocked_moves": 0,
+ "min_distance_m": 0.00816,
+ "escape_demo": {
+  "direction": [
+   -0.0607,
+   0.9773,
+   0.2031
+  ],
+  "distance_m": 2.304,
+  "checked_every_m": 0.002,
+  "poses_in_contact": 0,
+  "min_clearance_m": 0.0212
+ },
+ "audit_violations": 0,
+ "score": 0.886364,
+ "success": true,
+ "actions": 45,
+ "done_reason": "solved",
+ "goal": {
+  "criterion": "free escape by translation",
+  "goal_reached": true,
+  "escape_direction": [
+   -0.0607,
+   0.9773,
+   0.2031
+  ]
+ },
+ "logged_final_score": 0.886364
+}

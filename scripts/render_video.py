@@ -71,6 +71,9 @@ def main() -> None:
     ap.add_argument("--crf", type=int, default=23)
     ap.add_argument("--sheet", type=int, default=0, help="also write a contact sheet of N keyframes (<out>.sheet.png)")
     ap.add_argument("--title", default="", help="text shown in every frame (e.g. the run name)")
+    ap.add_argument("--show-escape", action="store_true",
+                    help="after a solved free-escape episode, slide tube B out along the reported escape direction "
+                         "(post-episode demonstration, not an agent action), checking for contact every 2 mm")
     a = ap.parse_args()
     if not shutil.which("ffmpeg"):
         sys.exit("ffmpeg not found")
@@ -144,6 +147,36 @@ def main() -> None:
     for _ in range(int(2 * fps)):  # two seconds of the final pose
         frame()
     final = env.finalize()
+    goal = final.get("goal") or {}
+    if a.show_escape and final["success"] and goal.get("escape_direction"):
+        import mujoco
+
+        u = np.asarray(goal["escape_direction"], float)
+        u /= np.linalg.norm(u)
+        p0 = env.target_pose().copy()
+        c, r_frame, r_target = (env.checker.proxy or env.checker).bounding_spheres()
+        w = p0[:3] - c
+        R = r_frame + r_target
+        s_end = float(-(u @ w) + np.sqrt(max(0.0, (u @ w) ** 2 - w @ w + R * R))) + 0.2
+        adr = env.model.jnt_qposadr[env.model.body(env.puzzle.target).jntadr[0]]
+        hid = env.rig.handles[0].mocap_id
+        hp0 = env.data.mocap_pos[hid].copy()
+        contacts, min_clear = 0, np.inf
+        state["tool"] = "post-episode check: sliding tube B out along the escape direction (not an agent action)"
+        x = p0.copy()
+        for k, sv in enumerate(np.arange(0.0, s_end, 0.002)):
+            x[:3] = p0[:3] + sv * u
+            contacts += not env.checker.is_valid(x)
+            if k % 25 == 0:
+                min_clear = min(min_clear, env.checker.clearance(x, 0.05))
+                env.data.qpos[adr:adr + 7] = x
+                env.data.mocap_pos[hid] = hp0 + sv * u
+                mujoco.mj_forward(env.model, env.data)
+                frame()
+        for _ in range(int(fps)):
+            frame()
+        check["escape_demo"] = {"direction": u.round(4).tolist(), "distance_m": round(s_end, 3), "checked_every_m": 0.002,
+                                "poses_in_contact": int(contacts), "min_clearance_m": round(float(min_clear), 5)}
     ff.stdin.close()
     ff.wait()
     env.close()
