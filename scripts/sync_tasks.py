@@ -93,8 +93,10 @@ services:
       LOOPHOLE_PUZZLE: "{puzzle}"
       LOOPHOLE_SEED: "0"
       MUJOCO_GL: "${{LOOPHOLE_MUJOCO_GL:-osmesa}}"
-    expose:
-      - "8000"
+    # Explicit networking keeps the simulator OUT of Harbor's egress-control namespace (only
+    # the agent container is egress-controlled): it keeps its own DNS name and network
+    # namespace, so its loopback-only admin routes stay unreachable from the agent.
+    networks: [default]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
       interval: 2s
@@ -300,7 +302,7 @@ ROADMAP_CFG = "/opt/loophole/loophole/configs/roadmap_reward.yaml"  # path insid
 
 
 def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None = None,
-              config_file: str | None = None, agent_timeout: float | None = None) -> Path:
+              config_file: str | None = None, agent_timeout: float | None = None, agent_no_internet: bool = False) -> Path:
     from loophole.sim.spec import resolve_puzzle
 
     spec = yaml.safe_load(resolve_puzzle(puzzle).read_text())
@@ -348,6 +350,12 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
     if cfg_path:  # same config for the sim sidecar and the verifier
         toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{cfg_path}" }}')
         compose = compose.replace('      LOOPHOLE_SEED: "0"\n', f'      LOOPHOLE_SEED: "0"\n      LOOPHOLE_CONFIG: "{cfg_path}"\n')
+    if agent_no_internet:
+        # no internet during agent.run(): egress denied except the agent's own inference
+        # endpoint, which Harbor auto-allowlists; setup (installing the agent) stays public
+        toml = toml.replace(f"[agent]\ntimeout_sec = {ctx['agent_timeout']}\n",
+                            f"[agent]\ntimeout_sec = {ctx['agent_timeout']}\nnetwork_mode = \"allowlist\"\n"
+                            f"allowed_hosts = [\"loophole-sim\"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)\n")
     (d / "task.toml").write_text(toml)
     (d / "instruction.md").write_text((INSTRUCTION_CANON if canon else INSTRUCTION_ALPHA if alpha else INSTRUCTION).format(**ctx))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)

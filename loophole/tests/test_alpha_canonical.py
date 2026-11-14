@@ -16,7 +16,12 @@ from loophole.sim.env import LoopholeEnv
 from loophole.sim.geometry import quat_to_mat
 from loophole.sim.spec import load_puzzle, resolve_puzzle, to_native
 
-pytestmark = pytest.mark.skipif(not (ompl_dir() / "alpha_env-1.5.dae").exists(), reason="canonical meshes not fetched (run `make fetch-alpha`)")
+from pathlib import Path as _P
+
+pytestmark = pytest.mark.skipif(
+    not (ompl_dir() / "alpha_env-1.5.dae").exists() or not (_P(__file__).resolve().parents[1] / "puzzles" / "alpha_ompl" / "alpha-1.5.yaml").exists(),
+    reason="Alpha 1.5 is out of scope (config removed; the project targets Alpha 1.0 only)",
+)
 PUZZLE = "alpha-1.5"
 
 

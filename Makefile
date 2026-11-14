@@ -8,7 +8,7 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean
+.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean
 
 help:
 	@echo "make build                         build the simulator / verifier image"
@@ -30,10 +30,6 @@ test:
 alpha:
 	.venv/bin/python -m loophole.puzzles.alpha.generate
 	.venv/bin/python scripts/build_alpha.py
-
-# LOCAL ONLY: canonical OMPL.app Alpha meshes for comparison (Rice licence: never committed or shipped)
-fetch-alpha:
-	scripts/fetch_alpha.sh
 
 # Alpha 1.0 as in Zhang et al. 2020 (meshes + .cfg + solution; fetched, never committed)
 fetch-alpha-paper:

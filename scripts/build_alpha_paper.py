@@ -40,6 +40,11 @@ from loophole.sim.spec import load_puzzle  # noqa: E402
 
 SUPP_SHA256 = "00dff255b3ca002240f0be157ec70431377bff2c187dafe13659be706815e07c"
 SIMPLIFIED = "supp-material/puzzles/alpha/alpha-1.0.simplified.txt"
+ATTRIBUTION = ("Oracle = the published Alpha 1.0 solution of X. Zhang, R. Belfer, P. G. Kry, E. Vouga, "
+               "'C-Space Tunnel Discovery for Puzzle Path Planning', ACM TOG 39(4), Article 104 (SIGGRAPH 2020), "
+               "doi:10.1145/3386569.3392468; data from https://gitlab.com/xinyazhang/puzzle-geometry and the paper's "
+               "supplementary (https://xinyazhang.gitlab.io/puzzletunneldiscovery/). Converted to Loophole rig "
+               "commands; no licence stated by the authors - see docs/HARNESS_NOTES.md.")
 TRAJ = ROOT / "loophole" / "reference" / "trajectories"
 NAME = "alpha-1.0-paper"
 MAX_LIN, MAX_ANG = 0.1, 0.2  # per-move caps (velocity limits are what prevent tunnelling)
@@ -100,13 +105,13 @@ def main() -> None:
     if not final["success"] or final["violations"]["count"]:
         sys.exit("replay failed")
     write_trajectory(TRAJ / f"{NAME}.jsonl", NAME, cmds, source="Zhang et al. 2020 supplementary: alpha-1.0.simplified.txt",
-                     meta={"expected_score": final["score"], "supp_sha256": SUPP_SHA256})
+                     meta={"expected_score": final["score"], "supp_sha256": SUPP_SHA256, "attribution": ATTRIBUTION})
     rng = np.random.default_rng(1)
     se = [("grab", {"handle": 0, "target": p.target})] + [
         ("move", {"handle": 0, "dx": float(d[0]), "dy": float(d[1]), "dz": float(d[2])}) for d in rng.uniform(-0.03, 0.03, (5, 3))
     ]
     write_trajectory(TRAJ / f"{NAME}_stop_early.jsonl", NAME, se, source="baseline:stop_early(5 random moves)")
-    np.savez(pa.PUZZLE_OUT / f"{NAME}-reference.npz", path=path, poses_native=native, w=w)
+    np.savez(pa.PUZZLE_OUT / f"{NAME}-reference.npz", path=path, poses_native=native, w=w, attribution=ATTRIBUTION)
     rep = {"source": "Zhang, Belfer, Kry, Vouga 2020 (supp-material/puzzles/alpha/alpha-1.0.simplified.txt)", "poses": len(path),
            "dense_states_checked": n, "invalid": bad, "reference_actions": final["actions_used"], "max_actions": max_actions,
            "reference_score": final["score"]}

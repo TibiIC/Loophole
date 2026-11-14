@@ -11,13 +11,14 @@ gravity:
 floor: false
 frame:
 - name: tube_a
+  centerline: paper:derived_env_centerline.npy
   geoms:
   - type: mesh
     path: paper:derived_env.obj
     decompose: facewedge
-  centerline: paper:derived_env_centerline.npy
 objects:
 - name: tube_b
+  centerline: paper:derived_robot_centerline.npy
   pos: &id001
   - 30.0
   - 9.0
@@ -39,7 +40,6 @@ objects:
   - type: mesh
     path: paper:derived_robot.obj
     decompose: facewedge
-  centerline: paper:derived_robot_centerline.npy
 target: tube_b
 goal:
   type: separation

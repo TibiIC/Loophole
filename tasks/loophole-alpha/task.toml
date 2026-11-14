@@ -16,6 +16,8 @@ max_actions = 198
 
 [agent]
 timeout_sec = 7200.0
+network_mode = "allowlist"
+allowed_hosts = ["loophole-sim"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)
 
 [verifier]
 timeout_sec = 600.0

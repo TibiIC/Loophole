@@ -1,9 +1,0 @@
-{
- "variant": "1.5",
- "reference_actions": 86,
- "max_actions": 348,
- "reference_score": 0.876437,
- "planning_s": 524.7,
- "waypoints": 7,
- "min_clearance_m": 0.00142
-}

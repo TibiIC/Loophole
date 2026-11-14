@@ -17,8 +17,10 @@ services:
       LOOPHOLE_SEED: "0"
       LOOPHOLE_CONFIG: "/opt/loophole/loophole/configs/alpha_training.yaml"
       MUJOCO_GL: "${LOOPHOLE_MUJOCO_GL:-osmesa}"
-    expose:
-      - "8000"
+    # Explicit networking keeps the simulator OUT of Harbor's egress-control namespace (only
+    # the agent container is egress-controlled): it keeps its own DNS name and network
+    # namespace, so its loopback-only admin routes stay unreachable from the agent.
+    networks: [default]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
       interval: 2s
