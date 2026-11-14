@@ -313,7 +313,7 @@ PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
 | 2 | Kimi K3 Pro (Verda, function calling) | checkpoints, T = 852 | 0.0 | no | 852 / 852 | 0 / 20 | 141 | 63.4 mm |
 | 2 | Nemotron 3.5 Super VL (Verda, function calling, with images) | **excluded³** (spurious release violation) | – | – | 501 / 852 | 0 / 20 | 48 | 94.3 mm |
 | 2 | Gemini 4 Carbon (OpenCode, native Google provider), run 1 | **excluded³** (spurious release violation) | – | – | 89 / 852 | 0 / 20 | 17 | – |
-| 2 | Gemini 4 Carbon (OpenCode), runs 0 and 2 | checkpoints, T = 852; started before the release fix | in progress (229 / 214 actions so far) | no | | 0 / 20 | 53 / 48 | |
+| 2 | Gemini 4 Carbon (OpenCode, native Google provider), runs 0 and 2 | checkpoints, T = 852; before the release fix, every 6th node in `get_state` | 0.0 / 0.0 | no | 298 / 852, 248 / 852 (OpenCode error / model stopped) | 0 / 20 | 80 / 59 | – |
 | – | reference solve (oracle) | checkpoints, T = 852 | **0.833** | yes | 284 / 852 | 20 / 20 | – | 0 |
 | – | noop | checkpoints, T = 852 | 0.0 | no | 0 | 0 / 20 | – | 110.8 mm (the start) |
 
