@@ -250,6 +250,19 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
 * **Reference solve:** a human teleoperated solve (an exact replay ends free). Its faithful
   conversion to agent commands takes 284 actions, so the oracle scores 0.833.
 
+**Through Harbor** (`tasks/loophole-rattrap`, the same structure as the Alpha task):
+* a sim sidecar serves the MCP tools;
+* the agent container has no simulator;
+* a separate, no-network verifier replays the logged commands in a fresh simulator, checking
+  a state hash per action.
+
+```bash
+harbor run -p ./tasks/loophole-rattrap -a oracle                          # the reference solve over MCP: 0.833
+harbor run -p ./tasks/loophole-rattrap -a nop                             # 0
+harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon
+make reference TASKS=tasks/loophole-rattrap    # or: make noop / make agent TASKS=tasks/loophole-rattrap MODEL=...
+```
+
 **Baselines** (in-process, no Docker; after `make dev`):
 
 ```bash
