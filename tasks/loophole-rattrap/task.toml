@@ -1,0 +1,48 @@
+schema_version = "1.4"
+# The sim sidecar's episode directory is collected after the agent phase and handed
+# to the separate verifier, which replays it from scratch.
+artifacts = [{ source = "/var/loophole/episode", destination = "episode", service = "loophole-sim" }]
+
+[task]
+name = "loophole/loophole-rattrap"
+authors = [{ name = "Loophole team" }]
+description = "The Rat Trap: free a closed string loop, with a mouse bead tied on, from a wooden frame of posts, dowels, a ring and a sphere."
+keywords = ["mujoco", "physics", "spatial-reasoning", "string-puzzle", "deformable", "mcp"]
+
+[metadata]
+difficulty = "hard"
+category = "spatial-reasoning"
+max_actions = 852
+reference_actions = 284
+
+[agent]
+timeout_sec = 10800.0
+network_mode = "allowlist"
+allowed_hosts = ["loophole-sim"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)
+
+[verifier]
+timeout_sec = 1800.0
+env = { LOOPHOLE_TASK = "rattrap" }
+
+# Runs inside the sim sidecar after the agent container is stopped: writes the final record next to the log.
+[[verifier.collect]]
+service = "loophole-sim"
+command = "python -m loophole.puzzles.rattrap.finalize"
+timeout_sec = 120.0
+
+# Separate verifier built from tests/docker-compose.yaml: the same sim image (which
+# bakes the verifier in at /tests), no network.
+[verifier.environment]
+network_mode = "no-network"
+cpus = 2
+memory_mb = 4096
+
+[environment]
+build_timeout_sec = 1800.0
+cpus = 2
+memory_mb = 4096
+
+[[environment.mcp_servers]]
+name = "loophole"
+transport = "streamable-http"
+url = "http://loophole-sim:8000/mcp"

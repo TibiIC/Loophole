@@ -190,6 +190,27 @@ python scripts/sync_tasks.py --alpha                                 # regenerat
 > OMPL.app Alpha 1.5 pipeline (`loophole/puzzles/alpha_ompl/`) has non-identical tubes
 > (OMPL widens tube A). Both are kept for reference and tests; the active task is Alpha 1.0.
 
+### Before reading a failed run: harness findings
+
+Two settings decide whether some models get to act at all. Both fixes are built into the
+tasks; details and evidence are in [docs/HARNESS_NOTES.md](docs/HARNESS_NOTES.md#running-agents-configuration-failures-that-look-like-capability-failures).
+
+* **Gemini 4 Carbon needs `thinkingLevel: low` on the Rat Trap.**
+  * At OpenCode's default level, and at `medium`, it spends the whole 32k output budget
+    reasoning after the first `get_state` and returns nothing. A score of 0 there is a
+    configuration result, not a capability one.
+  * The tasks set `low` through `OPENCODE_CONFIG_CONTENT` in
+    `tasks/*/environment/docker-compose.yaml`.
+  * On Alpha, the default level never hit the cap, and the Alpha results were run at the
+    default.
+* **Nemotron 3.5 Super VL truncates at 8k output tokens.** Our function-calling harness now
+  allows 32k and re-prompts a cut-off reply instead of ending the run.
+
+`scripts/harness_audit.py` checks every run for this class of failure: output-cap
+truncation, permission blocks, unknown tools, API errors, and runs that never acted. Excluded
+on that basis: 3 Alpha trials of `gemini-2.5-flash` (the model is no longer available to new
+API users) and one Gemini 4 Carbon Alpha trial ended by an API 400.
+
 ### Model API keys (for `-a opencode`)
 
 For Gemini with OpenCode, set **`GOOGLE_GENERATIVE_AI_API_KEY`**: that's the only name

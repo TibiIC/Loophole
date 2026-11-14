@@ -8,6 +8,18 @@ set -uo pipefail
 mkdir -p /logs/verifier
 EPISODE_DIR="${LOOPHOLE_LOG_DIR:-/var/loophole/episode}"
 
+# The Rat Trap (tasks/loophole-rattrap) logs discrete commands with state hashes; its own verifier replays them.
+if [ "${LOOPHOLE_TASK:-}" = "rattrap" ]; then
+  python -m loophole.puzzles.rattrap.verify \
+    --log "${EPISODE_DIR}/commands.jsonl" \
+    --out /logs/verifier/reward.txt \
+    --report /logs/verifier/report.json \
+    || echo 0 > /logs/verifier/reward.txt
+  cp "${EPISODE_DIR}"/commands.jsonl "${EPISODE_DIR}"/tools.jsonl /logs/verifier/ 2>/dev/null || true
+  cat /logs/verifier/reward.txt
+  exit 0
+fi
+
 python -m loophole.reward.verify \
   --log "${EPISODE_DIR}/episode.jsonl" \
   --puzzle "${LOOPHOLE_PUZZLE:?LOOPHOLE_PUZZLE must be set in [verifier.env]}" \

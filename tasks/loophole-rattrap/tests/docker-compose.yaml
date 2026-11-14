@@ -1,0 +1,7 @@
+# Verifier image = the simulator image (same Dockerfile, so the build is a cache hit);
+# it bakes the verifier in at /tests/test.sh.
+services:
+  main:
+    build:
+      context: ../../..
+      dockerfile: docker/sim.Dockerfile

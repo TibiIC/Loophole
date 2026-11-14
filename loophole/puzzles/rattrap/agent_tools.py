@@ -79,12 +79,34 @@ RENDER = {"type": "function", "function": {"name": "render", "description": "Ima
                                            "parameters": {"type": "object", "properties": {}}}}
 
 
+def spec_sha256(spec) -> str:
+    import hashlib
+
+    return hashlib.sha256(json.dumps(spec.raw, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def checkpoints_sha256(ep: RatTrapEpisode) -> str | None:
+    import hashlib
+
+    from .reward import DEFAULT_FILE
+
+    name = ep.spec.raw.get("checkpoints_file")
+    path = DEFAULT_FILE if not name else DEFAULT_FILE.parent / name
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+
+
+def episode_header(spec, ep: RatTrapEpisode, overrides: dict) -> dict:
+    """What the verifier checks before replaying: the same YAML, checkpoints and start state, and no overrides."""
+    return {"type": "header", "puzzle": "rattrap", "spec": "rattrap.yaml", "overrides": overrides, "spec_sha256": spec_sha256(spec),
+            "checkpoints_sha256": checkpoints_sha256(ep), "max_actions": ep.T, "initial_state_hash": ep.sim.state_hash()}
+
+
 class Harness:
     def __init__(self, spec, ep: RatTrapEpisode, out: Path, vision: bool, overrides: dict):
         self.spec, self.ep, self.out, self.vision = spec, ep, out, vision
         self.held = {0: None, 1: None}
         self.cmds = open(out / "commands.jsonl", "w", buffering=1)
-        self.cmds.write(json.dumps({"type": "header", "spec": "rattrap.yaml", "overrides": overrides}) + "\n")
+        self.cmds.write(json.dumps(episode_header(spec, ep, overrides)) + "\n")
         self.gave_up = False
 
     def state(self) -> dict:
@@ -140,7 +162,7 @@ class Harness:
         else:
             return {"error": f"unknown tool {name}"}, None
         res = ep.act(tool, args)
-        self.cmds.write(json.dumps({"tool": tool, "args": args}) + "\n")
+        self.cmds.write(json.dumps({"tool": tool, "args": args, "i": ep.actions, "state_hash": ep.sim.state_hash()}) + "\n")
         if tool == "grab_node":
             self.held[h] = args["node"]
         elif tool == "release":

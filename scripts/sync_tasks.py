@@ -25,6 +25,10 @@ PUZZLES = ROOT / "loophole" / "puzzles"
 TRAJ = ROOT / "loophole" / "reference" / "trajectories"
 TASKS = ROOT / "tasks"
 
+# OpenCode overlay for the agent container (see COMPOSE); JSON, merged by OpenCode over Harbor's opencode.json
+OPENCODE_OVERLAY = json.dumps({"provider": {"google": {"models": {"gemini-4-carbon": {"options": {
+    "thinkingConfig": {"thinkingLevel": "low", "includeThoughts": True}}}}}}}, separators=(",", ":"))
+
 TASK_TOML = """\
 schema_version = "1.4"
 # The sim sidecar's episode directory is collected after the agent phase and handed
@@ -81,6 +85,11 @@ services:
     depends_on:
       loophole-sim:
         condition: service_healthy
+    environment:
+      # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
+      # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
+      # level can spend the whole 32k output budget reasoning and return nothing; "low" acts.
+      OPENCODE_CONFIG_CONTENT: '{opencode_overlay}'
 
   loophole-sim:
     # Built from the repository root (the agent container never sees this source).
@@ -375,7 +384,7 @@ def make_task(puzzle: str, roadmap_reward: bool = False, task_name: str | None =
     if alpha:
         ctx["title"] = f"Alpha-style tubes ({ctx['difficulty']})"
     toml = TASK_TOML.format(**ctx)
-    compose = COMPOSE.format(**ctx)
+    compose = COMPOSE.format(**ctx, opencode_overlay=OPENCODE_OVERLAY)
     cfg_path = config_file or (ROADMAP_CFG if roadmap_reward else None)
     if cfg_path:  # same config for the sim sidecar and the verifier
         toml = toml.replace('LOOPHOLE_SEED = "0" }', f'LOOPHOLE_SEED = "0", LOOPHOLE_CONFIG = "{cfg_path}" }}')
@@ -413,8 +422,108 @@ def make_alpha_tasks() -> list[Path]:
             for name, cfg in ALPHA_TASKS.items()]
 
 
+RATTRAP_TOML = """\
+schema_version = "1.4"
+# The sim sidecar's episode directory is collected after the agent phase and handed
+# to the separate verifier, which replays it from scratch.
+artifacts = [{{ source = "/var/loophole/episode", destination = "episode", service = "loophole-sim" }}]
+
+[task]
+name = "loophole/loophole-rattrap"
+authors = [{{ name = "Loophole team" }}]
+description = "The Rat Trap: free a closed string loop, with a mouse bead tied on, from a wooden frame of posts, dowels, a ring and a sphere."
+keywords = ["mujoco", "physics", "spatial-reasoning", "string-puzzle", "deformable", "mcp"]
+
+[metadata]
+difficulty = "hard"
+category = "spatial-reasoning"
+max_actions = {T}
+reference_actions = {oracle}
+
+[agent]
+timeout_sec = {agent_timeout}
+network_mode = "allowlist"
+allowed_hosts = ["loophole-sim"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)
+
+[verifier]
+timeout_sec = 1800.0
+env = {{ LOOPHOLE_TASK = "rattrap" }}
+
+# Runs inside the sim sidecar after the agent container is stopped: writes the final record next to the log.
+[[verifier.collect]]
+service = "loophole-sim"
+command = "python -m loophole.puzzles.rattrap.finalize"
+timeout_sec = 120.0
+
+# Separate verifier built from tests/docker-compose.yaml: the same sim image (which
+# bakes the verifier in at /tests), no network.
+[verifier.environment]
+network_mode = "no-network"
+cpus = 2
+memory_mb = 4096
+
+[environment]
+build_timeout_sec = 1800.0
+cpus = 2
+memory_mb = 4096
+
+[[environment.mcp_servers]]
+name = "loophole"
+transport = "streamable-http"
+url = "http://loophole-sim:8000/mcp"
+"""
+
+RATTRAP_INSTRUCTION = """\
+# Loophole: the Rat Trap
+
+You are manipulating a physical string puzzle in a physics simulator through the **`loophole` MCP server**
+(tools `get_state`, `grab`, `move`, `release`, `give_up`). The simulator's source is not available to you; the score
+is computed afterwards by independently replaying your actions. When you are done (or out of ideas), simply stop.
+
+{scene}
+"""
+
+
+def make_rattrap_task() -> Path:
+    import sys as _sys
+
+    _sys.path.insert(0, str(ROOT))
+    from loophole.puzzles.rattrap.agent_tools import scene_text
+    from loophole.puzzles.rattrap.reward import RatTrapEpisode
+    from loophole.puzzles.rattrap.spec import load_spec
+
+    spec = load_spec()
+    ep = RatTrapEpisode(spec)
+    oracle = sum(1 for l in (ROOT / "tasks" / "loophole-rattrap" / "solution" / "reference.jsonl").read_text().splitlines()
+                 if l.strip() and not json.loads(l).get("type"))
+    d = TASKS / "loophole-rattrap"
+    for sub in ("environment", "tests", "solution"):
+        (d / sub).mkdir(parents=True, exist_ok=True)
+    (d / "task.toml").write_text(RATTRAP_TOML.format(T=ep.T, oracle=oracle, agent_timeout=10800.0))
+    (d / "instruction.md").write_text(RATTRAP_INSTRUCTION.format(scene=scene_text(spec, ep)))
+    (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
+    compose = COMPOSE.format(puzzle="rattrap", opencode_overlay=OPENCODE_OVERLAY)
+    compose = compose.replace('      LOOPHOLE_PUZZLE: "rattrap"\n      LOOPHOLE_SEED: "0"\n', '      LOOPHOLE_TASK: "rattrap"\n')
+    compose = compose.replace("    networks: [default]\n", '    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http"]\n    networks: [default]\n')
+    (d / "environment" / "docker-compose.yaml").write_text(compose)
+    (d / "tests" / "docker-compose.yaml").write_text(TESTS_COMPOSE)
+    solve = SOLVE_SH.replace("  stop_early) TRAJ=/solution/stop_early.jsonl ;;\n", "")
+    for name, body in (("solution/solve.sh", solve), ("tests/test.sh", TESTS_SH.replace(
+            "exec python -m loophole.reward.verify --log /var/loophole/episode/episode.jsonl --out /logs/verifier/reward.json",
+            "exec python -m loophole.puzzles.rattrap.verify --log /var/loophole/episode/commands.jsonl --out /logs/verifier/reward.txt"))):
+        p = d / name
+        p.write_text(body)
+        p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    shutil.copy(ROOT / "loophole" / "reference" / "replay_mcp.py", d / "solution" / "replay_mcp.py")
+    return d
+
+
 if __name__ == "__main__":
     import sys
+
+    if "--rattrap" in sys.argv:
+        print("wrote", make_rattrap_task().relative_to(ROOT))
+        sys.exit(0)
 
     if "--alpha" in sys.argv:
         for t in make_alpha_tasks():
