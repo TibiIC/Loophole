@@ -45,6 +45,7 @@ OUT_FPS = 30  # MP4 frame rate
 GIF_FPS = 12
 GIF_WIDTH = 600
 TUNNEL_CLEARANCE_M = 0.003  # docs/RESULTS.md: tunnel = clearance < 3 mm
+RATTRAP_DISTANCE = {"iso": 0.45, "front": 0.4}  # the camera distances of scripts/view_rattrap_solve.py
 
 
 # ---------- capture ----------
@@ -333,7 +334,8 @@ def rattrap_capture(a) -> None:
     ep = RatTrapEpisode(load_spec(overrides=hdr.get("overrides") or None))
     sim = ep.sim
     last = min(a.last or len(cmds), a.max_actions or len(cmds), len(cmds))
-    w, h = a.width * 2, a.height
+    views = a.views.split(",")
+    w, h = a.width * len(views), a.height
     ff = None
     if a.first <= last and not a.no_render:
         a.out.parent.mkdir(parents=True, exist_ok=True)
@@ -347,8 +349,7 @@ def rattrap_capture(a) -> None:
     cur = {"i": 0, "render": False, "n": 0}
 
     def frame() -> None:
-        tiles = [sim.render("iso", distance=0.45, width=a.width, height=a.height),
-                 sim.render("front", distance=0.4, width=a.width, height=a.height)]
+        tiles = [sim.render(v, distance=RATTRAP_DISTANCE[v], width=a.width, height=a.height) for v in views]
         ff.stdin.write(np.ascontiguousarray(np.concatenate(tiles, axis=1), dtype=np.uint8).tobytes())
         frames.append(cur["i"])
 
@@ -379,13 +380,55 @@ def rattrap_capture(a) -> None:
     if ff is not None:
         ff.stdin.close()
         ff.wait()
-    meta = {"commands": str(a.commands), "views": ["iso", "front"], "width": w, "height": h, "every_substeps": a.every,
+    meta = {"commands": str(a.commands), "views": views, "width": w, "height": h, "every_substeps": a.every,
             "frame_action": frames, "actions": actions, "wall_seconds": round(time.perf_counter() - t0, 1),
             "final": {"score": ep.score(), "success": ep.solved, "actions_used": ep.actions, "violation": ep.violation}}
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.with_suffix(".json").write_text(json.dumps(meta))
     print(json.dumps({"out": str(a.out), "frames": len(frames), "actions": len(actions),
                       "blocked": sum(x["blocked"] for x in actions), "wall_seconds": meta["wall_seconds"]}))
+
+
+def rattrap_reference_capture(a) -> None:
+    """Re-render the human reference solve from its committed recording: exact replay (the rattrap
+    branch's own scripts/view_rattrap_solve.py record(), cached), one frame per recorded sample (20 ms)."""
+    import mujoco
+
+    root = a.rattrap_root.resolve()
+    sys.path.insert(0, str(root / "scripts"))
+    sys.path.insert(0, str(root))
+    import loophole
+
+    if not Path(loophole.__file__).resolve().is_relative_to(root):
+        sys.exit(f"loophole imported from {loophole.__file__}, not from --rattrap-root")
+    from loophole.puzzles.rattrap.sim import RatTrapSim
+    from loophole.puzzles.rattrap.spec import load_spec
+    from view_rattrap_solve import record
+
+    spec = load_spec()
+    rec = record(a.recording, spec)
+    views = a.views.split(",")
+    w, h = a.width * len(views), a.height
+    sim = RatTrapSim(spec)
+    m, d = sim.model, sim.data
+    a.out.parent.mkdir(parents=True, exist_ok=True)
+    ff = subprocess.Popen(
+        ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{w}x{h}", "-r", "50",
+         "-i", "-", "-c:v", "libx264", "-preset", "ultrafast", "-qp", "0", "-pix_fmt", "yuv444p",
+         str(a.out.with_suffix(".mkv"))],
+        stdin=subprocess.PIPE,
+    )
+    for i in range(len(rec["time"])):
+        d.qpos[:], d.mocap_pos[:], d.mocap_quat[:] = rec["qpos"][i], rec["mocap_pos"][i], rec["mocap_quat"][i]
+        mujoco.mj_forward(m, d)
+        tiles = [sim.render(v, distance=RATTRAP_DISTANCE[v], width=a.width, height=a.height) for v in views]
+        ff.stdin.write(np.ascontiguousarray(np.concatenate(tiles, axis=1), dtype=np.uint8).tobytes())
+    ff.stdin.close()
+    ff.wait()
+    meta = {"recording": str(a.recording), "views": views, "width": w, "height": h,
+            "time": [round(float(t), 4) for t in rec["time"]], "events": [int(e) for e in rec["events"]]}
+    a.out.with_suffix(".json").write_text(json.dumps(meta))
+    print(json.dumps({"out": str(a.out), "frames": len(meta["time"]), "t_end": meta["time"][-1], "events": meta["events"][-1]}))
 
 
 def rattrap_failure(a) -> None:
@@ -462,61 +505,50 @@ def reference_action_times(recording: Path, commands: Path, settle_s: float, t0:
 
 
 def rattrap_contrast(a) -> None:
-    """Human reference (existing 2-up video, left view) beside an agent run (captured stream, left view),
-    aligned by action index: every action the same duration on both sides."""
+    """Human reference (rattrap-reference-capture stream) beside an agent run (rattrap-capture stream),
+    first view of each, aligned by action index: every action the same duration on both sides. The only
+    text burned in is one label per side, so no count in the frames can go stale."""
+    import bisect
+
     times = reference_action_times(a.recording, a.commands, a.settle, a.t0)
     n_ref = len(times)
-    probe = json.loads(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-count_frames", "-show_entries",
-                                       "stream=width,height,nb_read_frames", "-of", "json", str(a.reference)],
-                                      capture_output=True, text=True, check=True).stdout)["streams"][0]
-    rw, rh, rn = probe["width"], probe["height"], int(probe["nb_read_frames"])
+    R = load_stream(a.reference)
+    rt = R["time"]
     meta = load_stream(a.agent)
     groups = frames_by_action(meta)
     n_ag = meta["final"]["actions_used"]
-    blocked = {x["i"] for x in meta["actions"] if x["blocked"]}
     per = max(1, round(a.per_action * OUT_FPS))
     span = max(n_ref, n_ag)
     plan = [(0, int(0.5 * OUT_FPS))] + [(i, per) for i in range(1, span + 1)] + [(span + 1, int(a.hold * OUT_FPS))]
 
     def ref_frame(i: int, u: float) -> int:
         if i == 0:
-            t = a.t0
-        elif i > n_ref:
-            return rn - 1
-        else:
-            t0_, t1_ = times[i - 1]
-            t = t0_ + u * (t1_ - t0_)
-        return int(min(rn - 1, max(0, round(t * a.video_fps / a.speed))))
+            return 0
+        if i > n_ref:
+            return len(rt) - 1
+        t0_, t1_ = times[i - 1]
+        return min(len(rt) - 1, bisect.bisect_left(rt, t0_ + u * (t1_ - t0_)))
 
-    ir, ia, ai = [], [], []
+    ir, ia = [], []
     for i, n in plan:
         ir += [ref_frame(i, k / n) for k in range(n)]
         ia += resample(groups.get(i) or groups[min(groups, key=lambda g: abs(g - i))], n)
-        ai += [i] * n
-    order = sorted(range(len(ir)), key=lambda j: ir[j])  # decode() needs non-decreasing indices
-    ref_frames: dict[int, np.ndarray] = {}
-    for j, fr in zip(order, decode(a.reference, {"width": rw, "height": rh}, [ir[j] for j in order])):
-        ref_frames.setdefault(ir[j], fr.copy())
+    rw = R["width"] // len(R["views"])
     aw = meta["width"] // len(meta["views"])
     h = meta["height"]
+    if R["height"] != h:
+        sys.exit("reference and agent streams must have the same height")
 
     def frames():
-        from PIL import Image
-
-        for k, (fa, i) in enumerate(zip(decode(a.agent, meta, ia), ai)):
-            rf = ref_frames[ir[k]][:, : rw // 2]
-            rf = np.asarray(Image.fromarray(np.ascontiguousarray(rf)).resize((aw, h), Image.LANCZOS))
-            left = draw_label(rf, f"human reference · action {min(max(i, 0), n_ref)}/{n_ref}")
-            left = draw_label(left, "human reference, solved", where="bc", size=22, strong=True)
-            right = draw_label(np.ascontiguousarray(fa[:, :aw]), f"{a.agent_name} · action {min(i, n_ag)}/{n_ag}"
-                               + ("  · move blocked" if i in blocked else ""))
-            right = draw_label(right, "agent, 0/20 checkpoints", where="bc", size=22, strong=True)
+        for fr, fa in zip(decode(a.reference, R, ir), decode(a.agent, meta, ia)):
+            left = draw_label(np.ascontiguousarray(fr[:, :rw]), a.left_label, where="bc", size=26, strong=True)
+            right = draw_label(np.ascontiguousarray(fa[:, :aw]), a.right_label, where="bc", size=26, strong=True)
             yield np.concatenate([left, np.full((h, 4, 3), 255, np.uint8), right], axis=1)
 
-    encode(frames(), 2 * aw + 4, h, a.out, crf=a.crf)
-    report = {"out": str(a.out), "seconds": round(len(ai) / OUT_FPS, 2), "s_per_action": a.per_action,
-              "reference_actions": n_ref, "agent_actions": n_ag, "reference_source_frames": rn,
-              "agent": meta["final"], "agent_blocked": len(blocked)}
+    encode(frames(), rw + 4 + aw, h, a.out, crf=a.crf)
+    report = {"out": str(a.out), "seconds": round(len(ir) / OUT_FPS, 2), "s_per_action": round(per / OUT_FPS, 4),
+              "reference_actions": n_ref, "reference_frames_used": len(set(ir)), "agent_actions": n_ag,
+              "agent": meta["final"], "labels": [a.left_label, a.right_label]}
     a.out.with_suffix(".timing.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report))
 
@@ -568,7 +600,16 @@ def main() -> None:
     q.add_argument("--width", type=int, default=640)
     q.add_argument("--height", type=int, default=480)
     q.add_argument("--every", type=int, default=20, help="capture a frame every N physics steps")
+    q.add_argument("--views", default="iso,front")
     q.set_defaults(fn=rattrap_capture)
+    e = sub.add_parser("rattrap-reference-capture")
+    e.add_argument("recording", type=Path, help="loophole/reference/rattrap-solve.jsonl")
+    e.add_argument("--rattrap-root", type=Path, required=True)
+    e.add_argument("--out", type=Path, required=True)
+    e.add_argument("--views", default="iso")
+    e.add_argument("--width", type=int, default=640)
+    e.add_argument("--height", type=int, default=480)
+    e.set_defaults(fn=rattrap_reference_capture)
     f = sub.add_parser("rattrap-failure")
     f.add_argument("stream", type=Path)
     f.add_argument("-o", "--out", type=Path, required=True)
@@ -578,18 +619,17 @@ def main() -> None:
     f.add_argument("--first", type=int, default=0, help="first action (0 = the window with the most blocked moves)")
     f.set_defaults(fn=rattrap_failure)
     v = sub.add_parser("rattrap-contrast")
-    v.add_argument("reference", type=Path, help="the reference solve's 2-up MP4 (left half is used)")
+    v.add_argument("reference", type=Path, help="reference stream (rattrap-reference-capture --out)")
     v.add_argument("recording", type=Path, help="loophole/reference/rattrap-solve.jsonl")
     v.add_argument("commands", type=Path, help="loophole/reference/rattrap-solve.commands.jsonl")
-    v.add_argument("agent", type=Path, help="captured agent stream (rattrap-capture --out)")
+    v.add_argument("agent", type=Path, help="agent stream (rattrap-capture --out)")
     v.add_argument("-o", "--out", type=Path, required=True)
-    v.add_argument("--agent-name", default="agent")
-    v.add_argument("--per-action", type=float, default=0.08)
+    v.add_argument("--left-label", default="human reference — solved")
+    v.add_argument("--right-label", default="agent — 0/20 checkpoints")
+    v.add_argument("--per-action", type=float, default=0.067)
     v.add_argument("--hold", type=float, default=2.0)
     v.add_argument("--crf", type=int, default=16)
-    v.add_argument("--speed", type=float, default=20.0, help="the reference video's sim-time speed-up")
-    v.add_argument("--video-fps", type=float, default=30.0)
-    v.add_argument("--t0", type=float, default=0.3, help="sim time of the reference video's first frame")
+    v.add_argument("--t0", type=float, default=0.3, help="sim time of the first recorded sample")
     v.add_argument("--settle", type=float, default=0.2, help="rig settle time added per grab / release (s)")
     v.set_defaults(fn=rattrap_contrast)
     t = sub.add_parser("trim")

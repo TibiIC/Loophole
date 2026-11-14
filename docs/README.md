@@ -9,19 +9,27 @@ replays every logged action in a fresh simulator to score the episode.
   <img class="clip" src="media/clip-rattrap-contrast.gif" alt="Rat Trap: the human reference solve beside an agent run that never frees the cord">
 </video>
 
-<p class="clip-caption"><strong>The Rat Trap.</strong> Left: the human teleoperated reference solve, replayed in the simulator; it frees the cord in 284 actions. Right: Kimi K3 Pro, run <code>kimi-20261114-185131</code>: 357 actions, 47 of them blocked moves, 0 of 20 checkpoints. Aligned by action index; once the reference is solved it holds its final frame. <a href="#/media/CLIPS">Clip notes</a>.</p>
+<p class="clip-caption"><strong>The Rat Trap.</strong> Left: the human teleoperated reference solve, replayed in the simulator. Right: Kimi K3 Pro (run <code>kimi-20261114-185131</code>). Aligned by action index. <a href="#/media/CLIPS">Clip notes</a>.</p>
 
 **Try it:** `./run_evaluation.sh alpha <provider/model>` runs the reference, the baselines and three agent runs through Harbor. [Quickstart](QUICKSTART.md) covers evaluating a model, plugging in your own agent, and training.
 
-## Same model, two puzzles
+## The Rat Trap is still unsolved by agents
 
-Gemini 4 Carbon, through the same harness (OpenCode), solved the Alpha puzzle in 3 of 3 runs
-and reached 0 of 20 checkpoints on the Rat Trap. On Alpha the winning runs built their own
-tools: they rendered depth and segmentation from many viewpoints, reconstructed the tubes,
-wrote a motion planner and executed its plan. One setting differs between the two tasks: the Rat Trap runs Gemini at
-`thinkingLevel: low`, because at the default level it spent its whole output budget reasoning
-and never acted; Alpha uses the default. Details: [Results](RESULTS.md) and the
-[repo README](https://github.com/TibiIC/Loophole#readme).
+**Kimi K3 Pro, full budget:** all 852 of 852 actions, 0 of 20 checkpoints, 141 blocked moves.
+The cord never came within 63.4 mm of the first checkpoint, which counts as reached at 16.6 mm
+(largest deviation over the cord's nodes). Run `kimi-20261114-205209`, scored offline by
+replaying its commands; per-run numbers are in the README results table.
+
+**Gemini 4 Carbon: partial runs on superseded code only.** Two OpenCode runs were stopped at
+298 and 248 of their 852 actions, and both started before the release fix; a third was
+excluded for a spurious violation. That is not a capability result. A restarted Harbor run is
+in progress.
+
+## Alpha 1.0
+
+On the Alpha puzzle the solving runs built their own tools: they rendered depth and
+segmentation from many viewpoints, reconstructed the tubes, wrote a motion planner and executed
+its plan. Strategy classes, behaviour axes and every run: [Results](RESULTS.md).
 
 ## Results
 
