@@ -86,10 +86,20 @@ def main() -> None:
     ap.add_argument("--runs", type=int, default=3)
     ap.add_argument("--task", default="./tasks/loophole-alpha")
     ap.add_argument("--agent-timeout-multiplier", type=float, default=1.0)
+    ap.add_argument("--allow-dirty", action="store_true", help="run even if files baked into the sim image have uncommitted changes")
     a = ap.parse_args()
+    # Harbor rebuilds the sim image from the working tree for every sidecar and every verifier, so
+    # editing loophole/ during an eval changes the code mid-run (verifier != simulator -> score 0).
+    dirty = subprocess.run(["git", "status", "--porcelain", "--", "loophole", "docker", "verifier", "scripts/fetch_alpha_paper.sh",
+                            "pyproject.toml"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    if dirty and not a.allow_dirty:
+        sys.exit(f"uncommitted changes in files baked into the sim image (commit first, or --allow-dirty):\n{dirty}")
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     out = ROOT / "runs" / time.strftime("%Y%m%d-%H%M%S")
     out.mkdir(parents=True)
-    (out / "config.json").write_text(json.dumps({"model": a.model, "runs": a.runs, "task": a.task, "harbor": HARBOR}, indent=1))
+    (out / "config.json").write_text(json.dumps({"model": a.model, "runs": a.runs, "task": a.task, "harbor": HARBOR, "commit": commit,
+                                                 "dirty": bool(dirty)}, indent=1))
+    print("[eval] do not edit loophole/, docker/ or verifier/ until the eval finishes (the image is rebuilt per trial)", flush=True)
     rows = []
     rows += run("oracle", ["-a", "oracle"], out, a.task)
     rows += run("noop", ["-a", "nop"], out, a.task)
