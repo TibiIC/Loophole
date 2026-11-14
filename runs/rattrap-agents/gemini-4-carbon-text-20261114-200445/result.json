@@ -1,0 +1,20 @@
+{
+ "model": "gemini-4-carbon-text",
+ "model_id": "gemini-4-carbon",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 0,
+ "max_actions": 400,
+ "turns": 5,
+ "gave_up": false,
+ "word": "Ac",
+ "uncertified_substeps": 0,
+ "minutes": 25.2,
+ "usage": {
+  "prompt_tokens": 9938,
+  "completion_tokens": 28
+ },
+ "end": "stopped talking",
+ "error": null
+}

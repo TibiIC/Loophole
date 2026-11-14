@@ -1,0 +1,20 @@
+{
+ "model": "kimi",
+ "model_id": "kimi-k3-1-pro",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 357,
+ "max_actions": 400,
+ "turns": 400,
+ "gave_up": false,
+ "word": "Ac",
+ "uncertified_substeps": 0,
+ "minutes": 43.0,
+ "usage": {
+  "prompt_tokens": 17193903,
+  "completion_tokens": 84374
+ },
+ "end": "time/turn limit",
+ "error": null
+}

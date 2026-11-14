@@ -1,0 +1,55 @@
+{
+ "source": "rattrap-solve.jsonl",
+ "boundaries_before_free": 75,
+ "kept_boundary_indices": [
+  1,
+  5,
+  7,
+  17,
+  21,
+  27,
+  33,
+  35,
+  37,
+  41,
+  43,
+  45,
+  55,
+  59,
+  61,
+  63,
+  67,
+  69,
+  71,
+  74
+ ],
+ "K": 20,
+ "eps_min_m": 0.011079184661531953,
+ "safety": 1.5,
+ "eps_m": 0.01661877699229793,
+ "min_separation_m": 0.03323755398459586,
+ "oracle_actions": 284,
+ "T_recommended": 852,
+ "oracle_score_at_T": 0.8333333333333334,
+ "start_to_c1_m": 0.11081045757365342,
+ "calibration_history": [
+  {
+   "min_separation_m": 0.0,
+   "K": 75,
+   "eps_min_m": 0.011577148137376392,
+   "eps_m": 0.01736572220606459
+  },
+  {
+   "min_separation_m": 0.03473144441212918,
+   "K": 20,
+   "eps_min_m": 0.011079184661531953,
+   "eps_m": 0.01661877699229793
+  },
+  {
+   "min_separation_m": 0.03323755398459586,
+   "K": 20,
+   "eps_min_m": 0.011079184661531953,
+   "eps_m": 0.01661877699229793
+  }
+ ]
+}

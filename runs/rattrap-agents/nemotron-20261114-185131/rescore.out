@@ -1,0 +1,1 @@
+{"run": "nemotron-20261114-185131", "actions": 343, "solved": false, "violation": false, "score": 0.0, "p": 0.0, "checkpoints_reached": 0, "K": 20, "furthest_checkpoint_at_action": null, "blocked_moves": 35, "moves": 129, "closest_to_c1_mm": 110.8, "eps_mm": 16.6}

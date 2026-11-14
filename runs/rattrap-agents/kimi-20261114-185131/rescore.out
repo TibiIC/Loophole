@@ -1,0 +1,1 @@
+{"run": "kimi-20261114-185131", "actions": 357, "solved": false, "violation": false, "score": 0.0, "p": 0.0, "checkpoints_reached": 0, "K": 20, "furthest_checkpoint_at_action": null, "blocked_moves": 47, "moves": 247, "closest_to_c1_mm": 70.1, "eps_mm": 16.6}

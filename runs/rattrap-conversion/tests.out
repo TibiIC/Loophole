@@ -1,0 +1,32 @@
+.........F.......oracle: 284 actions, score 0.8333; ||w|| first 0 after action 15
+................................
+=================================== FAILURES ===================================
+_______________ test_every_solve_beats_every_non_solve_on_a_grid _______________
+
+    def test_every_solve_beats_every_non_solve_on_a_grid():
+        T = int(SPEC["max_actions"])
+        ep = RatTrapEpisode(SPEC)
+        ep.tracker = CheckpointTracker(_toy(K=10))  # the score only reads k / K
+        solves, non = [], []
+        for a in range(0, T + 1, max(1, T // 40)):
+            ep.actions = a
+            ep.solved = True
+            solves.append(ep.score())
+            ep.solved = False
+            for k in range(11):
+                ep.tracker.k = k
+                non.append(ep.score())
+        ep.violation = True
+        ep.solved = True
+        assert ep.score() == 0.0
+>       assert min(solves) == pytest.approx(0.5) and max(non) == pytest.approx(0.3) and min(solves) > max(non)
+E       assert (0.5070422535211268 == 0.5 ± 5.0e-07
+E         
+E         comparison failed
+E         Obtained: 0.5070422535211268
+E         Expected: 0.5 ± 5.0e-07)
+
+loophole/tests/test_rattrap_checkpoints.py:134: AssertionError
+=========================== short test summary info ============================
+FAILED loophole/tests/test_rattrap_checkpoints.py::test_every_solve_beats_every_non_solve_on_a_grid
+1 failed, 48 passed in 541.73s (0:09:01)

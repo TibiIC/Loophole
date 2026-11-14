@@ -1,0 +1,20 @@
+{
+ "model": "deepseek",
+ "model_id": "deepseek-4-1-flash-1017",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 322,
+ "max_actions": 400,
+ "turns": 400,
+ "gave_up": false,
+ "word": "ALal",
+ "uncertified_substeps": 0,
+ "minutes": 25.3,
+ "usage": {
+  "prompt_tokens": 18919574,
+  "completion_tokens": 153144
+ },
+ "end": "time/turn limit",
+ "error": null
+}
