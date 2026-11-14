@@ -1,0 +1,20 @@
+{
+  "status": "pending",
+  "updated": null,
+  "caption": null,
+  "columns": [
+    { "key": "task", "label": "Task" },
+    { "key": "agent", "label": "Agent / model" },
+    { "key": "runs", "label": "Runs", "align": "right" },
+    { "key": "solved", "label": "Solved", "align": "right" },
+    { "key": "score", "label": "Score (mean ± sd)", "align": "right" },
+    { "key": "notes", "label": "Notes" }
+  ],
+  "rows": [],
+  "footnotes": [],
+  "video": {
+    "src": null,
+    "poster": null,
+    "caption": null
+  }
+}
