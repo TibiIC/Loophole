@@ -446,8 +446,9 @@ network_mode = "allowlist"
 allowed_hosts = ["loophole-sim"]  # the MCP sidecar only (+ the auto-allowlisted model endpoint)
 
 [verifier]
-# the verifier replays every action in a fresh simulator: ~7 s per action in a 2-CPU container, so up to ~100 min at T
-timeout_sec = 7200.0
+# the verifier replays every action in a fresh simulator: measured ~9 s per action in a 2-CPU container on a loaded
+# machine, so ~2.1 h for a full-budget (T = 852) episode; 6 h leaves room for slower hosts
+timeout_sec = 21600.0
 env = {{ LOOPHOLE_TASK = "rattrap" }}
 
 # Runs inside the sim sidecar after the agent container is stopped: writes the final record next to the log.

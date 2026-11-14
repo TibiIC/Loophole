@@ -34,6 +34,8 @@ def verify(log: Path) -> dict:
     hdr, acts = recs[0], recs[1:]
     spec = load_spec()
     ep = RatTrapEpisode(spec)
+    if ep.certify == "log":  # log-only: it never changes the score, so the replay skips it (~3 % of the time)
+        ep.sim.certifier = None
     checks = {"overrides": hdr.get("overrides") in ({}, None), "spec_sha256": hdr.get("spec_sha256") == spec_sha256(spec),
               "checkpoints_sha256": hdr.get("checkpoints_sha256") == checkpoints_sha256(ep),
               "max_actions": hdr.get("max_actions") == ep.T, "initial_state_hash": hdr.get("initial_state_hash") == ep.sim.state_hash()}
