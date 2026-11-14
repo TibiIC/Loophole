@@ -1,0 +1,11 @@
+{"type": "header", "spec": "rattrap.yaml", "overrides": {}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}

@@ -1,0 +1,853 @@
+{"type": "header", "spec": "rattrap.yaml", "overrides": {}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 18}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.03, "dy": -0.03, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.02, "dy": -0.02, "dz": -0.01}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 138}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": 0.0, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.025, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.02, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 108}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.015, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 72}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.005, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": 0.015, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.001, "dy": 0.003, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0007, "dy": 0.0003, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.02, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.0085, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.005, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 102}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 78}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 80}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 90}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 71}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.03, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.03, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": -0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.03, "dy": -0.03, "dz": -0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.025, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.008, "dy": -0.001, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.03, "dy": 0.03, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0073, "dy": 0.03, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0009, "dy": 0.0077, "dz": 0.011}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0006, "dy": -0.0015, "dz": 0.012}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0106, "dy": 0.0076, "dz": 0.012}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 46}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0003, "dy": -0.0008, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.010199999999999999, "dy": 0.0149, "dz": 0.012}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.004, "dy": -0.008, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.01, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": 0.005, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.025, "dy": -0.015, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.015, "dz": -0.015}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 93}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 81}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0012, "dy": 0.0195, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.02, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 72}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.03, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 81}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 87}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.013, "dy": -0.005, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.012, "dy": 0.01, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.007, "dy": -0.02, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 93}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0105, "dy": 0.0050999999999999995, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 87}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0094, "dy": -0.0065, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0018, "dy": 0.0009, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": -0.005}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.01, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 80}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0088, "dy": -0.0096, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0007, "dy": -0.0006, "dz": 0.005}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0048, "dy": 0.0065, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0001, "dy": 0.0001, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.003, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.003, "dy": 0.0028, "dz": 0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.003, "dy": 0.002, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0022, "dy": -0.0009, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.012}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.01}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 80}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.001, "dy": -0.0028, "dz": 0.016}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.004, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.001, "dy": -0.003, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.006, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.004, "dy": 0.001, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.006, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 78}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0012, "dy": -0.0022, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 71}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.01, "dz": -0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 78}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0111, "dy": 0.0063, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": 0.0, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 90}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.003, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0086, "dy": 0.0079, "dz": 0.008}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": -0.008}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 90}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.011, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": 0.01, "dz": -0.01}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 105}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.02, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.02, "dz": -0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0004, "dy": -0.0025, "dz": 0.013}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.005}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 93}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 99}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0064, "dy": 0.0, "dz": 0.006}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0048, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0048, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 66}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0015, "dy": -0.02, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.003, "dz": 0.028}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 48}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.025, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 36}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.025, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 12}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 30}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.008, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 27}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.005}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 48}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.015, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.012, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.005, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005900000000000001, "dy": -0.012199999999999999, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.015, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 42}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0024, "dy": -0.016399999999999998, "dz": 0.0085}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.018}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 45}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0013, "dy": -0.0025, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.012}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 39}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.008, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.003, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0012, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 24}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0009, "dy": -0.015, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 18}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0007, "dy": -0.005, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 138}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.008, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0044, "dy": -0.0156, "dz": 0.018}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 132}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0014, "dy": -0.0086, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0019, "dy": -0.0193, "dz": 0.018}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.010199999999999999, "dz": 0.012}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0044, "dy": -0.005, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.012, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 111}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.005, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.001, "dy": -0.01, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0009, "dy": -0.003, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0048, "dy": 0.0, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0048, "dy": 0.0, "dz": 0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.0025, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.02, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": -0.01}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 111}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.004, "dy": -0.015, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0077, "dy": 0.0087, "dz": -0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 117}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.017, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0034, "dy": -0.0126, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0028, "dy": -0.0002, "dz": -0.01}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.025, "dz": -0.005}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0192, "dy": -0.0096, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 102}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0006, "dy": -0.0057, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 120}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.008, "dy": -0.005, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0172, "dy": -0.0195, "dz": 0.008}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0038, "dy": -0.0087, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 6}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0173, "dy": -0.025, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 18}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0081, "dy": -0.0125, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.01, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.005, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.019399999999999997, "dy": -0.0209, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.015, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": 0.0, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": 0.0, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0127, "dy": -0.008, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0105, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.018, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 102}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0058, "dy": -0.02, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 78}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.007, "dy": -0.008, "dz": -0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 84}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.008, "dy": -0.02, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.021, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0085, "dy": -0.005, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.003, "dy": -0.025, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.025, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.01, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0033, "dy": 0.0, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": 0.003, "dz": 0.0126}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0048, "dy": 0.01, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0048, "dy": 0.01, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.025, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.012, "dy": -0.005, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0177, "dy": 0.01, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0055, "dy": 0.008, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.012, "dy": -0.025, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0108, "dy": -0.025, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 30}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": 0.0, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.011699999999999999, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 24}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.02, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.016, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0053, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0095, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 120}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.011, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 84}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.01, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.025}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.01, "dz": -0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 72}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 78}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": 0.0, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.01, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 102}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": 0.0, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.02, "dy": -0.02, "dz": -0.015}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.025, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 114}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": 0.0, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": 0.0, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0062, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.005, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.01, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.01, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 90}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.015, "dz": -0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.015, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 78}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.03, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.01, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 48}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": -0.02, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.03, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.015, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.01, "dz": -0.022}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.03, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 71}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.005, "dz": -0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.005, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.015, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.01, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 36}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.03, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 60}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.01, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.03, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 54}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.02, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.01, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 132}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.01, "dz": -0.025}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.01, "dz": -0.015}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.015, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.01, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 108}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 114}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.015, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 138}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.02, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.02, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 114}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.015, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.025, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 120}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.005, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 18}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 90}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 66}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.01, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 42}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 48}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.02, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 42}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 48}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.02, "dy": -0.005, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 102}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.01, "dz": -0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.01, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.015, "dy": -0.03, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.01, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.01, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 96}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 66}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.02, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 76}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.025, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": 0.0, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.02, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 114}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.005, "dz": -0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 120}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.015, "dz": 0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.005, "dz": 0.005}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": 0.0, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.015, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.02, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 114}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.005, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.015}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.02, "dz": 0.01}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.0, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": -0.015, "dz": 0.0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 120}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 126}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 96}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.01}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 102}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.01, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 126}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 132}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 12}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 18}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.01, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 42}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.015, "dy": -0.015, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.01, "dz": -0.015}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.02, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": -0.025, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.005, "dz": 0.03}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 48}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.02}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.02, "dz": 0.02}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "move", "args": {"handle": 1, "dx": -0.01, "dy": -0.01, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 1}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 18}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.025, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.02, "dz": 0.025}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.005, "dy": -0.01, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 24}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.015, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 138}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.01, "dz": -0.02}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.025, "dz": 0.0}}
+{"tool": "move", "args": {"handle": 0, "dx": 0.005, "dy": -0.02, "dz": 0.03}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.02, "dz": 0.03}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": -0.025, "dz": 0.025}}
+{"tool": "release", "args": {"handle": 0}}
+{"tool": "grab_node", "args": {"handle": 1, "node": 114}}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": -0.03, "dz": -0.025}}

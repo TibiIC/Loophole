@@ -1,0 +1,24 @@
+{
+ "model": "nemotron",
+ "model_id": "nemotron-3.5-super-vl",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 10,
+ "max_actions": 852,
+ "turns": 18,
+ "gave_up": false,
+ "reward": "checkpoints",
+ "progress": 0.0,
+ "checkpoints_reached": 0,
+ "checkpoints": 20,
+ "word": "Ac",
+ "uncertified_substeps": 0,
+ "minutes": 2.8,
+ "usage": {
+  "prompt_tokens": 74740,
+  "completion_tokens": 44029
+ },
+ "end": "stopped talking",
+ "error": null
+}

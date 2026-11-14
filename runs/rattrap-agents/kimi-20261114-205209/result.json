@@ -1,0 +1,24 @@
+{
+ "model": "kimi",
+ "model_id": "kimi-k3-1-pro",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 852,
+ "max_actions": 852,
+ "turns": 893,
+ "gave_up": false,
+ "reward": "checkpoints",
+ "progress": 0.0,
+ "checkpoints_reached": 0,
+ "checkpoints": 20,
+ "word": "Ac",
+ "uncertified_substeps": 0,
+ "minutes": 100.3,
+ "usage": {
+  "prompt_tokens": 45149038,
+  "completion_tokens": 138656
+ },
+ "end": "budget",
+ "error": null
+}

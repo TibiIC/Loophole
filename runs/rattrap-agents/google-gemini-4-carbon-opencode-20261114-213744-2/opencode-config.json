@@ -1,0 +1,49 @@
+{
+ "$schema": "https://opencode.ai/config.json",
+ "mcp": {
+  "rattrap": {
+   "type": "local",
+   "command": [
+    "/Users/tg4018/Documents/Hackathons/Junction/Loophole-rattrap/.venv/bin/python",
+    "-m",
+    "loophole.puzzles.rattrap.mcp_server",
+    "--out",
+    "/Users/tg4018/Documents/Hackathons/Junction/Loophole-rattrap/runs/rattrap-agents/google-gemini-4-carbon-opencode-20261114-213744-2",
+    "--label",
+    "google/gemini-4-carbon"
+   ],
+   "enabled": true,
+   "environment": {
+    "PYTHONPATH": "/Users/tg4018/Documents/Hackathons/Junction/Loophole-rattrap"
+   }
+  }
+ },
+ "tools": {
+  "bash": false,
+  "edit": false,
+  "write": false,
+  "read": false,
+  "grep": false,
+  "glob": false,
+  "list": false,
+  "patch": false,
+  "todowrite": false,
+  "todoread": false,
+  "webfetch": false,
+  "task": false
+ },
+ "provider": {
+  "google": {
+   "models": {
+    "gemini-4-carbon": {
+     "options": {
+      "thinkingConfig": {
+       "thinkingLevel": "low",
+       "includeThoughts": true
+      }
+     }
+    }
+   }
+  }
+ }
+}
