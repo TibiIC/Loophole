@@ -81,6 +81,10 @@
     /* clips and placeholders */
     .markdown-section video, .markdown-section img.clip { width: 100%; height: auto; border-radius: 8px; display: block; }
     .markdown-section .clip-caption { font-size: 0.92em; color: var(--muted); margin-top: 0.6em; }
+    .markdown-section table.results { font-size: 0.9em; }
+    .markdown-section table.results tr.group td { background: var(--secondary); color: var(--text); font-weight: 700; }
+    .markdown-section table.results tr.highlight td { background: #eef3ff; }
+    .markdown-section table.results tr.pending td { color: #8a5a00; background: #fff7e0; font-style: italic; }
     .markdown-section .placeholder { background: #fff7e0; border: 1px dashed #f0b429; color: #8a5a00; padding: 0.8em 1em; border-radius: 6px; }
 
     @media screen and (max-width: 768px) {
@@ -97,38 +101,49 @@
 <body>
   <div id="app"></div>
   <script>
-    // Fills <div id="results-table"> on the home page from results.json (the only source of
-    // the results numbers). With no rows it shows a pending placeholder.
+    // Fills <div id="results-table"> on the home page from results.json, the only source of the results
+    // numbers. Schema: columns [{key, label, align}], rows [{group?, status?: "pending", highlight?, <key>: value}],
+    // groups {id: heading}, caption, footnotes. Rows with status "pending" are flagged and listed above the table.
     function resultsTable(hook) {
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text !== undefined) e.textContent = text;
+        return e;
+      }
       hook.doneEach(function () {
         var root = document.getElementById('results-table');
         if (!root) return;
         fetch('results.json', { cache: 'no-cache' })
           .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (data) {
-            var cols = data.columns || [], rows = data.rows || [];
+            var cols = data.columns || [], rows = data.rows || [], groups = data.groups || {};
             root.textContent = '';
-            if (data.status !== 'final' || !rows.length) {
-              var p = document.createElement('p');
-              p.className = 'placeholder';
-              p.textContent = 'Placeholder: final results pending.';
-              root.appendChild(p);
+            var pending = rows.filter(function (r) { return r.status === 'pending'; });
+            if (!rows.length || pending.length) {
+              root.appendChild(el('p', 'placeholder', !rows.length ? 'Placeholder: results pending.' :
+                'Pending: ' + pending.map(function (r) { return (groups[r.group] || '').split(' · ')[0] + ' — ' + r.agent; }).join('; ') + '.'));
               if (!rows.length) return;
             }
-            var table = document.createElement('table'), tr = document.createElement('tr');
+            var table = el('table', 'results'), thead = el('thead'), tbody = el('tbody'), tr = el('tr');
             cols.forEach(function (c) {
-              var th = document.createElement('th');
-              th.textContent = c.label || c.key;
+              var th = el('th', null, c.label || c.key);
               if (c.align) th.style.textAlign = c.align;
               tr.appendChild(th);
             });
-            var thead = document.createElement('thead'), tbody = document.createElement('tbody');
             thead.appendChild(tr);
+            var current;
             rows.forEach(function (row) {
-              var r = document.createElement('tr');
+              if (row.group && row.group !== current) {
+                current = row.group;
+                var g = el('tr', 'group'), td = el('td', null, groups[row.group] || row.group);
+                td.colSpan = cols.length;
+                g.appendChild(td);
+                tbody.appendChild(g);
+              }
+              var r = el('tr', (row.status === 'pending' ? 'pending ' : '') + (row.highlight ? 'highlight' : ''));
               cols.forEach(function (c) {
-                var td = document.createElement('td'), v = row[c.key];
-                td.textContent = v === undefined || v === null || v === '' ? '—' : String(v);
+                var v = row[c.key], td = el('td', null, v === undefined || v === null || v === '' ? '—' : String(v));
                 if (c.align) td.style.textAlign = c.align;
                 r.appendChild(td);
               });
@@ -137,11 +152,11 @@
             table.appendChild(thead);
             table.appendChild(tbody);
             root.appendChild(table);
-            if (data.caption) {
-              var cap = document.createElement('p');
-              cap.className = 'clip-caption';
-              cap.textContent = data.caption;
-              root.appendChild(cap);
+            if (data.caption) root.appendChild(el('p', 'clip-caption', data.caption));
+            if ((data.footnotes || []).length) {
+              var ul = el('ul', 'clip-caption');
+              data.footnotes.forEach(function (f) { ul.appendChild(el('li', null, f)); });
+              root.appendChild(ul);
             }
           })
           .catch(function (e) { root.textContent = 'Could not load results.json (' + e.message + ').'; });
