@@ -178,9 +178,11 @@ class GaussLinkingDiagnostic(RewardComponent):
 
     Computed with the exact segment-pair formula of [KL00] (see also [RN11]) and
     logged per step next to the cost-to-go for analysis plots. For open curves the
-    integral is real-valued and changes when a piece merely rotates in place; the two
-    Alpha pieces are open arcs and topologically unlinked from the start, so their
-    obstruction is geometric, not topological. Hence no reward and no score. (For
+    integral is real-valued and changes when a piece merely rotates in place: open arcs
+    carry no linking invariant, and what traps the open tubes is rigidity and thickness.
+    The environment also logs `linking_closed`, the integer linking number of the two
+    loops each closed across its own gap: -1 at the start, 0 once a tube has passed the
+    other's gap (docs/rewards.md section 13). Neither is rewarded or scored. (For
     topological models of string puzzles see [PS02], which concerns the Chinese Rings,
     not the Alpha puzzle.)
     """

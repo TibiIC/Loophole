@@ -103,3 +103,16 @@ def test_recorded_solve_scores_highest():
     # diagnostics only: the word empties long before the cord is free (docs/RATTRAP_DESIGN.md)
     empties = next((i for i, n in enumerate(ep.norms) if n == 0), None)
     print(f"oracle: {ep.actions} actions, score {ep.score():.4f}; ||w|| first 0 after action {empties}")
+
+
+def test_violation_shaping_return_is_below_every_non_solve():
+    """Training only: Phi_bar = 0 on termination would pay a violation -Phi(start) = K + 1, as much as a solve; the
+    violation penalty lam (K + 1) + 1 makes its shaping return -1, below any truncated non-solve's (>= 0)."""
+    ep = RatTrapEpisode(SPEC, training=True)
+    P = ep.sim.node_positions()
+    ep.act("grab_node", {"handle": 0, "node": int(np.argmin(P[:, 1]))})
+    ep.sim.max_penetration = 1.0  # inject an audited penetration (the rig itself never forces one)
+    out = ep.act("move", {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.001})
+    assert out["violation"] and out["shaping_parts"]["violation_penalty"] == pytest.approx(-(ep.cps.K + 1) - 1.0)
+    assert ep.shaping_total == pytest.approx(-1.0) and ep.score() == 0.0
+    assert RatTrapEpisode(SPEC, training=True).act("grab_node", {"handle": 0, "node": 0})["shaping_parts"]["violation_penalty"] == 0.0

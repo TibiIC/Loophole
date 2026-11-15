@@ -259,6 +259,7 @@ class RatTrapEpisode:
         cur = self._state(w)
         if self.training:  # potential-based shaping, training only (never part of the score)
             parts = {c.name: c.step(self._rs, cur, {}) for c in self.shaping}
+            parts["violation_penalty"] = -(self.shaping[0].lam * (self.cps.K + 1) + 1.0) if self.violation and self.cps is not None else 0.0  # docs/rewards.md §8
             sh = float(sum(parts.values()))
             self.shaping_total += sh
             out["shaping"] = sh
