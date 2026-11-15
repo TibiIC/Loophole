@@ -314,7 +314,7 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
 ```bash
 harbor run -p ./tasks/loophole-rattrap -a oracle                          # the recorded human solve, replayed closed-loop: 0.833
 harbor run -p ./tasks/loophole-rattrap -a nop                             # 0
-harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon
+harbor run -p ./tasks/loophole-rattrap -a opencode -m gemini/gemini-4-carbon   # gemini/, not google/ (Harbor forwards the key only for gemini/)
 make reference TASKS=tasks/loophole-rattrap    # or: make noop / make agent TASKS=tasks/loophole-rattrap MODEL=...
 ```
 
@@ -398,6 +398,27 @@ Wall-clock on one loaded laptop (m = measured from the committed run logs; e = e
 | reference | 2.9 min (m) | ~1.5 h (e, from a 30-action Harbor run at ~9 s/action, replayed again by the verifier) |
 | each baseline | ≤ 0.5 min (m) | noop 0.6 min (m) |
 | each agent run | 55–74 min (m, Gemini 4 Carbon) | up to 4 h of agent time, plus up to ~2 h of verification (e) |
+
+**If an agent stops acting (repeated empty responses).**
+* **Seen with:** Gemini 4 Carbon through OpenCode's Google provider, on the Rat Trap. The task pins
+  `thinkingLevel: low` there, because at the default level the model reasons to OpenCode's 32k output cap and never
+  acts (docs/HARNESS_NOTES.md).
+* **How to spot it:**
+  * in the agent transcript (`agent/opencode.txt` in the trial directory), step after step ends with
+    `"reason":"unknown"`, 0 output tokens and 0 reasoning tokens, and there is no error event;
+  * the action count stops rising (`artifacts/episode/commands.jsonl`, or `actions_used` in `get_state`);
+  * the simulator sidecar sits idle, waiting for a request that never comes.
+* **It is the model's behaviour, not the environment.**
+  * In one Rat Trap run, 288 consecutive empty steps followed 25 actions.
+  * Earlier Rat Trap runs had bursts of 20, 34 and 86 and recovered. The runs that stalled were the ones in which the
+    model produced no reasoning tokens at all.
+  * The stall is not caused by context size. On Alpha, at OpenCode's default level, the same model ran with 0 empty
+    steps up to 176k tokens of context; the Rat Trap stalls at 26k–34k.
+* **Remedy:** restart the run. A run in progress either recovers on its own or reaches the agent timeout and is scored
+  on the actions it took.
+* **Model id:** use `-m gemini/gemini-4-carbon` with Harbor, not `google/...`. Harbor forwards the key only for
+  `gemini/`, and with `google/` the agent exits at once ("Google Generative AI API key is missing"). Harbor still
+  starts OpenCode with its `google` provider, so the task's thinking setting applies.
 
 Step by step, for development:
 
