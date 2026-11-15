@@ -41,9 +41,9 @@ Every component also sits in one of three tiers, marked in its heading, and noth
 >   `test_rattrap_reward.py::test_violation_shaping_return_is_below_every_non_solve`.
 > * **Alpha: training mode leaves the choice to the learner.** Bootstrap at the budget cut-off (the standard
 >   treatment of truncation, which removes the preference), or subtract a penalty of more than
->   $\lambda\,\max_t c(q_t)/c_0$ on a violation (the cost-to-go can exceed $c_0$). This is a decision: Alpha's reward
->   block is part of the scored configuration, which the verifier checks against every episode's header, so keeping
->   the choice on the learner's side leaves the scored path unchanged and every committed log verifiable.
+>   $\lambda\,\max_t c(q_t)/c_0$ on a violation (the cost-to-go can exceed $c_0$). The scored path does not include
+>   shaping, so a penalty would have no effect on it either way; the choice is left to the learner because training
+>   setups differ. One consequence is that the scored configuration, and therefore every committed log, is unchanged.
 
 ## Contents
 
