@@ -159,7 +159,8 @@ $\kappa \ge 1 - \alpha$. The tests cover it:
 
 **Strengths.**
 * One ordering guarantee for both environments: every solve (at least 0.5) beats every non-solve (at most 0.3),
-  whatever the parameters, because the components refuse $\kappa \ge 1 - \alpha$.
+  because $\kappa = 0.3 < 1 - \alpha = 0.5$ in both configurations. Alpha's components refuse parameters that would
+  break it; for the Rat Trap the committed values satisfy it and the grid test above checks it.
 * A single float in $[0, 1]$ with the same shape in both tasks, so a score means the same kind of thing in each.
 
 **Limitations.**
