@@ -159,7 +159,7 @@
           },
           {
             "source_call_id": "ALCjUxkNU82PYtev",
-            "content": "PYTHON_SHA256=9120e0a653868f6e3698d36cdd99e5a58903ec9469e448f21d98f7b16d8fa290\nNVM_INC=/root/.nvm/versions/node/v22.23.5/include/node\nHOSTNAME=1ecfa7069361\nPYTHON_VERSION=3.11.18\nXDG_DATA_HOME=/logs/agent/opencode/xdg-data\nAGENT=1\nOPENCODE_FAKE_VCS=git\nPWD=/app\n_=/usr/bin/env\nOPENCODE_PID=7918\nHOME=/root\nOPENCODE=1\nLANG=C.UTF-8\nGPG_KEY=A035C8C19219BA821ECEA86B64E628F8D684696D\nNVM_DIR=/root/.nvm\nGOOGLE_GENERATIVE_AI_API_KEY=AIzaSyBKVlTGg0zCbL2rU4iTOdWArGqkJd221F4\nSHLVL=1\nNVM_CD_FLAGS=\nnpm_config_user_agent=npm/undefined node/v26.3.0 linux arm64 workspaces/false\nXDG_STATE_HOME=/logs/agent/opencode/xdg-state\nPATH=/root/.nvm/versions/node/v22.23.5/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nNVM_BIN=/root/.nvm/versions/node/v22.23.5/bin\n"
+            "content": "PYTHON_SHA256=9120e0a653868f6e3698d36cdd99e5a58903ec9469e448f21d98f7b16d8fa290\n<environment dump removed>\n_=/usr/bin/env\n<environment dump removed>\nnpm_config_user_agent=npm/undefined node/v26.3.0 linux arm64 workspaces/false\nXDG_STATE_HOME=/logs/agent/opencode/xdg-state\nPATH=/root/.nvm/versions/node/v22.23.5/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nNVM_BIN=/root/.nvm/versions/node/v22.23.5/bin\n"
           }
         ]
       },
