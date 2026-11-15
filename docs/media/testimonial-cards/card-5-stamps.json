@@ -1,0 +1,350 @@
+{
+ "representative": "per checkpoint, the cord node the human grabbed or released at the grab / release event the checkpoint was taken at, at its position in that checkpoint's state, projected with the render camera (iso view of the start state)",
+ "camera": {
+  "position": [
+   0.28839001059532166,
+   -0.28839001059532166,
+   0.3251799941062927
+  ],
+  "forward": [
+   -0.640856,
+   0.640856,
+   -0.422618
+  ],
+  "up": [
+   -0.298836,
+   0.298836,
+   0.906308
+  ],
+  "right": [
+   0.707107,
+   0.707107,
+   0.0
+  ],
+  "fovy_deg": 45.0,
+  "width": 1920,
+  "height": 1080
+ },
+ "stamps": [
+  {
+   "checkpoint": 1,
+   "boundary_event": 1,
+   "event": "release",
+   "handle": 0,
+   "node": 142,
+   "xyz_m": [
+    -0.04467,
+    0.0198,
+    0.12196
+   ],
+   "uv_px": [
+    913.4,
+    520.0
+   ]
+  },
+  {
+   "checkpoint": 2,
+   "boundary_event": 5,
+   "event": "release",
+   "handle": 0,
+   "node": 139,
+   "xyz_m": [
+    -0.0382,
+    -0.00369,
+    0.15103
+   ],
+   "uv_px": [
+    876.5,
+    469.9
+   ]
+  },
+  {
+   "checkpoint": 3,
+   "boundary_event": 7,
+   "event": "release",
+   "handle": 0,
+   "node": 140,
+   "xyz_m": [
+    -0.03851,
+    0.00781,
+    0.18586
+   ],
+   "uv_px": [
+    897.7,
+    369.0
+   ]
+  },
+  {
+   "checkpoint": 4,
+   "boundary_event": 17,
+   "event": "release",
+   "handle": 0,
+   "node": 142,
+   "xyz_m": [
+    -0.02872,
+    -0.01518,
+    0.1197
+   ],
+   "uv_px": [
+    872.5,
+    567.0
+   ]
+  },
+  {
+   "checkpoint": 5,
+   "boundary_event": 21,
+   "event": "release",
+   "handle": 0,
+   "node": 6,
+   "xyz_m": [
+    -0.03092,
+    0.02435,
+    0.12932
+   ],
+   "uv_px": [
+    947.1,
+    509.1
+   ]
+  },
+  {
+   "checkpoint": 6,
+   "boundary_event": 27,
+   "event": "release",
+   "handle": 0,
+   "node": 1,
+   "xyz_m": [
+    0.00758,
+    0.0046,
+    0.118
+   ],
+   "uv_px": [
+    984.2,
+    586.2
+   ]
+  },
+  {
+   "checkpoint": 7,
+   "boundary_event": 33,
+   "event": "release",
+   "handle": 0,
+   "node": 15,
+   "xyz_m": [
+    -0.03169,
+    0.02695,
+    0.22455
+   ],
+   "uv_px": [
+    949.8,
+    253.4
+   ]
+  },
+  {
+   "checkpoint": 8,
+   "boundary_event": 35,
+   "event": "release",
+   "handle": 0,
+   "node": 126,
+   "xyz_m": [
+    -0.02515,
+    0.01051,
+    0.23248
+   ],
+   "uv_px": [
+    928.2,
+    240.5
+   ]
+  },
+  {
+   "checkpoint": 9,
+   "boundary_event": 37,
+   "event": "release",
+   "handle": 0,
+   "node": 137,
+   "xyz_m": [
+    0.03492,
+    0.02,
+    0.17391
+   ],
+   "uv_px": [
+    1078.9,
+    444.8
+   ]
+  },
+  {
+   "checkpoint": 10,
+   "boundary_event": 41,
+   "event": "release",
+   "handle": 0,
+   "node": 132,
+   "xyz_m": [
+    0.03943,
+    -0.02349,
+    0.19091
+   ],
+   "uv_px": [
+    997.6,
+    431.9
+   ]
+  },
+  {
+   "checkpoint": 11,
+   "boundary_event": 43,
+   "event": "release",
+   "handle": 0,
+   "node": 139,
+   "xyz_m": [
+    -0.00918,
+    -0.00875,
+    0.18896
+   ],
+   "uv_px": [
+    920.8,
+    390.0
+   ]
+  },
+  {
+   "checkpoint": 12,
+   "boundary_event": 45,
+   "event": "release",
+   "handle": 0,
+   "node": 141,
+   "xyz_m": [
+    -0.01657,
+    -0.00392,
+    0.15026
+   ],
+   "uv_px": [
+    917.7,
+    488.7
+   ]
+  },
+  {
+   "checkpoint": 13,
+   "boundary_event": 55,
+   "event": "release",
+   "handle": 0,
+   "node": 6,
+   "xyz_m": [
+    -0.00071,
+    -0.00227,
+    0.13478
+   ],
+   "uv_px": [
+    953.4,
+    541.4
+   ]
+  },
+  {
+   "checkpoint": 14,
+   "boundary_event": 59,
+   "event": "release",
+   "handle": 0,
+   "node": 2,
+   "xyz_m": [
+    -0.04276,
+    -0.01077,
+    0.12377
+   ],
+   "uv_px": [
+    855.7,
+    541.2
+   ]
+  },
+  {
+   "checkpoint": 15,
+   "boundary_event": 61,
+   "event": "release",
+   "handle": 0,
+   "node": 126,
+   "xyz_m": [
+    -0.01782,
+    -0.00364,
+    0.22786
+   ],
+   "uv_px": [
+    912.4,
+    265.0
+   ]
+  },
+  {
+   "checkpoint": 16,
+   "boundary_event": 63,
+   "event": "release",
+   "handle": 0,
+   "node": 135,
+   "xyz_m": [
+    -0.08919,
+    -0.01765,
+    0.17278
+   ],
+   "uv_px": [
+    754.3,
+    388.4
+   ]
+  },
+  {
+   "checkpoint": 17,
+   "boundary_event": 67,
+   "event": "release",
+   "handle": 0,
+   "node": 6,
+   "xyz_m": [
+    -0.05857,
+    0.03212,
+    0.12317
+   ],
+   "uv_px": [
+    912.0,
+    497.9
+   ]
+  },
+  {
+   "checkpoint": 18,
+   "boundary_event": 69,
+   "event": "release",
+   "handle": 0,
+   "node": 12,
+   "xyz_m": [
+    -0.01401,
+    0.04598,
+    0.12782
+   ],
+   "uv_px": [
+    1019.5,
+    509.2
+   ]
+  },
+  {
+   "checkpoint": 19,
+   "boundary_event": 71,
+   "event": "release",
+   "handle": 0,
+   "node": 137,
+   "xyz_m": [
+    -0.01443,
+    -0.02902,
+    0.12938
+   ],
+   "uv_px": [
+    869.1,
+    567.3
+   ]
+  },
+  {
+   "checkpoint": 20,
+   "boundary_event": 74,
+   "event": "grab",
+   "handle": 0,
+   "node": 75,
+   "xyz_m": [
+    0.01047,
+    -0.04195,
+    0.06449
+   ],
+   "uv_px": [
+    894.5,
+    772.0
+   ]
+  }
+ ]
+}
