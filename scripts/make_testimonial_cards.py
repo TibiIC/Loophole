@@ -8,14 +8,15 @@ Run it with an environment that has MuJoCo (the checkpoint card renders the Rat 
 scripts/make_failure_cards.py.
 
 Cards 1-4 (4 s each): a one-star rating, a quote cut verbatim from the committed transcript (the model's visible reply
-at the given turn; an ellipsis wherever the cut is inside a sentence; the model's own *emphasis* in italic), the
-attribution (model and turn), and an annotation on its own line. About two seconds in, a hand-drawn red underline is
-drawn under the annotation, left to right, over half a second.
+at the given turn; an ellipsis wherever the cut is inside a sentence; the model's own *emphasis* in italic), and one
+attribution line, "<model, turn> · <annotation>". About two seconds in, a hand-drawn red underline is drawn under the
+annotation only (it starts at the rendered width of the prefix), left to right, over half a second.
 
-Card 5 (6 s): an iso still of the Rat Trap at its start, rendered at 1920x1080. The 20 checkpoints land on it as circled
-red X stamps, 0.15 s apart, then the card holds on "0 of 20 reached". A checkpoint is a whole cord configuration; its
-stamp is placed at the cord node the human grabbed or released at the grab / release event the checkpoint was taken
-at (`meta.kept_boundary_indices` into the recording's events), at that node's position in the checkpoint's state,
+Card 5 (6 s): the same one-star rating, an iso still of the Rat Trap at its start (rendered at 1920x1080, cropped to the
+puzzle) on which the 20 checkpoints land as circled red X stamps, 0.15 s apart; once all have landed, "0 of 20 reached
+· verified purchase" and "— every frontier model we tested". A checkpoint is a whole cord configuration; its stamp is
+placed at the cord node the human grabbed or released at the grab / release event the checkpoint was taken at
+(`meta.kept_boundary_indices` into the recording's events), at that node's position in the checkpoint's state,
 projected with the render camera. The placements are written to card-5-stamps.json.
 
 Every number is computed from the run's transcript, result.json or rescore.json, or from the checkpoint file.
@@ -98,22 +99,25 @@ def draw_lines(d, lines, y, lh, color):
 
 
 def review_card(fonts, text, attribution, annotation):
-    """The static card, and the box (x0, x1, baseline y) of the annotation for the underline."""
+    """The static card, and the box (x0, x1, baseline y) of the annotation for the underline. The attribution is one
+    line, "<attribution> · <annotation>"; the box starts where the annotation's text starts, measured from the
+    rendered width of the prefix."""
     im = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(im)
-    qf, qi, af, nf = fonts["quote"], fonts["quote_italic"], fonts["attr"], fonts["note"]
+    qf, qi, af = fonts["quote"], fonts["quote_italic"], fonts["attr"]
     q_lines = wrap(d, tokens(f"“{text}”", qf, qi), TEXT_W)
-    q_lh, a_lh, n_lh = int(qf.size * 1.25), int(af.size * 1.3), int(nf.size * 1.3)
-    star_r, star_gap, g1, g2, g3 = 46, 24, 56, 40, 18
-    total = 2 * star_r + g1 + q_lh * len(q_lines) + g2 + a_lh + g3 + n_lh
+    q_lh, a_lh = int(qf.size * 1.25), int(af.size * 1.3)
+    star_r, star_gap, g1, g2 = 46, 24, 56, 40
+    total = 2 * star_r + g1 + q_lh * len(q_lines) + g2 + a_lh
     y = (H - total) // 2
     for k in range(5):
         star(d, MARGIN_X + star_r + k * (2 * star_r + star_gap), y + star_r, star_r, filled=(k == 0))
     y = draw_lines(d, q_lines, y + 2 * star_r + g1, q_lh, FG) + g2
-    y = draw_lines(d, [[(w, af, True) for w in attribution.split()]], y, a_lh, MUTED) + g3
-    d.text((MARGIN_X, y), annotation, font=nf, fill=FG)
-    asc, desc = nf.getmetrics()
-    box = (MARGIN_X, MARGIN_X + d.textlength(annotation, font=nf), y + asc + int(desc * 0.55))
+    prefix = f"{attribution} · "
+    d.text((MARGIN_X, y), prefix + annotation, font=af, fill=MUTED)
+    x0 = MARGIN_X + d.textlength(prefix, font=af)
+    asc, desc = af.getmetrics()
+    box = (x0, x0 + d.textlength(annotation, font=af), y + asc + int(desc * 0.4))
     return im, box
 
 
@@ -122,8 +126,8 @@ def marker_stroke(box, seed):
     slope and wobble off horizontal, and ends that overshoot the text a little and taper."""
     rng = random.Random(seed)
     x0, x1, y = box
-    x0 -= rng.uniform(6, 14)
-    x1 += rng.uniform(10, 22)
+    x0 -= rng.uniform(3, 8)    # starts just before the annotation, never under the separator
+    x1 += rng.uniform(10, 20)
     slope = rng.uniform(-0.012, 0.006)
     phase, freq = rng.uniform(0, 6.28), rng.uniform(1.2, 2.2)
     n = int((x1 - x0) / 2.5)
@@ -131,10 +135,10 @@ def marker_stroke(box, seed):
     for i in range(n + 1):
         t = i / n
         x = x0 + t * (x1 - x0)
-        yy = (y + 12 + slope * (x - x0) + 2.2 * math.sin(phase + freq * 2 * math.pi * t)
+        yy = (y + 9 + slope * (x - x0) + 2.2 * math.sin(phase + freq * 2 * math.pi * t)
               + 1.2 * math.sin(phase * 1.7 + 9 * t) + rng.uniform(-0.6, 0.6))
         taper = min(1.0, t / 0.06, (1 - t) / 0.09)
-        r = (8.0 + 2.2 * math.sin(phase + 5 * t) + rng.uniform(-0.8, 0.8)) * (0.45 + 0.55 * max(0.0, taper))
+        r = (6.8 + 1.9 * math.sin(phase + 5 * t) + rng.uniform(-0.7, 0.7)) * (0.45 + 0.55 * max(0.0, taper))
         pts.append((x, yy, r))
     return pts
 
@@ -219,23 +223,49 @@ def stamp_sprite(size, seed):
     return sprite
 
 
-def checkpoint_frames(still, stamps, caption_font):
+def checkpoint_frames(still, stamps, fonts, best, K):
+    """Stars on top, the still (cropped to the puzzle) with the stamps landing in sequence, then the headline and the
+    attribution once all have landed."""
     rng = random.Random(7)
-    size = 92
+    # crop the still around the puzzle and place it below the stars
+    crop = (540, 150, 1440, 1000)  # the whole frame and base, and every stamp (u 754-1079, v 240-772)
+    img_h = 590
+    k_scale = img_h / (crop[3] - crop[1])
+    img_w = round((crop[2] - crop[0]) * k_scale)
+    pic = still.crop(crop).resize((img_w, img_h), Image.LANCZOS)
+    mask = Image.new("L", pic.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, img_w - 1, img_h - 1], radius=16, fill=255)
+    hf, af = fonts["headline"], fonts["attr"]
+    star_r, star_gap, g1, g2, g3 = 46, 24, 40, 44, 16
+    h_lh, a_lh = int(hf.size * 1.2), int(af.size * 1.3)
+    total = 2 * star_r + g1 + img_h + g2 + h_lh + g3 + a_lh
+    y0 = (H - total) // 2
+    pic_y = y0 + 2 * star_r + g1
+    text_y = pic_y + img_h + g2
+    headline = f"{best} of {K} reached · verified purchase"
+    attribution = "— every frontier model we tested"
+
+    base = Image.new("RGB", (W, H), BG)
+    d = ImageDraw.Draw(base)
+    for k in range(5):
+        star(d, MARGIN_X + star_r + k * (2 * star_r + star_gap), y0 + star_r, star_r, filled=(k == 0))
+    base.paste(pic, (MARGIN_X, pic_y), mask)
+    final_text = base.copy()
+    dt = ImageDraw.Draw(final_text)
+    dt.text((MARGIN_X, text_y), headline, font=hf, fill=FG)
+    dt.text((MARGIN_X, text_y + h_lh + g3), attribution, font=af, fill=MUTED)
+
+    size = round(92 * k_scale)
     sprites = [stamp_sprite(size, 100 + i) for i in range(len(stamps))]
     rot = [rng.uniform(-14, 14) for _ in stamps]
     land = [round((CP_FIRST_AT + i * CP_GAP) * FPS) for i in range(len(stamps))]
-    total = round(CP_CARD_S * FPS)
     cap_at = round(CP_CAPTION_AT * FPS)
-    # the caption box, bottom left
-    d0 = ImageDraw.Draw(still)
-    text = f"0 of {len(stamps)} reached"
-    tw = d0.textlength(text, font=caption_font)
-    asc, desc = caption_font.getmetrics()
-    box = (MARGIN_X - 40, H - 120 - asc - desc - 40, MARGIN_X + tw + 40, H - 120 + 10)
+    clip = Image.new("L", (W, H), 0)  # stamps stay inside the picture
+    clip.paste(mask, (MARGIN_X, pic_y))
     frames = []
-    for f in range(total):
-        im = still.convert("RGBA")
+    for f in range(round(CP_CARD_S * FPS)):
+        im = (final_text if f >= cap_at else base).convert("RGBA")
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         for i, st in enumerate(stamps):
             if f < land[i]:
                 continue
@@ -243,12 +273,12 @@ def checkpoint_frames(still, stamps, caption_font):
             scale = 1.0 + 0.4 * max(0.0, 1 - age / 3)  # 1.4 on arrival, 1.0 three frames later: a hard impact
             sz = max(8, int(size * scale))
             spr = sprites[i].resize((sz, sz), Image.LANCZOS).rotate(rot[i], resample=Image.BICUBIC, expand=True)
-            u, v = st["uv_px"]
-            im.alpha_composite(spr, (int(u - spr.width / 2), int(v - spr.height / 2)))
-        if f >= cap_at:
-            dd = ImageDraw.Draw(im)
-            dd.rounded_rectangle(box, radius=18, fill=BG + (235,))
-            dd.text((MARGIN_X, box[1] + 40), text, font=caption_font, fill=FG)
+            u = MARGIN_X + (st["uv_px"][0] - crop[0]) * k_scale
+            v = pic_y + (st["uv_px"][1] - crop[1]) * k_scale
+            layer.alpha_composite(spr, (int(u - spr.width / 2), int(v - spr.height / 2)))
+        a_ = Image.fromarray((np.asarray(layer.split()[3], np.float32) * np.asarray(clip, np.float32) / 255).astype(np.uint8))
+        layer.putalpha(a_)
+        im.alpha_composite(layer)
         frames.append(im.convert("RGB"))
     return frames
 
@@ -271,7 +301,7 @@ def main() -> None:
         return f
 
     fonts = {"quote": font(a.body_font, 88, 600), "quote_italic": font(a.body_italic_font, 88, 600),
-             "attr": font(a.body_font, 46, 400), "note": font(a.body_font, 58, 600)}
+             "attr": font(a.body_font, 50, 400)}
 
     s462 = quote(KIMI, 462, "move the upper bight around")
     s551 = quote(KIMI, 551, "unnecessarily cyclic")
@@ -289,8 +319,8 @@ def main() -> None:
         (excerpt(s462, "move the upper bight", "upper post*"), "— Kimi K3 Pro, turn 462", "It did not."),
         (excerpt(s551, "The action pattern", "unnecessarily cyclic"), "— Kimi K3 Pro, turn 551",
          f"it continued for another {after_551} actions"),
-        (excerpt(s180, "moving it around", "topology."), "— DeepSeek V4.1, turn 180", "correct, as it happens"),
-        (s629, "— DeepSeek V4.1, turn 629", f"{unused} of {budget} actions unused"),
+        (excerpt(s180, "moving it around", "topology."), "— DeepSeek V4.1", "correct, as it happens"),
+        (s629, "— DeepSeek V4.1", f"{unused} of {budget} actions unused"),
     ]
     png_dir = a.out.with_suffix("")
     png_dir.mkdir(parents=True, exist_ok=True)
@@ -312,7 +342,7 @@ def main() -> None:
         draw_marker(base, pts, 1.0, seed=c).save(png_dir / f"card-{c}.png", optimize=True)
 
     still, stamps, cam = checkpoint_scene()
-    cp = checkpoint_frames(still, stamps, font(a.body_font, 96, 600))
+    cp = checkpoint_frames(still, stamps, {"headline": font(a.body_font, 80, 600), "attr": fonts["attr"]}, best, K)
     for frame in cp:
         ff.stdin.write(np.asarray(frame, dtype=np.uint8).tobytes())
     cp[-1].save(png_dir / "card-5.png", optimize=True)
