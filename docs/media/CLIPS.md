@@ -37,24 +37,27 @@ command log is not committed.
 
 ## `clip-rattrap-contrast`: Rat Trap, human reference beside an agent (lead clip)
 
-Left: the human reference solve (the `clip-rattrap-reference` video, iso view). Right: Kimi K3
-Pro, run `kimi-20261114-185131` (the same capture as `clip-rattrap-failure`, iso view). No new
-simulation: both halves come from existing footage.
+The lead clip. The only text in the frames is "human reference — solved" and "agent — 0/20 checkpoints";
+counts live in the results table, not in the clip. Left: the human teleoperated solve. Right: Kimi K3 Pro,
+run `kimi-20261114-185131` (round 1), illustrating the failure mode. Iso view on both sides.
 
-Aligned by action index, every action 1/15 s on both sides. The reference video is in sim time,
-so its frames were mapped to the 284 commands of the converted solve
-(`loophole/reference/rattrap-solve.commands.jsonl`): its 75 grab / release events match the
-recording's 75 events one to one (the video's own grab / release counter confirms the timing),
-and the moves between two events are spread evenly between them. The reference frees the cord
-at action 284 and holds its final frame while the agent continues to 357 actions (47 blocked
-moves, 0 / 20 checkpoints). The source video has 174 frames for the whole solve, so the
-reference half repeats frames (about 9 distinct per second).
+* **Reference half.** Re-rendered from the committed recording (`loophole/reference/rattrap-solve.jsonl`)
+  by exact replay, one frame per 20 ms of sim time: 5,766 frames, all 75 grab / release events.
+  `make_doc_clips.py rattrap-reference-capture`.
+* **Agent half.** The run's `commands.jsonl` replayed through `RatTrapEpisode` at 640×480; the replay
+  reproduces the committed re-score (357 actions, 47 blocked). `make_doc_clips.py rattrap-capture`.
+* **Alignment by action index.** Every action gets 1/15 s on both sides. The reference's frames are mapped
+  to the 284 commands of the converted solve (`loophole/reference/rattrap-solve.commands.jsonl`): its 75
+  grab / release events match the recording's 75 events one to one, and the moves between two events are
+  spread evenly between them. No frame repeats while the reference is moving. Once it is solved it holds
+  its final frame while the agent continues.
+* Inputs checked identical on `main` at `b8b82ad`.
 
 ## Files
 
 | clip | GIF | MP4 | length |
 |---|---|---|---|
-| `clip-rattrap-contrast` | 600×224, 1.4 MB | 964×360, CRF 16, 1.16 MB | 26.3 s |
+| `clip-rattrap-contrast` | 600×224, 1.1 MB | 1284×480, CRF 16, 1.7 MB | 26.3 s |
 | `clip-alpha-reference` | 600×226, 1.2 MB | 960×360, 0.51 MB | 10.7 s |
 | `clip-rattrap-reference` | 600×226, 0.47 MB | 1280×480, 0.25 MB | 5.8 s |
 | `clip-rattrap-failure` | 600×226, 0.39 MB | 960×360, 0.23 MB | 7.5 s |

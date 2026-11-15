@@ -157,9 +157,19 @@ def resample(frames: list[int], n_out: int) -> list[int]:
     return [frames[min(len(frames) - 1, int(k * len(frames) / n_out))] for k in range(n_out)]
 
 
+FONT_CANDIDATES = (  # a TrueType font with typographic punctuation (the built-in bitmap font has no em dash)
+    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/Library/Fonts/Arial Bold.ttf",
+)
+
+
 def font(size: int):
     from PIL import ImageFont
 
+    for path in FONT_CANDIDATES:
+        if Path(path).exists():
+            return ImageFont.truetype(path, size)
     try:
         return ImageFont.load_default(size=size)
     except TypeError:
@@ -172,8 +182,12 @@ def draw_label(img: np.ndarray, text: str, where: str = "tl", size: int = 18, st
     im = Image.fromarray(img)
     d = ImageDraw.Draw(im)
     f = font(size)
-    x0, y0, x1, y1 = d.textbbox((0, 0), text, font=f)
-    tw, th = x1 - x0, y1 - y0
+    x0, _, x1, _ = d.textbbox((0, 0), text, font=f)
+    try:  # line height from the font, not the string, so labels on both sides line up
+        ascent, descent = f.getmetrics()
+    except AttributeError:
+        _, ascent, _, descent = d.textbbox((0, 0), "Ag", font=f)
+    tw, th = x1 - x0, ascent + descent
     pad = 6
     W, H = im.size
     x = pad if where in ("tl", "bl") else (W - tw) // 2
@@ -181,7 +195,7 @@ def draw_label(img: np.ndarray, text: str, where: str = "tl", size: int = 18, st
     bg = (20, 20, 20) if strong else (255, 255, 255)
     fg = (255, 255, 255) if strong else (0, 0, 0)
     d.rectangle([x - pad, y - pad, x + tw + pad, y + th + pad], fill=bg)
-    d.text((x - x0, y - y0), text, fill=fg, font=f)
+    d.text((x - x0, y), text, fill=fg, font=f)
     return np.asarray(im)
 
 
