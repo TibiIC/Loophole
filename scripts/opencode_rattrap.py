@@ -31,6 +31,7 @@ sys.path.insert(0, str(ROOT))
 # server error" before the first model call)
 BUILTIN = ["bash", "edit", "write", "read", "grep", "glob", "list", "patch", "todowrite", "todoread", "webfetch", "task"]
 KEYS = {"google": "GOOGLE_GENERATIVE_AI_API_KEY"}
+CONTEXT_WINDOW = {"gemini-4-carbon": 1048576}  # input-token window: inputTokenLimit from Gemini's models.get
 ENV_FILES = [ROOT / ".env", ROOT.parent / "Loophole" / ".env"]
 
 
@@ -64,12 +65,20 @@ def one_run(a, i: int) -> Path:
     cfg = {"$schema": "https://opencode.ai/config.json",
            "mcp": {"rattrap": {"type": "local", "command": server, "enabled": True, "environment": {"PYTHONPATH": str(ROOT)}}},
            "tools": {t: False for t in BUILTIN}}
-    if a.model.startswith("google/") and a.thinking_level:
-        # Gemini 4 Carbon at OpenCode's default thinking level (and at "medium") spends its whole 32k-token output
-        # budget reasoning after the first get_state and answers nothing; "low" acts. (Google refuses a thinking
-        # budget alongside the level OpenCode sets, so the level is what can be changed.)
+    if a.model.startswith("google/"):
+        # The model entry also defines the model for OpenCode 1.19.5, whose bundled catalog predates gemini-4-carbon.
+        # OpenCode sends min(limit.output, OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX), default 32,000 (docs/HARNESS_NOTES.md
+        # §1): at that cap Gemini 4 Carbon reasons through the whole budget on the Rat Trap and answers nothing.
         mid = a.model.split("/", 1)[1]
-        cfg["provider"] = {"google": {"models": {mid: {"options": {"thinkingConfig": {"thinkingLevel": a.thinking_level, "includeThoughts": True}}}}}}
+        # includeThoughts streams the reasoning: without it nothing arrives until the model has finished thinking, and a
+        # turn of more than ~30k reasoning tokens outlasts OpenCode's 5-minute wait for the response headers.
+        tc = {"includeThoughts": True} | ({"thinkingLevel": a.thinking_level} if a.thinking_level else {})
+        m = {"options": {"thinkingConfig": tc}}
+        if a.output_token_max and mid in CONTEXT_WINDOW:
+            # limit.output keeps the cap if OpenCode loads the models.dev catalog; OpenCode requires limit.context with
+            # it, and that sets when history is compacted, so it must be the model's real window
+            m["limit"] = {"context": CONTEXT_WINDOW[mid], "output": a.output_token_max}
+        cfg["provider"] = {"google": {"models": {mid: m}}}
     (home / "config" / "opencode.json").write_text(json.dumps(cfg, indent=1))
     spec = load_spec(overrides={"score_progress_cap": 0.0} if a.sparse else {})
     prompt = (scene_text(spec, RatTrapEpisode(spec)) + "\n\nYour only tools are the Rat Trap tools (get_state, grab, move, release, give_up). "
@@ -79,6 +88,8 @@ def one_run(a, i: int) -> Path:
     env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
     env.update(XDG_CONFIG_HOME=str(home / "config"), XDG_DATA_HOME=str(home / "data"), XDG_STATE_HOME=str(home / "state"),
                XDG_CACHE_HOME=str(home / "cache"), OPENCODE_CONFIG=str(home / "config" / "opencode.json"))
+    if a.output_token_max:
+        env["OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX"] = str(a.output_token_max)
     provider = a.model.split("/", 1)[0]
     if provider in KEYS:
         k = key(KEYS[provider])
@@ -111,7 +122,8 @@ def main() -> None:
     ap.add_argument("--sparse", action="store_true")
     ap.add_argument("--opencode", default=shutil.which("opencode") or "opencode")
     ap.add_argument("--parallel", action="store_true", help="start all runs at once")
-    ap.add_argument("--thinking-level", default="low", help="Google models: thinkingConfig.thinkingLevel ('' = OpenCode's default)")
+    ap.add_argument("--thinking-level", default="", help="Google models: thinkingConfig.thinkingLevel ('' = OpenCode's default, as in the Harbor task)")
+    ap.add_argument("--output-token-max", type=int, default=65536, help="output-token cap per turn, as in the Harbor task (0 = OpenCode's default, 32,000)")
     a = ap.parse_args()
     if a.parallel:
         import concurrent.futures as cf

@@ -1,0 +1,12 @@
+{
+    "task": {
+        "path": "tasks/loophole-alpha"
+    },
+    "trial_name": "loophole-alpha__FRGhnWU",
+    "trials_dir": "/private/tmp/claude-502/-Users-tg4018-Documents-Hackathons-Junction-Loophole/1c304005-3ee9-4382-ae04-0e8853ba5b65/scratchpad/bare/jobs-control/alpha-gemini-control-2",
+    "agent": {
+        "name": "opencode",
+        "model_name": "gemini/gemini-4-carbon"
+    },
+    "job_id": "deee9f58-d4e1-44ed-97d8-439614f3fbc2"
+}

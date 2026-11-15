@@ -85,6 +85,33 @@ best run as a 2-up video with replay checks and an escape demonstration:
 `docs/media/gemini-v2-sbMy6Ld.mp4` (contact sheet `gemini-v2-sbMy6Ld.sheet.png`, checks
 `gemini-v2-sbMy6Ld.check.json`).
 
+### Beside the reported n: one control run, `20261115-alpha-control`
+
+| run | trial | score | solved | actions | blocked moves | renders | get_state | outcome |
+|---|---|---|---|---|---|---|---|---|
+| opencode (control) | loophole-alpha__FRGhnWU | **0.896** | yes | 41 | 0 | 57 | 43 | solved |
+
+* **What it is.** One trial, run on 2026-11-15 as a control while diagnosing the Gemini Rat Trap stall (does Gemini stall
+  on Alpha too? It did not: 0 empty steps in 110). It was launched from a clean shell with exactly the judges' command,
+  `harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon`.
+* **Provenance.** Commit `a41ad50`, Harbor 0.25.0, OpenCode 1.19.5, model selector `gemini/gemini-4-carbon`. It ran at
+  OpenCode's default thinking level, with no `thinkingConfig`, and at OpenCode's default output cap of 32,000 tokens per
+  turn. Its largest turn was 20,190 tokens, so it never reached the cap. It was scored by Harbor's own verifier: log
+  consistent, the sidecar agrees, 0 violations. Logs: `runs/20261115-alpha-control/`.
+* **How it played.** It follows the same reconstruct-and-plan pattern as the three runs above: renders and state reads
+  first, then all 41 actions in one 207 s burst, with 0 blocked moves.
+* **Why it is not folded into the n = 3 mean.** Its configuration matches those runs: the same selector, OpenCode
+  version, thinking level and output cap.
+  * The task files and configs are identical between `8538d63`, the commit of `20261114-111735`, and `a41ad50`.
+  * The scored path is unchanged: `episode_score`, the goal test and the physics are the same.
+  * The code between the two commits differs only in training-only shaping refactors and an off-by-default motion
+    certificate.
+  * It is still reported beside the mean, because it was run later and for a different purpose, as a single control
+    after the n = 3 result was written up. Adding a run after the fact is a choice we would rather show than make
+    silently.
+  * Pooled, the four runs give **0.872 ± 0.033 (n = 4, 4 / 4 solved)**. The reported figure stays 0.864 ± 0.036
+    (n = 3).
+
 ## Run `20261114-080705`: `gemini/gemini-4-carbon` (OpenCode), task `tasks/loophole-alpha`
 
 | run | trial | score | solved | actions | blocked moves | renders | get_state | progress (held) | outcome |
@@ -182,6 +209,12 @@ the others text only. Each model has one or two runs, so these are case studies,
 * *How it ended:* it never found a sequence that changes the invariant, and it stopped with 359 of 852 actions unused:
   "I am now confident I cannot solve this … The loop remains enclosed (crossings at x13 and x44 straddle the dowel)."
 * It treated a correct description of the obstruction as a reason to stop.
+* *One truncated turn, which does not explain the outcome.* The harness audit (`runs/harness-audit.md`) flags one of
+  this run's 630 turns at the output cap.
+  * The turn was reply 5, at the harness's 8,192-token cap at the time, with finish reason `length`. It came after the
+    first action.
+  * The model went on for 625 more turns and took 492 more actions.
+  * Its stated reason for stopping, quoted above, came in reply 629 of 630, with 359 of 852 actions unused.
 
 **Not every run fits a story.**
 * *Gemini 4 Carbon (OpenCode), runs 0 and 2:* these left no stated plan at all.

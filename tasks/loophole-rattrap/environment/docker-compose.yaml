@@ -5,10 +5,14 @@ services:
       loophole-sim:
         condition: service_healthy
     environment:
-      # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
-      # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
-      # level spends the whole 32k output budget reasoning on this task and returns nothing; "low" acts.
-      OPENCODE_CONFIG_CONTENT: '{"provider":{"google":{"models":{"gemini-4-carbon":{"options":{"thinkingConfig":{"thinkingLevel":"low","includeThoughts":true}}}}}}}'
+      # OpenCode agent settings (docs/HARNESS_NOTES.md §1). OpenCode caps each turn at
+      # min(limit.output, OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX), default 32,000 tokens. Gemini 4 Carbon's opening plan
+      # on this task takes ~50k reasoning tokens, so at the default cap it is truncated and returns nothing.
+      OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX: "65536"
+      # Inline config, read with the highest priority over the opencode.json Harbor writes (MCP servers, provider).
+      # The thinking level is OpenCode's default (not pinned); includeThoughts streams the reasoning, without which a
+      # turn longer than ~30k tokens outlasts OpenCode's 5-minute wait for the response headers.
+      OPENCODE_CONFIG_CONTENT: '{"provider":{"google":{"models":{"gemini-4-carbon":{"options":{"thinkingConfig":{"includeThoughts":true}},"limit":{"context":1048576,"output":65536}}}}}}'
 
   loophole-sim:
     # Built from the repository root (the agent container never sees this source).

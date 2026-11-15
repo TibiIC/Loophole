@@ -1,0 +1,21 @@
+{
+ "model": "google/gemini-4-carbon",
+ "harness": "mcp",
+ "score": 0.0,
+ "solved": false,
+ "violation": false,
+ "actions": 275,
+ "max_actions": 852,
+ "gave_up": false,
+ "reward": "checkpoints",
+ "progress": 0.0,
+ "checkpoints_reached": 0,
+ "checkpoints": 20,
+ "word": "ALruaURl",
+ "uncertified_substeps": 0,
+ "minutes": 47.8,
+ "end": "running/stopped",
+ "thinking_level": "",
+ "opencode_exit": -15,
+ "opencode_version": "1.19.5"
+}

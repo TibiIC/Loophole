@@ -29,14 +29,24 @@ TASKS = ROOT / "tasks"
 # opencode.json). Alpha keeps OpenCode's defaults: its reported Gemini results were produced at the default level.
 RATTRAP_AGENT_ENV = """\
     environment:
-      # OpenCode agent settings (docs/HARNESS_NOTES.md): OpenCode reads this inline config with the highest priority,
-      # over the opencode.json Harbor writes (MCP servers, provider). Gemini 4 Carbon at OpenCode's default thinking
-      # level spends the whole 32k output budget reasoning on this task and returns nothing; "low" acts.
+      # OpenCode agent settings (docs/HARNESS_NOTES.md §1). OpenCode caps each turn at
+      # min(limit.output, OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX), default 32,000 tokens. Gemini 4 Carbon's opening plan
+      # on this task takes ~50k reasoning tokens, so at the default cap it is truncated and returns nothing.
+      OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX: "{output_token_max}"
+      # Inline config, read with the highest priority over the opencode.json Harbor writes (MCP servers, provider).
+      # The thinking level is OpenCode's default (not pinned); includeThoughts streams the reasoning, without which a
+      # turn longer than ~30k tokens outlasts OpenCode's 5-minute wait for the response headers.
       OPENCODE_CONFIG_CONTENT: '{opencode_overlay}'
 """
 
-OPENCODE_OVERLAY = json.dumps({"provider": {"google": {"models": {"gemini-4-carbon": {"options": {
-    "thinkingConfig": {"thinkingLevel": "low", "includeThoughts": True}}}}}}}, separators=(",", ":"))
+OUTPUT_TOKEN_MAX = 65536  # the Gemini endpoint's real per-turn ceiling for gemini-4-carbon (measured: a 131,072 request stops at 65,536)
+# limit.output keeps the cap when OpenCode loads the models.dev catalog (which lists 32,768 for this model). OpenCode
+# rejects a limit without `context`, and context also sets when it compacts history, so it is the model's real input
+# window: 1,048,576 tokens, the inputTokenLimit from Gemini's models.get (models.dev lists the same).
+CONTEXT_WINDOW = 1048576
+OPENCODE_OVERLAY = json.dumps({"provider": {"google": {"models": {"gemini-4-carbon": {
+    "options": {"thinkingConfig": {"includeThoughts": True}},
+    "limit": {"context": CONTEXT_WINDOW, "output": OUTPUT_TOKEN_MAX}}}}}}, separators=(",", ":"))
 
 TASK_TOML = """\
 schema_version = "1.4"
@@ -527,7 +537,7 @@ def make_rattrap_task() -> Path:
     (d / "task.toml").write_text(RATTRAP_TOML.format(T=ep.T, oracle=oracle, agent_timeout=14400.0))
     (d / "instruction.md").write_text(RATTRAP_INSTRUCTION.format(scene=scene_text(spec, ep)))
     (d / "environment" / "Dockerfile").write_text(AGENT_DOCKERFILE)
-    compose = COMPOSE.format(puzzle="rattrap").replace("        condition: service_healthy\n", "        condition: service_healthy\n" + RATTRAP_AGENT_ENV.format(opencode_overlay=OPENCODE_OVERLAY), 1)
+    compose = COMPOSE.format(puzzle="rattrap").replace("        condition: service_healthy\n", "        condition: service_healthy\n" + RATTRAP_AGENT_ENV.format(opencode_overlay=OPENCODE_OVERLAY, output_token_max=OUTPUT_TOKEN_MAX), 1)
     compose = compose.replace('      LOOPHOLE_PUZZLE: "rattrap"\n      LOOPHOLE_SEED: "0"\n', '      LOOPHOLE_TASK: "rattrap"\n')
     compose = compose.replace("    networks: [default]\n", '    command: ["python", "-m", "loophole.puzzles.rattrap.mcp_server", "--http"]\n    networks: [default]\n')
     (d / "environment" / "docker-compose.yaml").write_text(compose)

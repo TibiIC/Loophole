@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = ROOT / "tasks" / "loophole-rattrap"
@@ -17,10 +18,10 @@ def test_agent_image_copies_nothing_and_shares_nothing():
     assert sorted(p.name for p in env.iterdir()) == ["Dockerfile", "docker-compose.yaml"]
     dockerfile = (env / "Dockerfile").read_text()
     assert not any(l.strip().upper().startswith(("COPY", "ADD")) for l in dockerfile.splitlines())
-    compose = (env / "docker-compose.yaml").read_text()
+    compose = yaml.safe_load((env / "docker-compose.yaml").read_text())
     assert "volumes" not in compose  # no shared mounts between the agent and the simulator
-    main = compose.split("loophole-sim:\n    #")[0]  # the "main" (agent) service block
-    assert "build:" not in main and "context" not in main  # the agent image is not built from the repository
+    assert not any("volumes" in s for s in compose["services"].values())
+    assert "build" not in compose["services"]["main"]  # the agent image is not built from the repository
 
 
 def test_network_and_artifacts():

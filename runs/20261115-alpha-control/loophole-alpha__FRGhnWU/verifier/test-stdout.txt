@@ -1,0 +1,2 @@
+{"reward": 0.896465, "success": 1, "actions_used": 41, "violations": 0, "log_consistent": 1, "reason": "solved"}
+0.896465

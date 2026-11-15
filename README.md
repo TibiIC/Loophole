@@ -240,13 +240,15 @@ python scripts/sync_tasks.py --alpha                                 # regenerat
 Two settings decide whether some models get to act at all. Both fixes are built into the
 tasks; details and evidence are in [docs/HARNESS_NOTES.md](docs/HARNESS_NOTES.md#running-agents-configuration-failures-that-look-like-capability-failures).
 
-* **Gemini 4 Carbon needs `thinkingLevel: low` on the Rat Trap.**
-  * At OpenCode's default level, and at `medium`, it spends the whole 32k output budget
-    reasoning after the first `get_state` and returns nothing. A score of 0 there is a
-    configuration result, not a capability one.
-  * The Rat Trap task sets `low` through `OPENCODE_CONFIG_CONTENT` in
-    `tasks/loophole-rattrap/environment/docker-compose.yaml`.
-  * The Alpha task keeps OpenCode's default level: there it never hit the cap, and the reported
+* **Gemini 4 Carbon needs more than OpenCode's 32,000-token output cap on the Rat Trap.**
+  * Its opening plan takes 50,324 reasoning tokens. At the default cap the turn is cut off and
+    returns nothing, so a score of 0 there is a configuration result, not a capability one.
+  * The Rat Trap task raises the cap to 65,536 (`OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` and
+    `limit.output`), keeps OpenCode's default thinking level, and streams the reasoning
+    (`includeThoughts`). All of this is in `tasks/loophole-rattrap/environment/docker-compose.yaml`.
+    An earlier pin to `thinkingLevel: low` made the model act, but with almost no reasoning; it
+    has been replaced.
+  * The Alpha task keeps OpenCode's defaults: no Alpha turn has reached the cap, and the reported
     Alpha results were produced at the default.
 * **Nemotron 3.5 Super VL truncates at 8k output tokens.** Our function-calling harness now
   allows 32k and re-prompts a cut-off reply instead of ending the run.
@@ -400,9 +402,10 @@ Wall-clock on one loaded laptop (m = measured from the committed run logs; e = e
 | each agent run | 55–74 min (m, Gemini 4 Carbon) | up to 4 h of agent time, plus up to ~2 h of verification (e) |
 
 **If an agent stops acting (repeated empty responses).**
-* **Seen with:** Gemini 4 Carbon through OpenCode's Google provider, on the Rat Trap. The task pins
-  `thinkingLevel: low` there, because at the default level the model reasons to OpenCode's 32k output cap and never
-  acts (docs/HARNESS_NOTES.md).
+* **Seen with:** Gemini 4 Carbon through OpenCode's Google provider, on the Rat Trap, while the task pinned
+  `thinkingLevel: low`. That pin was a workaround for OpenCode's 32k output cap. The task now raises the cap instead
+  and keeps the default level. In a 50-step probe with the raised cap there were 0 empty steps (docs/HARNESS_NOTES.md
+  §1).
 * **How to spot it:**
   * in the agent transcript (`agent/opencode.txt` in the trial directory), step after step ends with
     `"reason":"unknown"`, 0 output tokens and 0 reasoning tokens, and there is no error event;
@@ -418,7 +421,7 @@ Wall-clock on one loaded laptop (m = measured from the committed run logs; e = e
   on the actions it took.
 * **Model id:** use `-m gemini/gemini-4-carbon` with Harbor, not `google/...`. Harbor forwards the key only for
   `gemini/`, and with `google/` the agent exits at once ("Google Generative AI API key is missing"). Harbor still
-  starts OpenCode with its `google` provider, so the task's thinking setting applies.
+  starts OpenCode with its `google` provider, so the task's OpenCode settings apply.
 
 Step by step, for development:
 

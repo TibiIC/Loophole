@@ -1,0 +1,51 @@
+timestamp=2026-11-15T11:36:48.744Z level=INFO run=17090548 message="creating instance" directory=/private/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/work
+timestamp=2026-11-15T11:36:48.745Z level=INFO run=17090548 message=fromDirectory directory=/private/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/work
+timestamp=2026-11-15T11:36:48.749Z level=INFO run=17090548 message=bootstrapping directory=/private/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/work
+timestamp=2026-11-15T11:36:48.753Z level=INFO run=17090548 message=loading path=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/config/opencode/config.json
+timestamp=2026-11-15T11:36:48.753Z level=INFO run=17090548 message=loading path=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/config/opencode/opencode.json
+timestamp=2026-11-15T11:36:48.754Z level=INFO run=17090548 message=loading path=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/config/opencode/opencode.jsonc
+timestamp=2026-11-15T11:36:48.754Z level=INFO run=17090548 message=loading path=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/config/opencode.json
+timestamp=2026-11-15T11:36:48.813Z level=INFO run=17090548 message="all LSPs are disabled"
+timestamp=2026-11-15T11:36:48.813Z level=INFO run=17090548 message="all formatters are disabled"
+timestamp=2026-11-15T11:36:48.813Z level=INFO run=17090548 message=init
+timestamp=2026-11-15T11:36:48.970Z level=INFO run=17090548 message="creating instance" directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap
+timestamp=2026-11-15T11:36:48.970Z level=INFO run=17090548 message=fromDirectory directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap
+timestamp=2026-11-15T11:36:49.172Z level=INFO run=17090548 message=bootstrapping directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap
+timestamp=2026-11-15T11:36:49.173Z level=INFO run=17090548 message=loading path=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/config/opencode.json
+timestamp=2026-11-15T11:36:49.178Z level=INFO run=17090548 message="all LSPs are disabled"
+timestamp=2026-11-15T11:36:49.178Z level=INFO run=17090548 message="all formatters are disabled"
+timestamp=2026-11-15T11:36:49.178Z level=INFO run=17090548 message=init
+timestamp=2026-11-15T11:36:49.179Z level=INFO run=17090548 message=created id=ses_e21011ae4ffeDIHmZUD5qyTVVL slug=witty-falcon version=1.19.5 projectID=53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap path="" workspaceID=undefined parentID=undefined title="New session - 2026-11-15T11:36:49.179Z" agent=undefined model=undefined metadata=undefined permission="[{\"permission\":\"question\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_enter\",\"pattern\":\"*\",\"action\":\"deny\"},{\"permission\":\"plan_exit\",\"pattern\":\"*\",\"action\":\"deny\"}]" cost=0 tokens.input=0 tokens.output=0 tokens.reasoning=0 tokens.cache.read=0 tokens.cache.write=0 time.created=1794742609179 time.updated=1794742609179
+timestamp=2026-11-15T11:36:49.186Z level=INFO run=17090548 message="event connected"
+timestamp=2026-11-15T11:36:49.213Z level=INFO run=17090548 message=loop session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL step=0
+timestamp=2026-11-15T11:36:49.596Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-3.8-flash session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=true agent=title mode=primary
+timestamp=2026-11-15T11:36:49.601Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-3.8-flash
+timestamp=2026-11-15T11:36:49.949Z level=INFO run=17090548 message=initialized
+timestamp=2026-11-15T11:36:50.024Z level=INFO run=17090548 message="removing gitignored files from snapshot" count=1239
+timestamp=2026-11-15T11:36:57.220Z level=INFO run=17090548 message=tracking hash=d1defb08bf3c9257d2d8750441cc018308fba735 cwd=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap git=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/data/opencode/snapshot/53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c/23ef96f60f6f2064a43bbb9ddba498df5509a0e2
+timestamp=2026-11-15T11:36:57.224Z level=INFO run=17090548 message="shell tool using shell" shell=/bin/zsh
+timestamp=2026-11-15T11:37:00.604Z level=INFO run=17090548 message=init count=14
+timestamp=2026-11-15T11:37:00.743Z level=INFO run=17090548 message="watcher backend" directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap platform=darwin backend=fs-events
+timestamp=2026-11-15T11:37:00.746Z level=INFO run=17090548 message="project copy refresh started" projectID=53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c
+timestamp=2026-11-15T11:37:01.037Z level=INFO run=17090548 message="project copy refresh done" projectID=53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c updated="[\"/Users/tg4018/Documents/Hackathons/Junction/Loophole\",\"/Users/tg4018/Documents/Hackathons/Junction/Loophole-docs\",\"/Users/tg4018/Documents/Hackathons/Junction/Loophole-judgerun\",\"/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap\",\"/Users/tg4018/Documents/Hackathons/Junction/Loophole-rattrap\",\"/Users/tg4018/Documents/Hackathons/Junction/Loophole-train\"]" removed=[]
+timestamp=2026-11-15T11:37:01.049Z level=INFO run=17090548 message="booting location services" directory=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap workspaceID=undefined
+timestamp=2026-11-15T11:37:01.051Z level=INFO run=17090548 message=process session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL messageID=msg_1defee6b7001hEES4OittqYCM6
+timestamp=2026-11-15T11:37:01.051Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary
+timestamp=2026-11-15T11:37:01.052Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-4-carbon
+timestamp=2026-11-15T11:37:06.339Z level=INFO run=17090548 message=evaluated permission=rattrap_get_state pattern=* action.permission=* action.action=allow action.pattern=*
+timestamp=2026-11-15T11:37:07.011Z level=INFO run=17090548 message=tracking hash=d1defb08bf3c9257d2d8750441cc018308fba735 cwd=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap git=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/data/opencode/snapshot/53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c/23ef96f60f6f2064a43bbb9ddba498df5509a0e2
+timestamp=2026-11-15T11:37:07.089Z level=INFO run=17090548 message=loop session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL step=1
+timestamp=2026-11-15T11:37:07.153Z level=INFO run=17090548 message=tracking hash=d1defb08bf3c9257d2d8750441cc018308fba735 cwd=/Users/tg4018/Documents/Hackathons/Junction/Loophole-outcap git=/var/folders/rp/3lv9sbnx6fl6c3w5n1pb5_rr0000gp/T/rattrap-opencode-szwwhjhm/data/opencode/snapshot/53fc3ef39171969f3b27f5a8f5fb21420b5b3d6c/23ef96f60f6f2064a43bbb9ddba498df5509a0e2
+timestamp=2026-11-15T11:37:07.158Z level=INFO run=17090548 message=process session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL messageID=msg_1deff2b12001k6VItrrPQasD1Y
+timestamp=2026-11-15T11:37:07.158Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary
+timestamp=2026-11-15T11:37:07.159Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-4-carbon
+timestamp=2026-11-15T11:37:49.393Z level=INFO run=17090548 message=cleanup prune=7.days
+timestamp=2026-11-15T11:42:07.192Z level=ERROR run=17090548 message="stream error" providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary error.error="ProviderHeaderTimeoutError: Provider response headers timed out after 300000ms"
+timestamp=2026-11-15T11:42:09.445Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary
+timestamp=2026-11-15T11:42:09.463Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-4-carbon
+timestamp=2026-11-15T11:55:09.971Z level=ERROR run=17090548 message="stream error" providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary error.error="ProviderHeaderTimeoutError: Provider response headers timed out after 300000ms"
+timestamp=2026-11-15T11:55:14.802Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary
+timestamp=2026-11-15T11:55:14.815Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-4-carbon
+timestamp=2026-11-15T12:00:04.077Z level=ERROR run=17090548 message="stream error" providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary error.error="AI_APICallError: Cannot connect to API: ECONNRESET: The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch() (cause: TypeError: ECONNRESET: The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch())"
+timestamp=2026-11-15T12:00:12.746Z level=INFO run=17090548 message=stream providerID=google modelID=gemini-4-carbon session.id=ses_e21011ae4ffeDIHmZUD5qyTVVL small=false agent=build mode=primary
+timestamp=2026-11-15T12:00:12.777Z level=INFO run=17090548 message="llm runtime selected" llm.runtime=ai-sdk llm.provider=google llm.model=gemini-4-carbon

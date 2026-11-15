@@ -1,0 +1,276 @@
+{"type": "header", "puzzle": "rattrap", "spec": "rattrap.yaml", "overrides": {}, "spec_sha256": "2a6476b6e53cfc7768d2acfe41d22eac3da356a23b11c1ca644ce1732d1218e9", "checkpoints_sha256": "ca86f2d7c69b9256d366f5d19b1b70a76138be7d612087deae341a73d51e4850", "max_actions": 852, "initial_state_hash": "b0b3495e722e2cc6f19208ded4cdf275de4026a350a906972f0c3262ffe20b09"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 71}, "i": 1, "state_hash": "2389e2dc7c1cb436dfe3848f3aaf05c7be6f435a8ec09cb0e8577f4451b91f9f"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.028, "dz": 0.025}, "i": 2, "state_hash": "952e5da9c6d36dd1e4b75d83703a2e70628a98cc5d01a1b5883af7a93a0649d7"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.03, "dz": 0.018}, "i": 3, "state_hash": "7073bc3f693f373880b07b316be8e27965c6acb2acbfd32cbf76daa161a5a0b9"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.03, "dz": 0.0}, "i": 4, "state_hash": "823fd9b9f17690cd6e2506f359341869ad11e054170b76ca1520a5101c36f90e"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.028, "dz": 0.008}, "i": 5, "state_hash": "a5cf5f12e93e4be84080fe521b217acb58b1ef7bdf0b7f92587eb7dbd8588a3f"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": 0.029, "dz": 0.0044}, "i": 6, "state_hash": "6ab2f44a8c89e42d4ddb00f9b32b0e9a7307778b2541a045097f537799fa78de"}
+{"tool": "release", "args": {"handle": 0}, "i": 7, "state_hash": "081852bca440c265fa8e8c4e7584549b02076c5e366b77d049e1c214c5e3e558"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 42}, "i": 8, "state_hash": "58a6446154780dc4abd43c23c6e9ee41fdc910690faf97d0edd8b4a5ea9befe8"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.02, "dz": 0.016}, "i": 9, "state_hash": "642b212623e0e27e605c0759891fe1fbaa1949fcfa197871af66df36994d6466"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.02, "dz": 0.016}, "i": 10, "state_hash": "877884eb472cb7d11a4050382480ef382736329961662aaa5287044722d8b721"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.02, "dz": 0.016}, "i": 11, "state_hash": "99b15fd751820a81de90285ef52eee39a9caa33101b05ab51b8efb7b095e478b"}
+{"tool": "release", "args": {"handle": 1}, "i": 12, "state_hash": "2e04e7d0c47b60c8e4a23706272ade6b46d373649d0cebae400980af08899965"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 108}, "i": 13, "state_hash": "0e6cbd28d96e39ed116cef8f57bdd5ec59305e6d1d942487cfc6c6b043047772"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 22}, "i": 14, "state_hash": "38d5dc7a6607811cd7e99dc1b3b74fd095e1b891cc77ac2a783e7957675878c7"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": 0.018, "dz": 0.013}, "i": 15, "state_hash": "3867aae6274a8a20a8b975e14bec480e1f5d5e4030bc072c49d9db0465ff94ee"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": 0.018, "dz": 0.013}, "i": 16, "state_hash": "a860bf30b8a464544e74b9f2e7f4f5a3bfe775653dbc9d4d210ccb61562d780c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": 0.018, "dz": 0.013}, "i": 17, "state_hash": "c56ff61d45cfff98202ffa50935cee3449c2cf565c67da52a63052770629b9a9"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.01, "dy": 0.01, "dz": 0.016}, "i": 18, "state_hash": "970b9811bde9f873d0a5b935665cdfcd36da948cfc28b276d0c51045340d47b5"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.005, "dz": 0.027}, "i": 19, "state_hash": "88d543f23355c425f600b8a88ef554ed2ce6f925fd1c74298cc4a7af2b82a214"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.005, "dz": 0.027}, "i": 20, "state_hash": "ea7965c57cdbaf3464f49bccdead4980601e148d50bca8215995805c7e9560f0"}
+{"tool": "release", "args": {"handle": 0}, "i": 21, "state_hash": "130c491ceaf2d7ffb0cb55c63adaa83a7a4e1c6a0d01e5dec34a00f8fc339dcc"}
+{"tool": "release", "args": {"handle": 1}, "i": 22, "state_hash": "0397aefe3084d8caf21e3f7ef0baf13416a74f6d1836964302c419c5b36918e3"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}, "i": 23, "state_hash": "c1b7f67d5bd0ed9f1d040b3dcd45f44af7c287aafdb975f70a9b5d78b720d9fe"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 24, "state_hash": "b46cb34edb591040a77eb7fef30006773b28c6d88e437a2d434fc48c77f77e07"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0021000000000000003, "dy": -0.013800000000000002, "dz": 0.0189}, "i": 25, "state_hash": "87e7c297d8f55cc1f8be47f680ff08009926b64ad6b835491b326d443e30d981"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0007, "dy": -0.0121, "dz": 0.0162}, "i": 26, "state_hash": "ce8ffeed2dfed6c5fabc7e1d6f1bbe6157c2fef0524700bc53c81e01c52cfc40"}
+{"tool": "release", "args": {"handle": 0}, "i": 27, "state_hash": "055ba918a017185f4bdf0ef5233f410498e66a984da522b59a21e4bfe81ff994"}
+{"tool": "release", "args": {"handle": 1}, "i": 28, "state_hash": "fba5947432ebc6cbb9215be38d7f8ec87759ad2789afbbb8d47255b457efce85"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 139}, "i": 29, "state_hash": "4f7754fe85dbc43169999f264588637072eeb3c28a66092f2249925aa9459dec"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 3}, "i": 30, "state_hash": "6b49e7c9eaf3d27fff2550f4d2dfbd392bc3473d84b755553e12226829f8ef42"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0056, "dy": 0.0001, "dz": 0.0083}, "i": 31, "state_hash": "6c2f4ae18057692924f4672c876a6c1219708d620febcf2d5fe923d91311ee04"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0105, "dy": 0.0013, "dz": 0.004900000000000001}, "i": 32, "state_hash": "597843a7c838ddfea773f26ddea805ab39a9a07aa39fc2a122d0f02fea9c8ac2"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0024, "dy": 0.0043, "dz": 0.004}, "i": 33, "state_hash": "9b430812001dd06a3cc42d91822d4b3824447703472fa5eee8e75d6e7787258d"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0054, "dy": -0.0063, "dz": 0.002}, "i": 34, "state_hash": "299681be7e40f11eac81a6a29afa630d15931854ea41f4f390e53861a86a1864"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0002, "dy": 0.0, "dz": 0.015}, "i": 35, "state_hash": "9098041a7fc67c7c10a938ca6b8fd092dc7bc06d400e37b4bae87013513a36ff"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0002, "dy": 0.0, "dz": 0.015}, "i": 36, "state_hash": "204fa739e5a2f9e535621ccd72200939cd49f8e3196670de852caea9aadb6506"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0003, "dy": 0.0022, "dz": 0.0001}, "i": 37, "state_hash": "3696c7c6622ba84b5b14017c40ab85b2f4be4e768a442bfe3b8a4b548e1f78e9"}
+{"tool": "release", "args": {"handle": 1}, "i": 38, "state_hash": "f900ef3bb23e578027bdf010259d19bb7b2174f5a93324f931f60e986d11578a"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 8}, "i": 39, "state_hash": "44d432693369898aeffae4819aacf9e8b754b2d43bc6ea1d586e88c9d6e7eb47"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0135, "dy": 0.002, "dz": -0.015099999999999999}, "i": 40, "state_hash": "a2d03992c7e31b2df400a4365569eba6bc580a33d90b9b3d06cd0e741f9b5357"}
+{"tool": "release", "args": {"handle": 1}, "i": 41, "state_hash": "7c0605a7f1744ef24ef356645c53459f2ad6773e0f0df7f9193b23362da382a8"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 3}, "i": 42, "state_hash": "4e6dc43d971851b2db91ab9ef2a76d9e1208af86259c4005c318e938402773db"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0005, "dy": 0.0055, "dz": 0.005}, "i": 43, "state_hash": "84ef9c28e5968fd3566e8d21d353efbfbc0b9dee8c2441d16f18c41589927711"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0092, "dy": -0.002, "dz": 0.0070999999999999995}, "i": 44, "state_hash": "d321da679bb30746cfe16377308e205029593cb9f19d960546be684767abd594"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.013}, "i": 45, "state_hash": "9730b35b3fbccee7fd75fe4b841383b280b5da84bb8e2a8660e03c5bae787fee"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.013}, "i": 46, "state_hash": "0cc8fc615f69c3d4df810c9f9bce53f57ab6df1860a6498599095e8fe075fa06"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": 0.002, "dz": 0.02}, "i": 47, "state_hash": "dace13c9e56f542f8a97d31d9905d87ecba25f38a51ad271733b8a163142d3bd"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.014}, "i": 48, "state_hash": "8cdd1d8f0925d46f852392071884841f963acd4f94ab378203b2cb1f084ab1d6"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.001, "dy": 0.0012, "dz": 0.02}, "i": 49, "state_hash": "697279b4611be2458595b6f442d9742125e46ee0493b1f6b65c1ea2076997f51"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0001, "dy": 0.0006, "dz": 0.015}, "i": 50, "state_hash": "5df251003d6652db35a91a7a0f3c67c828a92ec1c0e5f11ba0cd9049556959c3"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.018, "dy": -0.022, "dz": -0.005}, "i": 51, "state_hash": "2fa0a7bef1d9a3263dc3f6d61fe61b52984485c566bc437cb5c6d73c0efcf9ca"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.016, "dy": 0.022, "dz": -0.008}, "i": 52, "state_hash": "6533d429958b5a7d1c19cd92ded688870951f7a5a3a5abb2441da8fa9f6705fb"}
+{"tool": "release", "args": {"handle": 0}, "i": 53, "state_hash": "5d0a0065904573180a4a57d7b293432cdf7c577c0a12cd97ca5758316e263584"}
+{"tool": "release", "args": {"handle": 1}, "i": 54, "state_hash": "7f746650862cd5dc722a59ab5d30542816411f3db9efe5bdcc3723c0d98087b9"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 135}, "i": 55, "state_hash": "cf0e29c52a217371e445a9c8570a95465376613e366af53a8ae22fd02f0e911a"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 56, "state_hash": "209fb0bc65af1166757b5b8c3c8b3ae3181ff14c7f8f074fe339173e0c6fa644"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0024, "dy": 0.0023, "dz": 0.0025}, "i": 57, "state_hash": "c255bc5b5d278997c7dd82fe54a800daa485e349cf2d1a2cea0af6ce81efdb76"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0050999999999999995, "dy": -0.0025, "dz": 0.0026}, "i": 58, "state_hash": "5434c1c0441d705634155d35b010ac7deb13e9d6b1dc2a4f61026057a69c683a"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": 0.0005, "dz": 0.023}, "i": 59, "state_hash": "dc00049f57fe90fdb31b1d87fd52ffd82eda0b0294dfde07d7767d578b0ae504"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0005, "dy": -0.0005, "dz": 0.023}, "i": 60, "state_hash": "ce216184b3d08b72ecdc79d936e0478d7db8862f441365cbecb6ec229a9fe782"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.006, "dy": -0.018, "dz": -0.014}, "i": 61, "state_hash": "e6560d5e2b2604b1977760c0efbdb69cb6ef81c6caf6b8e0963612791017ebaf"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.006, "dy": 0.018, "dz": -0.014}, "i": 62, "state_hash": "abd5c2cb4aeb4ebb455470ed05dc880c38ece14264e7939d2ca01de337c56b67"}
+{"tool": "release", "args": {"handle": 0}, "i": 63, "state_hash": "7ce8d465c07f29faa4fc77218fcf75436b24d7cc54603e9d794ba08243156ae9"}
+{"tool": "release", "args": {"handle": 1}, "i": 64, "state_hash": "6d6e35cb3d14a7bf9faadb90c01729d3bd7fd6826447c6defc33e267b0eb650a"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 129}, "i": 65, "state_hash": "b9cd3331da001d79269e86e685773f5ad72922045aa3b5f2c60c3f3cd970e699"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 16}, "i": 66, "state_hash": "3705f6a9a7b1081055acbbf9b3b4861fa09de3cf81358034cfff8a6b085ed9cf"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0021000000000000003, "dy": 0.0016, "dz": 0.0022}, "i": 67, "state_hash": "6c0ac9f3f88206a216b025065258c156137c5021506f708b7d267b9ef7769e9a"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0005, "dy": -0.0005, "dz": 0.0005}, "i": 68, "state_hash": "7a2f76422933ab98596c1c0ab00f08bd49c492ee607e9a5038cc5a28c856e824"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.024}, "i": 69, "state_hash": "e15e46cff9e3e1ba378bf2f3c65d8e84164925ba14ba8e73ed47291ee111d899"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.024}, "i": 70, "state_hash": "f70d5d2fce63bf5e6859ba06cccd72a353d04fbe7caa6b4d313cbb78063e8d60"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.018, "dz": -0.012}, "i": 71, "state_hash": "0578d25adbafaad833f7a20d49f62e26fe00b432089d7c5017cb514c8d77f343"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.018, "dz": -0.012}, "i": 72, "state_hash": "9e2250c81a8f51d528f8478f353bfc9a4a335e0aacbafc2f561b8c74fc735032"}
+{"tool": "release", "args": {"handle": 0}, "i": 73, "state_hash": "850fc6b98e24855d7924e243e7dccdafa57817a14d059b36396812ce41a24c30"}
+{"tool": "release", "args": {"handle": 1}, "i": 74, "state_hash": "62645ae4b488675ca4f814d0eec734883c0aec5013c9963d8f353acef849e421"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 124}, "i": 75, "state_hash": "b110243c975c7f7dd4a84be30cc5e120f3c65266c6b9da2c129238afe58ebb82"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 21}, "i": 76, "state_hash": "8bfce44d317a729f66a66258c2cfc591a6fa75be512196dfc9325405726f0c7a"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": 0.0, "dz": 0.025}, "i": 77, "state_hash": "e0c78c560556ae8b28e35a36755d7b973006953854af0af069f08ae17da5755e"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0005, "dy": 0.0, "dz": 0.025}, "i": 78, "state_hash": "79cd88cdda7ac4d62cf6f285b0c8ffe7b07de330de2eb7ec2cedaf2373417c7b"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.006, "dy": -0.018, "dz": -0.014}, "i": 79, "state_hash": "c3df431d23fe009a71aa9f5f32d2be5a4bd82c7dcd5a11a669c6761134761e0a"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.006, "dy": 0.018, "dz": -0.014}, "i": 80, "state_hash": "f437faeda089ec14f6b739704912d21da1a9186c41751d842811b2dd1fb9610c"}
+{"tool": "release", "args": {"handle": 0}, "i": 81, "state_hash": "f7e3cd50e54eedce85e651bd9ad5ec40b9d261c18acd066787620e24cbdc1931"}
+{"tool": "release", "args": {"handle": 1}, "i": 82, "state_hash": "fcddbc48c8fe47defd79505d65fa7b841a0b7b47f40532e03b9f909ec28011ee"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 118}, "i": 83, "state_hash": "07d9cf5258cf2c0ed85f6375a2159f301c80936be04a2342709a6f6f5acd3d3d"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 27}, "i": 84, "state_hash": "1836f346fca49a8d9700f23ab0677d677ab907dd7a908f54115234c428a7983f"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.001, "dz": 0.024}, "i": 85, "state_hash": "9be5544736db76d3d3191cf760aec1fa6f5cb9ffc78d2912b265be93b3c6d55a"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.001, "dz": 0.024}, "i": 86, "state_hash": "c96688d3ff2ce8caed4abbfb08040b8c16508c06651454b99907ddd2c8e780a1"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.006, "dy": -0.018, "dz": -0.012}, "i": 87, "state_hash": "84d78c49473a624e548e5985a5414d67cf0d6a0c4be6dc10d3c3f180a89bb90f"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.006, "dy": 0.018, "dz": -0.012}, "i": 88, "state_hash": "200f47f886e25dafe1c37328c0c43815967304bed268c8c8b28b623e48fbc36b"}
+{"tool": "release", "args": {"handle": 0}, "i": 89, "state_hash": "cb0010b779cd53727223988a1ed6ec34292584b5d75db1e1ae6d66ca79a9dc16"}
+{"tool": "release", "args": {"handle": 1}, "i": 90, "state_hash": "f2683d7c67cbee046ccd3e5c3f38570e21db683724d440a9ec609be91fa1cd42"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 113}, "i": 91, "state_hash": "df8e07c93d7b68c5c174f1736302111679a6c5d3930f2b0c244923a3af3fb0ac"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 32}, "i": 92, "state_hash": "1dc25524b4b14f0a3e7b4dfcace26a63408db448aa1236a828f832b76f131407"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.001, "dz": 0.022}, "i": 93, "state_hash": "4af92aaad894eb47a20c89392629a176570a9e717b05f6f74eda36f0387345f8"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": -0.0005, "dz": 0.022}, "i": 94, "state_hash": "e816c53bf6aa27b30f64f9632433f613bacebcfef1546b2dd63bf69da58b9d0c"}
+{"tool": "release", "args": {"handle": 0}, "i": 95, "state_hash": "aa5b291b20be306f00b86145999b695fb1645f5215404f710bd70d3440de1186"}
+{"tool": "release", "args": {"handle": 1}, "i": 96, "state_hash": "046de58558dfd576c46aca70e1a0b421824b8d3683418edc53d112f39eebbb54"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 2}, "i": 97, "state_hash": "f6c3558d517b0bd8edd414829f8371ffab100e3729f9f95b70a58dd4ac73a3a9"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.008, "dy": 0.0008, "dz": -0.0281}, "i": 98, "state_hash": "767ee253258982e0b45def574416b4b447ce68f7d401b965680644d327b0168a"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.02, "dy": 0.0, "dz": -0.004}, "i": 99, "state_hash": "4f1db3e8225493c709978fe1a9542712f9727eefd1805d97ed7baf45d0ce140d"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0255, "dy": 0.0, "dz": 0.0}, "i": 100, "state_hash": "e6cdf9c5f37357b1e16c1a94350c7dd47fd0ca741e921bf260a11a40e38c8abe"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.026}, "i": 101, "state_hash": "784d1488dd8cd7a60b237c88f3942e11cc216104b379e503e9de290532a78038"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.026}, "i": 102, "state_hash": "c55a3bfd5837129934e8b06284a205c5d849cb35a3673c51dcae98cdbf1b4b1e"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.024}, "i": 103, "state_hash": "17f7cc1cb483f417633f292cec0ae650163313d8f2d69e648083cb4f23b83ef6"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 15}, "i": 104, "state_hash": "fc19a25c28477c94fd937f84abaab98f9d26295bcac27408399fc91c9c6b9757"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0228, "dy": 0.0, "dz": -0.0078}, "i": 105, "state_hash": "7b75f3d34881473abe914d55c08b180bada3dac8433acd91bcfa8ba97c8df7f6"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.019, "dy": -0.001, "dz": 0.022}, "i": 106, "state_hash": "31bca9d8056ef62deea16993ca36e4645493b5ad3b1d9b0913e165548195062b"}
+{"tool": "release", "args": {"handle": 1}, "i": 107, "state_hash": "54d5598cfa15e1ba2b916b2d898ae686d29c7b17d9e5e3ab9f2f60f822845819"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 131}, "i": 108, "state_hash": "56fb451aea70b47af625b58fc8af80c614c7acb29cefd7c6cc004e8ffdec67a7"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.01, "dy": -0.003, "dz": 0.027}, "i": 109, "state_hash": "c2468ffb6d484032839b22a01f4547d10ad0b9cf8d1d4e7d4edba01eeefb37de"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.008, "dy": 0.002, "dz": 0.006}, "i": 110, "state_hash": "5f02b2903973dbff3b43fcf23fdb609d09f2c34a9a13f40d2579e3a9b3ff2929"}
+{"tool": "release", "args": {"handle": 1}, "i": 111, "state_hash": "f72390885e3f6699f100c85105c6198d18a16075a64fc28c95b96a4129fa27d6"}
+{"tool": "release", "args": {"handle": 0}, "i": 112, "state_hash": "aed8aef97fcbe1b1913c7b30bbd785e5d95c2ff9aa4005c5144a69630899641e"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 137}, "i": 113, "state_hash": "fe3f0577719d6829f3b98bb70db05cfbe45360e9fe516ed06c4cfa5d28663bb7"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 114, "state_hash": "0be39be8c8bb65c1c4c49ae15530000f25011c1bd2847e4a73aae42952d929c5"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0136, "dy": 0.0156, "dz": 0.0088}, "i": 115, "state_hash": "073c0d351a5575f02f367220cacfea11a9c0199a556e830d56b3a107b836185f"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0034, "dy": -0.011, "dz": 0.013}, "i": 116, "state_hash": "09a227dafdd148cfb2d385891561afab526759c72c937893c61bbbf8c41ce413"}
+{"tool": "release", "args": {"handle": 0}, "i": 117, "state_hash": "b1d1f5f6283501b683caae2921b1036e81ed774fc746d46199168f05d69eefcc"}
+{"tool": "release", "args": {"handle": 1}, "i": 118, "state_hash": "5eecdf0ccd08a1b291664d634ed92de082a73f2d4a096450e392654b4e41afe6"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 1}, "i": 119, "state_hash": "0f1aa7a13fdf659b6d0c5ece4de63a726a96a34372fb45be8770b40e35e4cc2e"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 7}, "i": 120, "state_hash": "809cbaed68c79c653697c3020849ee23315d69fe7ad514c4a811c765743798ea"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0068, "dy": 0.006, "dz": -0.0091}, "i": 121, "state_hash": "7996fdba694a57148cc2d10079c838a7e79625002da99011148894c8e9da2d69"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.004200000000000001, "dy": -0.0016, "dz": -0.0126}, "i": 122, "state_hash": "52840cd1ff2fb0120ec52a478fe1f5c8c37a13937cc98480d1f16e2e9fac0674"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0015, "dy": 0.004200000000000001, "dz": -0.009}, "i": 123, "state_hash": "351ecfd0a263b22691eb2c0635810eae8d1b7cd1cefb97eabed42bf39c55afc0"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0005, "dy": -0.0032, "dz": -0.011}, "i": 124, "state_hash": "1264ae44e5376497a0a4cf4ef67526e3eeaae89184254c37fa8b24c598de8a0f"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0009, "dy": 0.0040999999999999995, "dz": -0.0068}, "i": 125, "state_hash": "81c289b9d905bfecc786ad003afcfff82be2e2ff61463316ec6b82f6cdae5ff8"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0003, "dy": 0.0009, "dz": 0.0}, "i": 126, "state_hash": "4d0be2a96ca6b99d606963bc5587b4f6b7ce75377e64cf18ae129ecd772de09e"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.014}, "i": 127, "state_hash": "0c52764bb78096cc7eff787f55ea8ea219ad32aee95b1fe94c5b23ee1f80c4a9"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": -0.014}, "i": 128, "state_hash": "edb2aaa809f3d49a3675684b91a373f37f02d48acacd28ad4b7be26de6f788b2"}
+{"tool": "release", "args": {"handle": 0}, "i": 129, "state_hash": "004f9d3a7b6c080b99786be9871c8d4dd04ab566c4e29794f08f901bae0fb23b"}
+{"tool": "release", "args": {"handle": 1}, "i": 130, "state_hash": "b5b1b26d97ffde31f8523cc96f09314ecb3206c1b978bf65e7a3dad7592a011a"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 3}, "i": 131, "state_hash": "c504c401493eaa6adecc9ebba7b17739bc8bb1d8e9279e60496a23119a9207c4"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 5}, "i": 132, "state_hash": "f3485f7183054867b0e779736cc0f1a8275ab4edef015e640be4db3da03b55e4"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0004, "dy": 0.0012, "dz": 0.0004}, "i": 133, "state_hash": "8bb21b987d31679050ee5c4af9ebdd1d3dacfed588f0ca64fb8c546db1a9e919"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.001, "dy": -0.0013, "dz": 0.0007}, "i": 134, "state_hash": "e92c43569536692f8e17a1041ddb59879d0ecccf87b77dacda84c62471c24c13"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.025}, "i": 135, "state_hash": "cd6dd6afbf2da0e2f84155241b7cf6191b3311daf020baea34a335e7f9fe230c"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": -0.025}, "i": 136, "state_hash": "30c9b0cee5543c410eacbaeded34d09bda91bc9ff6d0c34d8645475362010f22"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0002, "dy": -0.0005, "dz": -0.02}, "i": 137, "state_hash": "b71f5bdbb6690daf7ed78e718a62c508097a5b311a0cbd3ef705ea2a2eef132a"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0006, "dy": -0.0004, "dz": -0.015}, "i": 138, "state_hash": "5122fff3cd4761e6d51fa09586a9417127f43f6d22c86cf52b64b3458b7c22ff"}
+{"tool": "release", "args": {"handle": 1}, "i": 139, "state_hash": "98d35826635d8ea1dc3996ec70aeb932b9164d0e8a38b30d796cbaef0e0f49c5"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0005, "dy": 0.0016, "dz": -0.018699999999999998}, "i": 140, "state_hash": "74b677d782e7da4e80134234f1854054b477c055e0942a1c985d92cfbc14fe77"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0135, "dy": 0.0, "dz": -0.004}, "i": 141, "state_hash": "cbc08c9a4470094b3ed3ffc64cecd98ffc443f28326b40533ee3682f738509ef"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 142, "state_hash": "426a99cf2d3b8f778c027127c147e08996f49540a0b7058425a64e081f8b735c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": 0.002, "dz": -0.015}, "i": 143, "state_hash": "c8827bd4fd3065885fd2df1bfbe0622f8b7f3b0182dc579667fbc89a3cb10d3e"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0015, "dy": 0.013900000000000001, "dz": -0.019399999999999997}, "i": 144, "state_hash": "73c292b9cbb64a871e48346d69e8f9fa08e256c524546a5dad7c2d5a806348ca"}
+{"tool": "release", "args": {"handle": 0}, "i": 145, "state_hash": "f2b618b107ee140ab3cb4586294cb0ce0a18130befe7b50c8f056d9e93775391"}
+{"tool": "release", "args": {"handle": 1}, "i": 146, "state_hash": "ea3555631cc96d1ddf35eb213cae29e7bb070db38af9efa3103410ed7c2e97ba"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 140}, "i": 147, "state_hash": "460deb0914f00301cf2731cc43c39763b2ec1264a36863f264c5a384d47bc5dc"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0003, "dy": -0.0003, "dz": -0.0205}, "i": 148, "state_hash": "e1309190554dd3475b3f5291fa96dbe245736389e4ad7a095116848e5fb3325c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0047, "dy": -0.016, "dz": -0.006}, "i": 149, "state_hash": "b48a748d04ff4b4ec9e4eea5bda5eb0c234b129f65a74e0c37ca0fbdb4be1de6"}
+{"tool": "release", "args": {"handle": 0}, "i": 150, "state_hash": "54e252bebdb3514b50062b72e6698dab1bd612785dfc713a24b1fcfd9da5e7bf"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 136}, "i": 151, "state_hash": "e3f56f3656a0b4491d3e593d8e232a9555e530baa96653e1fd309b80d32df416"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 15}, "i": 152, "state_hash": "4e2f67af0f4429106f12cb27ae1c8a3963ad6019f8022d911057ead4087687c4"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0007, "dy": -0.0157, "dz": -0.0171}, "i": 153, "state_hash": "0383742fae6e125cbdf618d9372ec127a30e931f6becb85b087d11ad2adfc539"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.015099999999999999, "dz": -0.0198}, "i": 154, "state_hash": "41798a6cf2b90d38cf2ccdccc4b9d072843b9238284cd15393f84b06b52bb5e2"}
+{"tool": "release", "args": {"handle": 0}, "i": 155, "state_hash": "c2d68a6163f6e44cc5cd6697c99e7f545047772d366e571bc5060dae75312f87"}
+{"tool": "release", "args": {"handle": 1}, "i": 156, "state_hash": "95c166b99f702bd9e815ebef37d37e8a0c392fc2ea3c94bb2a221f120cf5040e"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 4}, "i": 157, "state_hash": "b79660e255d316108418453da6c4a95f9c987f168531ebbcae99cbde727c6602"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 158, "state_hash": "0d2ea5eec31bbdd74fc51c064ef9b9cb4d0e633a8f9f6f121d0c4dc68067d1fc"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0014, "dz": -0.0246}, "i": 159, "state_hash": "906a7107329e8f4047abe0ac2f109715917e8ffebd3456e2ad3d4bd6b35df08e"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0016, "dy": -0.0019, "dz": -0.0218}, "i": 160, "state_hash": "50a5495232b84a39ace57f85a5e7745b1d17330c44eea13b00b061cdfe1bac08"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0275, "dy": 0.004, "dz": 0.0}, "i": 161, "state_hash": "c0304d675cfbbaaa74742066e707dc392ab27e591e33a3e564b3dbdd73042ef9"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0275, "dy": -0.004, "dz": 0.0}, "i": 162, "state_hash": "e198af18fcdd197456a0b95b09d116735e20bacd2a20d4b7bc7cc569a6bab5e9"}
+{"tool": "release", "args": {"handle": 1}, "i": 163, "state_hash": "9e31fe7b8e91102f0c8bbaa7c4291869daf560e1537b54407a1ac12a6997100e"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.0091}, "i": 164, "state_hash": "50df491888e69ac221b37a93675312d1ca7cc4b5142e7f1d557bf191d97c7c8c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.029, "dy": 0.006, "dz": 0.0}, "i": 165, "state_hash": "cd6d37cff03e6b037eea4db257aeda78327545988b2cd890dae838a1af511143"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.002, "dy": 0.0004, "dz": 0.026}, "i": 166, "state_hash": "9d70ad0b77220069e1841362bd0f772dc794dc6ebd433a01879d177603d28f81"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.01, "dy": 0.0, "dz": 0.013}, "i": 167, "state_hash": "22ba2ee1cb97de760afa0c97995dab7d59dfe6c1c099310bd4086bd1ede7b206"}
+{"tool": "release", "args": {"handle": 0}, "i": 168, "state_hash": "0fa8abd2b8c4a23bfe68be74f9be00f0abc3cd39dc99efa60c91fe6d1d7ceb85"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 126}, "i": 169, "state_hash": "fcc9f1055663e1aefc022f91f2459c6f092c9aca1d09612c10e0919488a24193"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 27}, "i": 170, "state_hash": "547e1c209e4de2bc09639fbd5e076dff004597104c8b2e9a5a0a2ed748dc1d5c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0002, "dy": -0.0005, "dz": 0.026}, "i": 171, "state_hash": "7af37dcbc8fafc8a1cf099bdefb79b538e5947b7c97d7e917ddbcc075d4910f4"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0005, "dy": -0.0005, "dz": 0.026}, "i": 172, "state_hash": "6b832480b2a300047cb51749dc96b3f7bfef537ed91ab23b67fef6b9229b1921"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0094, "dy": -0.013900000000000001, "dz": -0.011300000000000001}, "i": 173, "state_hash": "c9ca82ac10c17e5ffd71478d5d483887842f5d7c374829db0733382af03beddf"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0057, "dy": 0.0129, "dz": -0.0112}, "i": 174, "state_hash": "da81be716feade91afcf9f8608ecca4354ac7292c18e31bba9568d8739d8bf01"}
+{"tool": "release", "args": {"handle": 0}, "i": 175, "state_hash": "3db0a24f353725fd69076b0eb85f78f35261a551028e8b37cb139261525b75b7"}
+{"tool": "release", "args": {"handle": 1}, "i": 176, "state_hash": "5fde7836fc8eaff2d545b8bb1991e63f53013384c9d1639592c79abab62b7cc3"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 132}, "i": 177, "state_hash": "eb0d630dfcdea35e264b81c358ee67c90532705ee2c38674afbd6c2ac73a7c15"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 21}, "i": 178, "state_hash": "3ded858d15b4c2e87cf526bbe6b5d88e0adb5b40c9774ad0c7a3fd619c0989c2"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.028}, "i": 179, "state_hash": "84630f30ce7db84d2e813af3205232a97e56dec200187158a815655271da7533"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.028}, "i": 180, "state_hash": "ab75073a682ec7fe70565897878fa57fe08ee214b26ed409f35921c4346451bb"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.023, "dy": -0.0116, "dz": -0.008}, "i": 181, "state_hash": "a9a9a89f706c69301c5b936767145537f43d283ea7028b382fdc81edb8ba9e07"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0224, "dy": 0.0115, "dz": -0.0096}, "i": 182, "state_hash": "350562626c5bad5b7935c6cb1a466e0adae01b48a82b415d7d50df9608bb8bba"}
+{"tool": "release", "args": {"handle": 0}, "i": 183, "state_hash": "8238496b3bd78e01953ea4380aa8b6361509aabb42153bc5484c6fb73c3d5ec3"}
+{"tool": "release", "args": {"handle": 1}, "i": 184, "state_hash": "f8897a0be151c627c446e167d968e77c344436886fc837070bfd156704be6d0e"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 137}, "i": 185, "state_hash": "77bfab2f0972b780cec664ea31550ad9e101a2522c3fb776fe12520042755b3f"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 15}, "i": 186, "state_hash": "e575926772a349922cc550c435b2bb89d5ea1bd2fe1caaa7ae001b4e5805d4da"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.004, "dy": -0.0025, "dz": 0.002}, "i": 187, "state_hash": "21a8ea383cf5efb6a5d55061243dee3d67ef939f79673de02f0b792ab90a7cb1"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0045, "dy": 0.0034, "dz": 0.0}, "i": 188, "state_hash": "a25fe09367ce2fefbd1d9b5cb68c67d25f9387c5fd83c1abb89eae7b66554987"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0032, "dy": -0.0034, "dz": 0.0044}, "i": 189, "state_hash": "6fa070af3929a0a5b10e5ec5e59e43dae79d100c00b049f2a4961ecce09102f7"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.028}, "i": 190, "state_hash": "29ab385a0230c53493ba30513bb8610a3a5fa51385323b1a19e3a63a615fb605"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.0, "dz": 0.028}, "i": 191, "state_hash": "a2657e10ddc3ef1ab455ee6377b4358893840f42066e0eb5f170578b3929a04c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.02, "dy": -0.005, "dz": -0.003}, "i": 192, "state_hash": "777a16374d03bed6a0af5b2a85b594bc21c1b9ff3269543cc026f3e537c3bc0a"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.025, "dy": 0.006, "dz": -0.002}, "i": 193, "state_hash": "d502e3742ba032361a290c64723d07126568926f7f45451df099a17a35d5f8f8"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.017, "dy": -0.0127, "dz": -0.0079}, "i": 194, "state_hash": "2cba6cdc7d0f828c309a8297d01879e460a70f91d56a57abb2ee1d94d59aa97e"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.019, "dy": 0.019100000000000002, "dz": -0.0079}, "i": 195, "state_hash": "69a41668ce2994530d354bc816be86ec291b1dfe3417b97757e1eb08deed07a5"}
+{"tool": "release", "args": {"handle": 0}, "i": 196, "state_hash": "fb49dca5e5e0e66c7652ff3b9e2b0cafe8e148093c837c35d771de70b29651ae"}
+{"tool": "release", "args": {"handle": 1}, "i": 197, "state_hash": "55d90a8c82f3315b247ecb3688d9634aa289452d2b2ae6257c8446b36095b03e"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 6}, "i": 198, "state_hash": "669ff367cffeabb61e64e8996314ed7ff116df85bf8471bd4507e2f502bb8983"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 115}, "i": 199, "state_hash": "de0b1a1351d21ad9550a2fb9fc4749fcf6f5f0e5968eaff39e08873567b3a4d2"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0004, "dy": -0.001, "dz": 0.0107}, "i": 200, "state_hash": "87dde4cbe740163f9b4e86948a08d47381972f8ae36c54b2bd00ab073f496ffb"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.016, "dy": 0.0, "dz": -0.003}, "i": 201, "state_hash": "cd43cebb558281b4b3082b1ff8745377b334f1435f9dd78d624736f8ba9140c7"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.019}, "i": 202, "state_hash": "42334f8dc35032ea8e9dc86b1cba4cc3c8fa88a3b7cd973be0487be9c67979fc"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0136, "dy": -0.0129, "dz": -0.0104}, "i": 203, "state_hash": "1676e3c88a5e135cbd3995662482f80f14183143362afc9fb174ed3aa8d36fe2"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.009, "dy": 0.017, "dz": -0.005}, "i": 204, "state_hash": "e65770a674ba581b90e260f7fc9808fe6af8452bc0e0757b266a7f4869522fa0"}
+{"tool": "release", "args": {"handle": 0}, "i": 205, "state_hash": "13d90cd79713e7df60da1b37883f31eee54bb48ddebc9a76dab5ff74cbb5928d"}
+{"tool": "release", "args": {"handle": 1}, "i": 206, "state_hash": "1cf31324e5efa1eeff4579c0b759a37b5d02ff396e62ddb7798133daf43cbd89"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 39}, "i": 207, "state_hash": "0c2256771b73ad30d671d83773e7c5ee240e73f1813cf53f7ba4eea068dc9cc0"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 48}, "i": 208, "state_hash": "ef66e8ba5d6eb4d58f1102baf403562d6754e1b8b2e1ecbe136bc6d9f8fa415c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0112, "dy": 0.013300000000000001, "dz": -0.0016}, "i": 209, "state_hash": "166b856e3d79d4200fc0576a5cd65174118ffbf7ec7587018cd3ed4414a4c71d"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0128, "dy": -0.0027, "dz": 0.0025}, "i": 210, "state_hash": "4c9b22c8748444efee1cd628f6ac46d703cb701aa973557be635044db2d4562c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.008, "dy": -0.0175, "dz": 0.0}, "i": 211, "state_hash": "d309b8f0d4d5d77f29647553002bebd5e4bc6f0d4ed737215fe950e96110f339"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.001, "dy": -0.0035, "dz": 0.016}, "i": 212, "state_hash": "06eae46e019da40b6fdbcddc47a3751fdbb0327208b5247536b56433a9344928"}
+{"tool": "release", "args": {"handle": 0}, "i": 213, "state_hash": "e606f6aa94c0e2cca542581eb2fbd462ce7970d229f782c8b728d54f7a525873"}
+{"tool": "release", "args": {"handle": 1}, "i": 214, "state_hash": "46044c835a36d68c1dbe79640e6e8f9d4d9daca707c619fb3767ec6316084c3e"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 29}, "i": 215, "state_hash": "29ae41bcc0a273d1cdc9d30f989b5f5e651fcdc70866d683d84daa307e520f5c"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 125}, "i": 216, "state_hash": "7eacd0ae67d652f4576e50a18fd4eb1f00fe425a0220ca3a4ddc787e29e8b96c"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.015, "dy": -0.025, "dz": -0.005}, "i": 217, "state_hash": "73bcefe5bd7798630a3f6bde341451e8b1368151cf21db44322f272921b2603d"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.011, "dy": 0.017, "dz": -0.0079}, "i": 218, "state_hash": "89eea7ce95cc912ba5969784b98d1f2f14b368db58a137913313a3c89d83bc58"}
+{"tool": "release", "args": {"handle": 0}, "i": 219, "state_hash": "9845816a9f28fa4417c41b9774f34b55affd6d3b9955a19ab15842f368c3dd94"}
+{"tool": "release", "args": {"handle": 1}, "i": 220, "state_hash": "a6e0c8ae6fe92dc573e06e54c5d5d1a3ce49709a3ecdeaf58e3c122d615b5cae"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 6}, "i": 221, "state_hash": "2805bf2146a4daf154b672da443e64653857499415a67fb64a1446bdebf2ce0d"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.022, "dy": -0.0009, "dz": -0.0004}, "i": 222, "state_hash": "1e6b04477f204dd63d0ef9ea8c6de2f46c0d32be7768a8a99894b49f2e33c22d"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0152, "dy": 0.0011, "dz": 0.0012}, "i": 223, "state_hash": "e0244c03662e2c39d0c0881b6b00462280c5c40f04e65696d1f8cc39ef1f073f"}
+{"tool": "release", "args": {"handle": 0}, "i": 224, "state_hash": "d80778a78db3e6c2b3ddde99499287b9123461ad2d7c65492bc48c8327e37944"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 2}, "i": 225, "state_hash": "d643c59a042a71d41c4ba60df4c9762b83ed513a6d91f96e22a7ecc02e77b504"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 11}, "i": 226, "state_hash": "0296f09d139673579d9fba3b51c2d1b510ad0d3f2c77a0f90961f9cdc87937bb"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.020399999999999998, "dy": -0.0029, "dz": -0.0124}, "i": 227, "state_hash": "f82bd00f1d6e4dbc4fb0040b60c0ea95780cb4d7d3c5fac7fb4013e498e8f2fb"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0217, "dy": 0.0063, "dz": -0.015300000000000001}, "i": 228, "state_hash": "5a2d40f4889d1ea46ae871be130765517bd267b4faada234c1d72523e306fe7c"}
+{"tool": "release", "args": {"handle": 0}, "i": 229, "state_hash": "04ffefbfaa8e51885a93afdb7891c971b2cd7247abb44637582c8617e85b61b6"}
+{"tool": "release", "args": {"handle": 1}, "i": 230, "state_hash": "fcce14a5a2fc59001221f55ae5b899835caeb40992c4a42f7043efe9c98a99b3"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 140}, "i": 231, "state_hash": "069dcc4c1a7a31ce3381bc73a915df9119fe2e2c08fd36a615407e78624da3f1"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 15}, "i": 232, "state_hash": "af054b1ec8d8b30b0b34ef0dce4677ab751088cc5c0df26aaadf7247c72e669e"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.024, "dy": -0.007, "dz": 0.001}, "i": 233, "state_hash": "fcd806db90da381d6b075aa9a2562b7540230cef0be4c4fab416f40cc07c4d2a"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.024, "dy": 0.007, "dz": 0.001}, "i": 234, "state_hash": "f849e5237352ab6e7d62c7249e0c53e90c18f158bc832a22dfdd0384715e5257"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.003, "dz": -0.028}, "i": 235, "state_hash": "d131a9b097fa016d127f302d7367f09f29c694d8b0e484003b4bf716a4e846c4"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.003, "dz": -0.028}, "i": 236, "state_hash": "09e2d6fd089e753937efd80598659f865bbdd1d64bf1eae2ccb8ef908b56cded"}
+{"tool": "release", "args": {"handle": 0}, "i": 237, "state_hash": "3116b7587d277310eb316ab1b3928fd5267c94992b8e859c165ce264afd7ad7c"}
+{"tool": "release", "args": {"handle": 1}, "i": 238, "state_hash": "decc17f9a56ca54f140aa72309709ef773b2f91867b95eb8f90c292c80e9ed53"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 133}, "i": 239, "state_hash": "86886a53d10785e1e7a07a70945dec9884f068b317a47df41d2e3a9997838d28"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 22}, "i": 240, "state_hash": "400080ee8a5447031bedc0ffa89faa4edf61db80a4bc86dd3e617c482b6fe6a0"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.023, "dy": -0.0035, "dz": -0.006}, "i": 241, "state_hash": "0fd763ace9c2fec136d4e29f57917a972c6fc667798b03dabd3ec7de40b7c5af"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.021, "dy": 0.0035, "dz": -0.002}, "i": 242, "state_hash": "3c7073754b1637233068d3afd5be21556013c8101c33dd05dea81b467c5eec01"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.002, "dz": -0.026}, "i": 243, "state_hash": "a76bcedd4bf9de1c8eb2d802f6c3b0d31419ed4a5e3a57d6c64b66984f9dccb5"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0, "dy": 0.002, "dz": -0.026}, "i": 244, "state_hash": "8920d5cc331467d1de9b1dc0bcb9f5617c99048880869f107f15b7feca0de0eb"}
+{"tool": "release", "args": {"handle": 0}, "i": 245, "state_hash": "70a9f5b69fdcc204db006dabebbe71bee167eb4ab7a29feb3609dfda603d78ad"}
+{"tool": "release", "args": {"handle": 1}, "i": 246, "state_hash": "ebfb43d2489ef993020be59659671004ae82158b1a784ab7102ff1bcb6dcaac1"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 138}, "i": 247, "state_hash": "bd184699de8be94b209ff1e5b87b06fddb111cef48aa800732f169389da2bb8c"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 12}, "i": 248, "state_hash": "43afd668b4f1728f28db71924f359257833f7e9ff76f127f01b967273c52f648"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.018, "dy": -0.002, "dz": 0.023}, "i": 249, "state_hash": "65496381aced8f4102fa518e324ac00d8cd3278dfc895489a662119bced5fadd"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.015, "dy": 0.001, "dz": 0.021}, "i": 250, "state_hash": "b8b8d38c1144295267ff00aa39b0173971357dad4b3446325676c98da60bdd5f"}
+{"tool": "release", "args": {"handle": 0}, "i": 251, "state_hash": "10744d56b6751f69bb08dae25e2c8ffc0f433c6f79b9c18fd05db51f40a92073"}
+{"tool": "release", "args": {"handle": 1}, "i": 252, "state_hash": "f44e98b342a901b0801c7a404f29c09ea6034742961407b1f959888d140f6818"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 4}, "i": 253, "state_hash": "8a836765b4e8be91857ef45546234a533f15a9a50b11b5a9e3b05debfe85fb77"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0007, "dy": 0.001, "dz": -0.013}, "i": 254, "state_hash": "78082915d037987d2df3ef08427301eb8844f7a2b0aff29f91182d681ebec9af"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": -0.0265}, "i": 255, "state_hash": "d8486cef9007b453a58ecba171e701ad701816bf7e26cf8ae3e45c1251ca8b12"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0135, "dy": 0.0, "dz": -0.004}, "i": 256, "state_hash": "1c6b1dc02e0a0423428b974e8ed3cf50e76cdaa571bf57a6a1906f533b94f7f3"}
+{"tool": "release", "args": {"handle": 0}, "i": 257, "state_hash": "e141aa616489d8762ba996640f667549211c036fae46b2c49c791f49d2ce85cd"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 0}, "i": 258, "state_hash": "5fd8959e13e231dbf944809e5dd3845e9d7024b4be6f6cccb579edfe2cc2a6a0"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 259, "state_hash": "f09917fb30778e2e0ec45bdb95adf9a354c434671edff8f0d48a74fbe4d62ad2"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0044, "dy": -0.0141, "dz": -0.0189}, "i": 260, "state_hash": "41c50d78333c871d66b19a08f63bcaf815aebce8b4bba27df8b775e021e00a8c"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.004, "dy": 0.0135, "dz": -0.019399999999999997}, "i": 261, "state_hash": "34562f9012b2487b86f8054230cf46abfa5303e83776f94769f2998024ef8887"}
+{"tool": "release", "args": {"handle": 0}, "i": 262, "state_hash": "61d3780b7831f713997a5e4e4b882b69f8f48294b2577e42a0c8d63e3ac3fe44"}
+{"tool": "release", "args": {"handle": 1}, "i": 263, "state_hash": "b21a9eede033c9f35fd50044ca42173e1f0bfbae14477de211668bd44312e57c"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 137}, "i": 264, "state_hash": "be876427646a6e74924a17cc4564035ec04cba863770b44350bbd0f9c35ee747"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 17}, "i": 265, "state_hash": "c11d8f4c53ab34a548384be1285a74a8bbba92356e3891c5c0fb93f20299dbd7"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0018, "dy": -0.0145, "dz": -0.0177}, "i": 266, "state_hash": "34f6e10b5d22c1cf24e0594de0690325555846ac6af7ab4e3c144111df9558af"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.003, "dy": 0.016, "dz": -0.0205}, "i": 267, "state_hash": "05fbbf1e1f10f8762cdc28d2def0b074259a29a77c89f60b9210984f65d6652e"}
+{"tool": "release", "args": {"handle": 0}, "i": 268, "state_hash": "858250ea946d5e51eb891bd018fb4cf37d6e8dd2ecd48855776bdef46e45bf43"}
+{"tool": "release", "args": {"handle": 1}, "i": 269, "state_hash": "021ae3d4c2f265121475ec61fff1dd3e07a2856564bc1e5b78f348b1dfe8effd"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 5}, "i": 270, "state_hash": "213c2d2209660d2cbc4cfd2183680efd3afb61afde755cb368f660dd5176b8a0"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.0025, "dz": -0.0127}, "i": 271, "state_hash": "726557c7fd9ca764e5d61cff3cfd040836c946437f038bba8a3c32ce2b4ce8b7"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.0295, "dy": 0.0, "dz": 0.0}, "i": 272, "state_hash": "17ec90bb1815257137f5b57a1a7fee985d347b8c7b5efca2640e9b4ae81a1769"}
+{"tool": "move", "args": {"handle": 0, "dx": -0.006, "dy": 0.0, "dz": 0.004}, "i": 273, "state_hash": "524d6fe09f08ed60fd02d3b8e41e50ef50711df5b40b4d8b2e2cb4b6f470ca7e"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0001, "dy": 0.0, "dz": 0.028}, "i": 274, "state_hash": "47d7298d696afb8d307653c45c98e2c6bb927985aac3c004408e4d4ab8923e78"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.012, "dy": 0.0, "dz": 0.007}, "i": 275, "state_hash": "12c59081069e907f39fefa39172561c393d16b1bcf025cc084ed8b289dca35b3"}

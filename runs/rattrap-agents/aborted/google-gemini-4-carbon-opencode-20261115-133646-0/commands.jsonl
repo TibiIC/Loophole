@@ -1,0 +1,1 @@
+{"type": "header", "puzzle": "rattrap", "spec": "rattrap.yaml", "overrides": {}, "spec_sha256": "2a6476b6e53cfc7768d2acfe41d22eac3da356a23b11c1ca644ce1732d1218e9", "checkpoints_sha256": "ca86f2d7c69b9256d366f5d19b1b70a76138be7d612087deae341a73d51e4850", "max_actions": 852, "initial_state_hash": "b0b3495e722e2cc6f19208ded4cdf275de4026a350a906972f0c3262ffe20b09"}
