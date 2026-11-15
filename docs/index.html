@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="An RL environment where an LLM agent solves 3D disentanglement puzzles in a MuJoCo simulation, over MCP.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css">
   <style>
     /* 70 / 20 / 10: white reading area (70), light-blue sidebar and supporting surfaces (20),
        one vivid blue accent for links, active nav and headings (10). */
@@ -135,6 +136,11 @@
       plugins: [resultsTable],
     };
   </script>
+  <!-- Math: $...$ inline and $$...$$ display (GitHub-style), rendered with KaTeX. docsify-katex parses
+       with its own marked 4 instance, so these load after window.$docsify and before docsify. -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@2.0.2/dist/docsify-katex.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
 </body>
 </html>
