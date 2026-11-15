@@ -1324,5 +1324,5 @@ signal to use.
 
 ## References
 
-Full entries, with DOIs and arXiv identifiers checked, are in [REFERENCES.md](../REFERENCES.md): [ZBKV20], [JSCP15],
+Full entries, with DOIs and arXiv identifiers checked, are on the [References](references.md) page: [ZBKV20], [JSCP15],
 [NHR99], [WL94], [Mir96], [TLA+23], [NSA+22], [KL00], [RN11], [PS02], [MB24], [BLK11], [TXR+26], [HO26].
