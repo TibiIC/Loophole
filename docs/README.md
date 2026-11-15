@@ -75,7 +75,7 @@ or superseded, each with its reason.
 * [Quickstart](QUICKSTART.md): evaluate a model with one command, drive the simulator with your own agent, or train on Alpha.
 * [Results](RESULTS.md): every evaluation run, strategy classes, behaviour axes and plots.
 * [Anomaly diagnosis](ANOMALY.md): how agent runs scored above the oracle.
-* [Reward design (Rat Trap)](RATTRAP_DESIGN.md): reference solve, score and checkpoint progress.
+* [Reward design](rewards.md): every reward component in both environments (scored, shaping, diagnostic), with formulas, worked examples, and how to write your own.
 * [Exploits](EXPLOITS.md): reward and harness red-team attempts and what stopped each one.
 * [Harness notes](HARNESS_NOTES.md): task scope, geometry provenance and licence.
 * [Variants](VARIANTS.md): harder puzzles prepared from the published archive.

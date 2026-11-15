@@ -98,7 +98,7 @@ is listed as a project link. Versions are the ones pinned in `pyproject.toml` or
 
 ## The Rat Trap's progress measure: borrowed and ours
 
-The checkpoint progress measure ([Reward design](RATTRAP_DESIGN.md)) was influenced by
+The checkpoint progress measure ([Reward design §7](rewards.md?id=_7-rat-trap-partial-credit-checkpoint-progress)) was influenced by
 **SILO** (Tao et al. 2026, `[TXR+26]` in [References](references.md)).
 
 - **Borrowed from SILO:** localising progress to sub-stages, each with a simple geometric

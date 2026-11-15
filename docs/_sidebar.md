@@ -3,7 +3,7 @@
 - [Watching a run live](watching.md)
 - [Results](RESULTS.md)
 - [Anomaly diagnosis](ANOMALY.md)
-- [Reward design (Rat Trap)](RATTRAP_DESIGN.md)
+- [Reward design](rewards.md)
 - [Exploits](EXPLOITS.md)
 - [Harness notes](HARNESS_NOTES.md)
 - [Variants](VARIANTS.md)
