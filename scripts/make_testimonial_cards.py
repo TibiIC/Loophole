@@ -13,8 +13,7 @@ attribution line, "<model, turn> · <annotation>". About two seconds in, a hand-
 annotation only (it starts at the rendered width of the prefix), left to right, over half a second.
 
 Card 5 (6 s): the same one-star rating, an iso still of the Rat Trap at its start (rendered at 1920x1080, cropped to the
-puzzle) on which the 20 checkpoints land as circled red X stamps, 0.15 s apart; once all have landed, "0 of 20 reached
-· verified purchase" and "— every frontier model we tested". A checkpoint is a whole cord configuration; its stamp is
+puzzle) on which the 20 checkpoints land as circled red X stamps, 0.15 s apart; once all have landed, "0 of 20 checkpoints reached · verified purchase" and "— every frontier model we tested". A checkpoint is a whole cord configuration; its stamp is
 placed at the cord node the human grabbed or released at the grab / release event the checkpoint was taken at
 (`meta.kept_boundary_indices` into the recording's events), at that node's position in the checkpoint's state,
 projected with the render camera. The placements are written to card-5-stamps.json.
@@ -236,13 +235,20 @@ def checkpoint_frames(still, stamps, fonts, best, K):
     mask = Image.new("L", pic.size, 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, img_w - 1, img_h - 1], radius=16, fill=255)
     hf, af = fonts["headline"], fonts["attr"]
+    probe = ImageDraw.Draw(Image.new("RGB", (W, H)))
+    while probe.textlength(f"{best} of {K} checkpoints reached · verified purchase", font=hf) > TEXT_W and hf.size > 40:
+        hf = hf.font_variant(size=hf.size - 2)  # one line, however long the count
+        try:
+            hf.set_variation_by_axes([600])  # a resized variable font starts at its default weight
+        except (OSError, AttributeError):
+            pass
     star_r, star_gap, g1, g2, g3 = 46, 24, 40, 44, 16
     h_lh, a_lh = int(hf.size * 1.2), int(af.size * 1.3)
     total = 2 * star_r + g1 + img_h + g2 + h_lh + g3 + a_lh
     y0 = (H - total) // 2
     pic_y = y0 + 2 * star_r + g1
     text_y = pic_y + img_h + g2
-    headline = f"{best} of {K} reached · verified purchase"
+    headline = f"{best} of {K} checkpoints reached · verified purchase"
     attribution = "— every frontier model we tested"
 
     base = Image.new("RGB", (W, H), BG)
