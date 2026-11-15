@@ -2,9 +2,8 @@
 
 This page defines every reward component of the Loophole suite, in both environments: `tasks/loophole-alpha`
 (Alpha 1.0, Zhang et al. 2020; also `tasks/loophole-alpha-planner`) and `tasks/loophole-rattrap` (a closed string
-loop with a mouse bead on a wooden frame). Every formula was checked against the code. Where the code and an older
-document disagreed, the code is what is written here, and the disagreement is listed under
-[Discrepancies found while writing this page](#discrepancies-found-while-writing-this-page).
+loop with a mouse bead on a wooden frame). Every formula was checked against the code, and where an older
+document disagreed, this page follows the code.
 
 **How the suite is built.** One score shape, one shaping rule and one violation rule are shared. Each environment
 plugs in its own success test, its own partial-credit measure and its own shaping potential:
@@ -62,38 +61,43 @@ Every component also sits in one of three tiers, marked in its heading, and noth
   [R4 checkpoint potential](#r4-the-checkpoint-shaping-potential-and-the-training-violation-penalty-shaping),
   [R5 aperture alignment](#r5-aperture-alignment-aperture_alignment-shaping-weight-0),
   [R6 disc word and P&S norm](#r6-the-disc-word-and-the-przytyckisikora-norm-unsound-diagnostic)
-* [Inactive and legacy components](#inactive-and-legacy-components) ·
-  [Discrepancies found while writing this page](#discrepancies-found-while-writing-this-page) ·
-  [Writing your own reward](#writing-your-own-reward)
+* [Appendix: legacy components](#appendix-legacy-components) · [Writing your own reward](#writing-your-own-reward)
 
 ## The components at a glance
 
-| id | component | config key / code | Alpha | Rat Trap | tier |
-|---|---|---|---|---|---|
-| S1 | composite score | `episode_score` (`reward/literature_rewards.py`); `RatTrapEpisode.score` | terminal of `cspace_tunnel` | on | scored |
-| S2 | efficiency, 1 − α·a/T | same | T = 198 | T = 852 | scored |
-| S3 | violation rule | `sim/audit.py`; `puzzles/rattrap/sim.py` | A2 | R2 | scored |
-| S4 | potential-based shaping | `reward/components.py: PotentialShaping` | base class | base class | shaping |
-| S5 | swept-motion certificate | `sim/certify.py`; `puzzles/rattrap/certify.py` | rigid, off | cord, `log` | diagnostic |
-| A1 | free escape by translation | `goal.criterion: escape`; `sim/collision.py: escape_direction` | on | – | scored |
-| A2 | penetration, speed, instability | `audit:` in `default_config.yaml` | on | – | scored |
-| A3 | C-space cost-to-go | `reward.roadmap: true`; `reward/roadmap.py` | on | – | input |
-| A4 | held cost-to-go progress | `progress_cap` of `cspace_tunnel`; `StableMin` | on | – | scored |
-| A5 | C-space tunnel potential | `cspace_tunnel` | weight 1 | – | shaping |
-| A6 | clearance shaping | `clearance_shaping` (alias `IndustRealSDFReward`; `industreal_sdf` is not a key) | weight 0 | – | shaping |
-| A7 | Gauss linking | `gauss_linking_diagnostic` (alias `GaussLinkingPotentialReward`; `gauss_linking` is not a key) | logged | – | diagnostic |
-| A8 | planner task | `alpha_planner.yaml`: same reward block, more observation tools | – | – | – |
-| R1 | frozen-shape escape | `escape_directions`; `FrozenEscape` | – | on | scored |
-| R2 | penetration and release exception | `penetration_tolerance`, `release_*` | – | on | scored |
-| R3 | checkpoint progress | `checkpoints_file`, `score_progress_cap`; `CheckpointTracker` | – | on | scored |
-| R4 | checkpoint potential, violation penalty | `shaping_gamma`, `shaping_lambda`; `CheckpointPotential` (`rattrap_checkpoints`) | – | λ = 1 (`training=True`) | shaping |
-| R5 | aperture alignment | `shaping_alignment` (registered as `aperture_alignment`) | not used | weight 0 | shaping |
-| R6 | disc word, P&S norm | `topology_alphabet`; `topology.py`, `norm.py` | – | logged | diagnostic |
+One row per component, taken from the task configurations (`loophole/configs/alpha_training.yaml`, which
+`tasks/loophole-alpha` loads, and `loophole/puzzles/rattrap/rattrap.yaml`) and from the reward registry
+(`reward/components.py: REGISTRY`, plus the `register_component` calls in `reward/literature_rewards.py` and
+`reward/alignment.py`).
 
-Paths are relative to `loophole/`. "Weight 0" means computed and logged but contributing nothing. Everything passed
-to `register_component` in the codebase is here: `cspace_tunnel`, `clearance_shaping`, `gauss_linking_diagnostic` and
-`aperture_alignment`; the five built-in registry entries are under [Inactive and legacy
-components](#inactive-and-legacy-components).
+| | Component | Config key | Alpha | Rat Trap | Weight | Reaches score? |
+|---|---|---|---|---|---|---|
+| S1 | composite score: 0 / $1 - \alpha a/T$ / $\kappa p$ | `cspace_tunnel` (terminal value, `in_score: true`); Rat Trap: built in (`RatTrapEpisode.score`) | ✓ | ✓ | 1 | **scored** |
+| S2 | efficiency term | `cspace_tunnel.params.alpha`, `max_actions`; `score_alpha`, `max_actions` | ✓ T = 198 | ✓ T = 852 | α = 0.5 | **scored** |
+| S3 | violation rule: any violation scores 0 | built in, cannot be switched off | ✓ (A2) | ✓ (R2) | – | **scored** |
+| S4 | potential-based shaping, the scaffold | `gamma`, `lam` on each component; `shaping_gamma`, `shaping_lambda` | ✓ | ✓ | per component | shaping only |
+| S5 | swept-motion certificate | `certify_motion: log` (Rat Trap); Alpha: off, no key | — | ✓ `log` | – | diagnostic |
+| A1 | success: free escape by translation | `goal.criterion: escape`, `goal.escape_directions: 64` | ✓ | n/a | – | **scored** |
+| A2 | penetration, speed and instability checks | `audit.penetration_threshold`, `audit.max_substep_displacement` | ✓ | n/a | – | **scored** |
+| A3 | C-space cost-to-go | `reward.roadmap: true` | ✓ | n/a | – | input to A4 (scored) and A5 (shaping) |
+| A4 | partial credit: held cost-to-go progress | `cspace_tunnel.params.progress_cap` | ✓ | n/a | κ = 0.3 | **scored** |
+| A5 | C-space tunnel potential | `cspace_tunnel` | ✓ | n/a | 1 | shaping only (its terminal value is S1) |
+| A6 | clearance shaping | `clearance_shaping` | ✓ | n/a | **0** | shaping only, weight 0: logged, contributes nothing |
+| A7 | Gauss linking | `gauss_linking_diagnostic` | ✓ | n/a | **0** | diagnostic |
+| R1 | success: frozen-shape escape | `escape_directions: 64` | n/a | ✓ | – | **scored** |
+| R2 | penetration check and release exception | `penetration_tolerance`, `release_settle_audit`, `release_transient_limit` | n/a | ✓ | – | **scored** |
+| R3 | partial credit: checkpoint progress | `checkpoints_file`, `score_progress_cap` | n/a | ✓ | κ = 0.3 | **scored** |
+| R4 | checkpoint potential, training violation penalty | `shaping_gamma`, `shaping_lambda` (registered name `rattrap_checkpoints`; the penalty has no key) | n/a | ✓ with `training=True` | λ = 1 | shaping only |
+| R5 | aperture alignment | `shaping_alignment` (registered as `aperture_alignment`) | n/a | ✓ with `training=True` | **0** (all three apertures) | shaping only, weight 0: logged, contributes nothing |
+| R6 | disc word and Przytycki–Sikora norm | `topology_alphabet` | n/a | ✓ | **0** | diagnostic (unsound as progress) |
+
+* **✓** used by that task; **—** available but switched off; **n/a** does not exist for that environment.
+* **Reaches score?** **scored**: part of the verifier's one float in `/logs/verifier/reward.txt`. **shaping only**:
+  a per-action training signal; it affects training and never the verifier. **diagnostic**: logged for analysis;
+  it affects nothing.
+* `tasks/loophole-alpha-planner` loads `loophole/configs/alpha_planner.yaml`, whose reward block is identical
+  (A8). The registry's five legacy entries are loaded by neither task: see the
+  [appendix](#appendix-legacy-components).
 
 ## How a score is produced
 
@@ -153,6 +157,21 @@ $\kappa \ge 1 - \alpha$. The tests cover it:
 | do nothing, stop early (both) | unsolved, p = 0 | 0 |
 | any violation (both) | – | 0 |
 
+**Strengths.**
+* One ordering guarantee for both environments: every solve (at least 0.5) beats every non-solve (at most 0.3),
+  whatever the parameters, because the components refuse $\kappa \ge 1 - \alpha$.
+* A single float in $[0, 1]$ with the same shape in both tasks, so a score means the same kind of thing in each.
+
+**Limitations.**
+* **Little resolution among failures.** Non-solves are squeezed into $[0, 0.3]$, and on the Rat Trap every agent
+  run so far scores exactly 0. The score cannot rank two failing agents there; the closest approach and blocked-move
+  counts in the full results do that, outside the score.
+* **Partial credit is not comparable across environments.** Alpha's $p$ is roadmap progress (A4) and the Rat
+  Trap's is checkpoints reached (R3); a 0.1 on one is not a 0.1 on the other.
+* **What stops it being farmed.** The solve branch needs A1 / R1, computed by the verifier on its own replay; the
+  non-solve branch is capped at 0.3 and built from held or ordered progress (A4, R3); any violation gives 0 (S3);
+  nothing the agent writes is read ([How a score is produced](#how-a-score-is-produced)).
+
 ### S2. The efficiency term (scored)
 
 **Config.** Both environments.
@@ -192,6 +211,19 @@ even a solve on the last action is worth more than the best possible non-solve (
   * how close the path was to the reference;
   * how the actions were spent.
 
+**Strengths.**
+* Counts actions, not seconds or tokens, so a slow model or a slow machine is not penalised.
+* Linear and bounded: the last-action solve still beats the best non-solve.
+
+**Limitations.**
+* **Observations are free.** An agent may render, query state and think as much as it likes; one Alpha run made
+  329 renders before its first move. The term rewards economy of motion, not of effort.
+* **It ignores the quality of the path**, beyond its length in actions.
+* **$T$ is a convention** (about three times the reference's actions), and the slope $\alpha/T$ differs between the
+  environments: one Alpha action is worth 0.0025, one Rat Trap action 0.0006.
+* **What stops it being farmed.** It applies only to a solve, so it cannot be collected without solving; the only
+  way to raise it is to solve in fewer actions. Every action tool, `wait` included, counts.
+
 **Worked examples.**
 * Alpha, Gemini 4 Carbon trial `runs/20261114-111735/opencode/loophole-alpha__sbMy6Ld` (`final` record):
   solved, $a$ = 45, $T$ = 198. $S = 1 - 0.5 \cdot 45/198 = 1 - 0.113636 = 0.886364$; logged `score` 0.886364.
@@ -227,6 +259,19 @@ the move on contact), so honest play does not get there.
   * which body is at fault;
   * how long the penetration lasted;
   * anything between two substeps. The swept-motion certificate (S5) covers that, in log mode.
+
+**Strengths.**
+* A hard rule checked after every 1 ms substep: forcing is worth nothing, whatever it achieved.
+* The rigs stop short of it (Alpha's at half the threshold), so honest play does not trip it: 0 violations in 24
+  committed Alpha runs with 941 blocked moves (A2).
+
+**Limitations.**
+* **Snapshots.** Anything between two substeps is invisible to it. Alpha bounds per-substep speed (A2); the Rat
+  Trap has only the certificate, in log mode (S5).
+* **The checks differ per environment** and have known gaps on the Rat Trap: no speed or instability check, and a
+  release limit above the depth of a wall crossing (`docs/EXPLOITS.md` R10, R11).
+* **Soft contacts mean a threshold.** An honest strained contact can approach it, as the Rat Trap's release
+  transient did before the release exception (R2).
 
 **Worked examples:** A2 (Alpha: every committed run's deepest contact against its threshold) and R2 (Rat Trap: the
 release exception).
@@ -293,6 +338,18 @@ exactly this form never change which policy is optimal; they only make it easier
     training mode now adds an explicit violation penalty, so a violation's shaping return there is −1. Alpha's
     is unchanged.
 
+**Strengths.**
+* Policy invariance [NHR99]: the shaping can speed up learning without changing which policy is optimal.
+* Going round in circles earns nothing: with $\gamma = 1$ any oscillation sums to 0.
+
+**Limitations.**
+* **It is only as good as its potential.** A potential that points down the wrong route (A3's coverage gaps, R4's
+  single route) shapes towards that route.
+* **Both absorbing outcomes get $\bar\Phi = 0$.** A violation collects the same terminal shaping as a solve from the
+  same state; see the warning at the top. The Rat Trap's training mode adds an explicit penalty (R4); Alpha does not.
+* **With $\gamma < 1$ only the discounted sum is invariant**, so $\gamma$ must equal the learner's discount.
+* **Terms that are not potential differences do not telescope**: A6's two penalties and R4's violation penalty.
+
 **Worked example** (`loophole/tests/test_shaping_scaffold.py::test_terminal_potential_is_zero_and_truncation_keeps_it`).
 Take $\Phi(s) = -(\text{number of } a\text{'s in the word})$, $\gamma$ = 0.99, $\lambda$ = 1, $s$ = `aaa`
 ($\Phi = -3$) and $s'$ = `aa` ($\Phi = -2$):
@@ -347,6 +404,16 @@ interval by interval, that nothing came closer to the structure than the toleran
   safe motion; it never certifies an unsafe one.
 * **What it ignores:** cord against cord (self-passage), which stays with the physics. Every pair of non-adjacent
   segments collides (EXPLOITS.md R9).
+
+**Strengths.**
+* Closes the gap between snapshots: a conservative proof, interval by interval, that the cord never came closer to
+  the structure than the tolerance. It never certifies an unsafe motion.
+
+**Limitations.**
+* **Log mode only.** An uncertified substep is counted, not a violation, so it never ends an episode or changes a
+  score. `enforce` exists but is not used.
+* **Conservative,** so it can fail to certify a safe motion; that is why it is not enforced.
+* **Off for Alpha**, and it ignores cord-against-cord passage, which is left to the physics (`docs/EXPLOITS.md` R9).
 
 **Worked example** (the reference replay): every substep interval of the 284 actions was certified: `uncertified_substeps` = 0
 at the end.
@@ -406,6 +473,18 @@ tube A. There is no target position and no "far enough": a single free direction
 * **Missing an escape only delays success**, by an action or more; it never grants a false one. EXPLOITS.md #19
   checks a reported direction with a dense 1 mm sweep.
 
+**Strengths.**
+* No tunable target: "a straight way out exists" is the definition of apart [WL94].
+* Sound: a reported direction is free.
+
+**Limitations.**
+* **It can miss an escape**: directions between the 64 samples, or an exit that needs a rotation on the way out.
+  That only delays success; it never grants a false one.
+* **About 0.3 s per action**, re-run by the verifier.
+* **What stops it being farmed.** The verifier recomputes it on its own replay of the logged actions; a reported
+  direction is checked with a dense 1 mm sweep in the tests (`docs/EXPLOITS.md` #19); the agent cannot reach the
+  log or the simulator except through the action tools.
+
 **Worked example** (`runs/20261114-111735/oracle/loophole-alpha__fVDVriY/verifier/episode.jsonl`, the Alpha
 reference solve):
 * After action 58 no direction was free.
@@ -454,6 +533,18 @@ two consecutive checks straddle a thin part (speed), or blow up the integrator s
 * **What it measures:** contact depth, the per-substep displacement of every moving body, and MuJoCo's divergence
   counters.
 * **What it ignores:** which body is at fault, and how long a penetration lasted.
+
+**Strengths.**
+* Three independent checks for three ways of cheating a contact model.
+* Large margin in practice: the deepest contact of any committed run is 2.085 mm against 4 mm.
+
+**Limitations.**
+* **Penetration below 4 mm is not a violation.** The rig stops pushing at 2 mm, so honest play stays there, but the
+  audit itself tolerates up to 4 mm.
+* **It ignores which body is at fault and how long a penetration lasted.**
+* **What stops it being farmed.** It is a penalty, so the only gain is in evading it: pushing faster is capped by
+  the rig's velocity limit and caught by the speed check; integrator resets are caught by MuJoCo's divergence
+  counters (`docs/EXPLOITS.md` #13).
 
 **Worked example** (all 24 committed Alpha runs with at least one action; the `violations` field of each `final`
 record in `verifier/episode.jsonl`):
@@ -517,6 +608,18 @@ connected to the best nearby junction it can reach in a straight line without hi
   * how the agent would actually execute the motion.
 * **It need not reach 0 at a solve.** The goal set is "0.4 m apart", while success (A1) is "a straight way
   out". The reference solves with $c$ = 5.72.
+
+**Strengths.**
+* Measures distance along a collision-free way out, not straight-line distance across a wall.
+* The visibility test stops "the nearest node is behind the other tube" (`docs/EXPLOITS.md` #14).
+* A navigation function, not the distance to one reference path, so more than one route counts.
+
+**Limitations.**
+* **Coverage.** The roadmap is densest around the published path. A route it barely covers gets fallbacks (no
+  visible node, previous value kept): the solving Gemini 4 Carbon run on the original interface had no visible node
+  for 48 of its 64 actions (`docs/RESULTS.md`). So it can under-credit an unfamiliar route.
+* **An upper bound**: it can overestimate the true shortest path.
+* **It need not reach 0 at a solve** (the reference solves at 5.72).
 
 **Worked example** (`runs/20261114-111735/oracle/loophole-alpha__fVDVriY/verifier/episode.jsonl`, action 2):
 * The start pose is roadmap node 0: $c_0 = 0 + 21.606657 = 21.606657$.
@@ -584,6 +687,20 @@ Doing nothing scores 0, because $c^* = c_0$ and $p = 0$.
   * any route the roadmap does not cover.
 * **Monotone.** It can never decrease during an episode.
 
+**Strengths.**
+* Glitch-proof and oscillation-proof: a level counts only after three consecutive actions at or below it, and only
+  the best held level counts.
+* Doing nothing scores exactly 0.
+
+**Limitations.**
+* **It inherits A3's coverage gap**: a near-miss along a route the roadmap does not cover would be under-credited.
+  The two fastest Gemini 4 Carbon solves held a progress of 0 on the redesigned task; it did not matter only because
+  they solved.
+* **Backing off after the best level costs nothing**, and the number of actions is ignored.
+* **What stops it being farmed.** The hold (`StableMin`, `docs/EXPLOITS.md` #16); the monotone best level, so an
+  oscillation near the tunnel mouth scores 0.177, below any solve (#5); the cap of 0.3; and the agent never sees the
+  cost-to-go on the submitted task (#18).
+
 **Worked example** (`runs/20261114-080705/opencode/loophole-alpha__Kt5DJ3h/verifier/episode.jsonl`, `final` record):
 * Gemini 4 Carbon, on the original harness, which still exposed `cost_to_go` to the agent (since removed; rule 3
   under [Writing your own reward](#the-rules)). It ran finite-difference descent on it (`docs/RESULTS.md`).
@@ -631,6 +748,16 @@ collision-free way out, as a fraction of the starting distance. Retreating costs
 * **What it ignores:** everything the cost-to-go ignores (A3).
 * **Bounded returns.** With $\gamma$ = 1, the shaping return of an unsolved, truncated episode is
   $(c_0 - c_T)/c_0 \le 1$. That of a terminated episode is $-\Phi(q_0)$ = 1, whatever the path.
+
+**Strengths.**
+* Dense and aligned with the way out: every action is paid by how much closer it brought tube B, along a
+  collision-free route.
+* Potential-based, so its returns are bounded (at most 1) and circling earns nothing.
+
+**Limitations.**
+* **It inherits A3's coverage gap**: during fallbacks the step reward is 0, so an unfamiliar route can look flat.
+* **Route bias**: a learner trained on it is pulled towards the routes the roadmap knows best.
+* Shaping only: it never reaches the verifier, so it cannot be farmed for score.
 
 **Worked example** (Alpha reference, `runs/20261114-111735/oracle/.../episode.jsonl`, action 2):
 * $c$ went from 21.606657 to 21.296499.
@@ -686,6 +813,16 @@ which is why it has weight 0.
 * **Only the kernel is potential-based.** The two penalties are not, so they do not telescope.
 * **The action term charges the handle, not the tube.** A `grab` moves the handle from its parking spot to the
   grasp point, and that is charged even though the tube does not move.
+
+**Strengths.**
+* Cheap and roadmap-free: it needs only the minimum distance and the executed motion.
+* Its penalties name two behaviours worth discouraging in training: pressing into contact and large motions.
+
+**Limitations.**
+* **Weight 0 by design.** Clearance can grow while the tubes stay interlocked, so the kernel can point into a dead
+  end; it is logged, never added.
+* **The penalties are not potential-based**, so they do not telescope.
+* **It charges the handle, not the tube**, including the handle's move to the grasp point on a `grab`.
 
 **Worked example** (Alpha reference, `runs/20261114-111735/oracle/.../episode.jsonl`):
 * **Action 1, a grab.** $d$ stays 0.04445 m, so the kernel term is 0.
@@ -767,6 +904,17 @@ The registered component records `linking_open` (`GaussLinkingDiagnostic.last`);
 * **Neither is rewarded or scored.** `linking_closed` is binary, a single cliff with no gradient on either side,
   and turning it into credit would change the scored rule.
 
+**Strengths.**
+* `linking_closed` is an integer invariant that can change only at the puzzle's key move.
+* In the 24 committed runs it separates solves from non-solves perfectly, flipping 12–47 actions before every
+  solve.
+
+**Limitations.**
+* **A single cliff**: −1, then 0. No gradient on either side, so it cannot guide a search.
+* **24 runs of one puzzle** are evidence, not proof, that unlinking is necessary or sufficient.
+* **`linking_open` has no topological meaning** and drifts with motion.
+* Logged only (weight 0): it affects nothing.
+
 **Worked example** (every committed Alpha run with at least one action, 24 trials, from the `diagnostics` field of
 each `verifier/episode.jsonl`):
 * **Start of every run:** `linking_closed` −1.0 and `linking_open` −1.29204.
@@ -845,6 +993,18 @@ reference, no target pose.
   * how close to free the cord is (that is R3's job);
   * any deformation that would be needed on the way out.
 
+**Strengths.**
+* Shape-agnostic: no reference, no target pose, so any solution counts, including one nobody planned.
+* Sound: it never calls a trapped cord free.
+
+**Limitations.**
+* **Strict**: a cord that is topologically free but still draped over a post does not count until it is pulled
+  clear. That only delays a solve.
+* **The frozen-shape test ignores flexibility**: an exit that needs the cord to deform on the way out is not
+  credited until the shape allows a straight one.
+* **What stops it being farmed.** The verifier recomputes it on its own replay; the sweep is sound; the agent can
+  only move the cord through the rig, which halts on contact.
+
 **Worked example** (the reference: Tibi's recorded human solve, replayed closed-loop from its fixed waypoints).
 Replayed in-process with `scripts/rattrap_shaping_trace.py` (output in `runs/rewards-examples/`):
 * After each of the first 283 actions, every one of the 64 directions was blocked.
@@ -890,8 +1050,19 @@ penetration that persists, or a transient above 2 mm, counts.
 * **What it measures:** contact depth over every contact, including the cord against itself, with the release
   exception.
 * **What it ignores:** per-substep speed and integrator divergence. Alpha checks both; the Rat Trap does not
-  (discrepancy 7, and `docs/EXPLOITS.md`).
-* **The release limit is generous.** 2 mm is above the 1.95 mm depth of a full wall crossing (discrepancy 6).
+  (`docs/EXPLOITS.md` R11).
+* **The release limit is generous.** 2 mm is above the 1.95 mm depth of a full wall crossing (`docs/EXPLOITS.md` R10).
+
+**Strengths.**
+* Tight: 1 mm, under the cord's 1.2 mm radius, over every contact including the cord against itself.
+* The release exception is measured, not guessed (the 1.006 mm transient below), and still catches a large
+  transient (`test_a_large_release_transient_still_counts`).
+
+**Limitations.**
+* **No per-substep speed or instability check**, unlike Alpha (`docs/EXPLOITS.md` R11).
+* **The release limit is generous**: 2 mm is above the 1.95 mm depth of a full wall crossing (`docs/EXPLOITS.md` R10).
+* **What stops it being farmed.** It is a penalty; the gaps above are the ways around it, recorded with their
+  decisions in `docs/EXPLOITS.md`.
 
 **Worked example** (`loophole/tests/fixtures/rattrap_release_after_block.jsonl`: the first 89 actions of a committed
 Gemini 4 Carbon run, excluded from the results for this reason; replayed with
@@ -907,7 +1078,7 @@ Gemini 4 Carbon run, excluded from the results for this reason; replayed with
   * the episode's deepest counted contact is 0.472 mm;
   * the run continues (here unsolved, $S$ = 0, for lack of progress, not for cheating).
 * **The exception is not a blind spot.** `test_a_large_release_transient_still_counts` sets $p_{\text{rel}}$ = 0.5 mm,
-  and the same 1.006 mm transient is a violation again. But see discrepancy 6 for why 2 mm is too generous.
+  and the same 1.006 mm transient is a violation again. Why 2 mm is still generous: `docs/EXPLOITS.md` R10.
 
 **Provenance.** Ours.
 
@@ -958,6 +1129,24 @@ string.
   * time;
   * distance to a checkpoint not yet reached. That is only in the shaping (R4).
 * **The start cannot match $c_1$:** it is 110.8 mm away.
+
+**Strengths.**
+* Hard to fake: checkpoints count only in order, one per action, and only when every node of the cord is within
+  $\varepsilon$ (the max-norm, not the mean).
+* Calibrated on a real solve: $\varepsilon$ is 1.5 times the smallest radius at which the reference registers every
+  checkpoint.
+* Evidence that it does not leak credit: every unsolved agent run so far (up to 852 actions) and a random agent
+  to the full budget earn $p = 0$.
+
+**Limitations.**
+* **One route.** A different solution earns partial credit only where it passes near Tibi's checkpoints; a solve is
+  still a solve.
+* **Coarse**: 20 steps, each a cliff at $\varepsilon$. A run that gets to 17 mm of $c_1$ earns the same 0 as one
+  that never moves.
+* **Little resolution among the current agents**, all at 0.
+* **What stops it being farmed.** The order, one checkpoint per evaluation and the max-norm
+  (`docs/EXPLOITS.md` R8); the agent never sees the checkpoints, the recording or anything derived from them
+  (`docs/EXPLOITS.md` R1–R3); the verifier recomputes $k$ on its own replay.
 
 **Worked examples.**
 * Rat Trap oracle replayed as a fixed command list on Linux, `runs/harbor-rattrap/rattrap-oracle/` (the
@@ -1017,6 +1206,18 @@ So reaching a checkpoint is not itself a jackpot; getting close to it is what pa
 * **Beyond a full stage length there is no gradient:** the $\min(1, \cdot)$ caps the in-stage term.
 * **Oscillation:** with $\gamma$ = 1 the return telescopes to $\Phi(\text{end}) - \Phi(\text{start})$; an
   oscillation earns only that.
+
+**Strengths.**
+* Dense inside a stage and continuous across checkpoints, so reaching a checkpoint is not a jackpot.
+* It telescopes exactly: 21.000000 over the reference.
+* The training violation penalty fixes the absorbing-state problem of S4 for this environment.
+
+**Limitations.**
+* **One route**, like R3.
+* **No gradient beyond a full stage length** ($\min(1, \cdot)$).
+* **Single steps can be large**: a 30 mm move can cross most of a short stage.
+* **The violation penalty is not a potential difference**, by design.
+* Shaping only, computed only with `training=True`: scored runs never compute it.
 
 **Worked examples.**
 * **Kimi K3 Pro, round 2** (`runs/rattrap-agents/kimi-20261114-205209/rescore.json`): closest approach to $c_1$ was
@@ -1105,6 +1306,15 @@ distance, where orientation means nothing.
   * whether passing through that aperture is the right move at all (the mouse cannot pass either hole);
   * which side of the aperture the cord is on.
 * **As a potential it only ever enters through `PotentialShaping`**, so it is shaping, never score.
+
+**Strengths.**
+* A geometric hint that no other component gives: near a hole, run along its axis, not across it.
+
+**Limitations.**
+* **Weight 0 by design.** The human solve itself passes through a configuration it penalises heavily (0.648 at action
+  277), so it would push a learner away from the known solution.
+* **It ignores whether passing that aperture is right at all**: the mouse cannot pass either hole.
+* Logged only.
 
 **Worked example** (the reference replay with `training=True`, `runs/rewards-examples/rattrap-reference-shaping.jsonl`):
 
@@ -1207,6 +1417,16 @@ certainly not free.
 Prop. 2.2′ is not $2^{n-1}$; it is $\infty$ or 1. The value $2^{n-1}$ belongs to the distance between $a_n$ and
 $a_{n-1}$ with only $g_n$ passable. `test_rattrap_norm.py` tests the paper's statement in that form.
 
+**Strengths.** See "Why it is elegant" above: exact, discrete, invariant, and a theorem about this family of
+puzzles.
+
+**Limitations.**
+* **Unsound here**: the word is empty after action 15 of the 284-action reference while the cord is still trapped,
+  for the three reasons above.
+* **As progress it would have been farmable**: about 15 actions would have earned the full 0.3 partial credit.
+  That is why it is a diagnostic, logged and never scored or shaped.
+* **Still useful one way round**: a non-empty word at the end means the cord is certainly not free.
+
 **Worked example** (the reference replay, `runs/rewards-examples/rattrap-reference-shaping.jsonl`):
 
 * Start: $w$ = `Ac`, $\lVert w\rVert$ = 2 (A and C are frame regions, passable; the pairing of `A` with `c` is
@@ -1226,72 +1446,22 @@ $a_{n-1}$ with only $g_n$ passable. `test_rattrap_norm.py` tests the paper's sta
 
 ---
 
-## Inactive and legacy components
+## Appendix: legacy components
 
-Registered in `reward/components.py`, enabled in neither active task. They remain for the procedural rope puzzles
-(`loophole/default_config.yaml`) and the deprecated Alpha variants.
+In the registry (`reward/components.py: REGISTRY`) but loaded by neither task. They remain for the procedural rope
+puzzles (`loophole/default_config.yaml`) and the deprecated Alpha variants.
 
-| component | definition | status |
-|---|---|---|
-| `base` | $S = 1 - \alpha\,a/T$ if solved without violations, else 0 | rope-puzzle default (weight 1) |
-| `topology_shaping` | $\Phi = -g(w)/d_0$, $g$ = `goal_distance(word)` (default: reduced word length), $d_0 = \max(1, g(w_0))$; terminal $(g(w_0) - g(w_T))/d_0$, 0 after a violation | rope default, `enabled: false` (weight 0.2) |
-| `cost_to_go_shaping` | $\Phi = -c(q)/c_0$ (as A5); terminal 0 | added by `auto_roadmap_components` |
-| `progress` | $\kappa\,(1 - c_{\text{best}}/c_0)$ with the unheld minimum $c_{\text{best}}$; 0 if solved or on a violation | added by `auto_roadmap_components` |
-| `scaled_progress` | A4's score as a stand-alone component | not used by any config |
-| `reward/progress.py: progress_potential` | $-c(q)$, unnormalised | unused helper |
-
-## Discrepancies found while writing this page
-
-Code against documents and logs; the code is what this page states.
-
-1. **The committed Alpha oracle log predates the terminal rule.**
-   * In `runs/20261114-111735/oracle`, the final step's `cspace_tunnel` reward is 0.009462, which is
-     $(5.925163 - 5.720725)/21.606657$: $\Phi(s')$ kept at the solve.
-   * The current code sets $\bar\Phi$ = 0 there, giving $5.925163/21.606657 = 0.274231$.
-   * The score is unaffected (0.851010); only the logged shaping is.
-2. **Committed Alpha logs do not re-verify on macOS.**
-   * Replayed with the current code on macOS, `runs/20261114-111735` (oracle, `sbMy6Ld`) fails with "state hash
-     mismatch after action 2": the pose differs by 5e-7 after action 2. This is consistent with the known
-     macOS/Linux divergence (the Rat Trap's 18 / 20); they were verified in the Linux image.
-   * `runs/20261114-080705` (`Kt5DJ3h`) fails earlier, with "episode was played on a different puzzle file": the
-     puzzle YAML changed after that run.
-   * The worked examples above therefore use the verifier's logged fields, not a fresh macOS replay. They were not
-     re-run in the Linux image for this page.
-3. **Clearance shaping charges the handle's grab relocation** (A6), 0.216 on the reference's first action,
-   though the tube does not move. The docstring calls it "the executed handle motion", which is literally true but
-   not the intent ("don't flail"). Weight 0, so nothing is affected.
-4. **Clearance shaping cannot be recomputed exactly from the log.** The executed motion is not logged separately;
-   requested motion reproduces it to about 4e-6.
-5. **Violations and solves receive the same terminal shaping** (S4). This is correct for policy invariance
-   with bootstrapping. A learner that adds undiscounted shaping to the score and treats the budget cut-off as
-   terminal would prefer an early violation to a long non-solve:
-   * Rat Trap: $+21\lambda$ for violating at the start, against $\lambda(\Phi(s_T) + 21) \le 21\lambda$ for a truncated run;
-   * Alpha: $+1$ against $1 - c_T/c_0$.
-
-   The rule itself is unchanged: it is the textbook rule, and the score is what Harbor reads. The Rat Trap's training
-   mode now adds `violation_penalty` = −22 on a violation, so a violation's shaping return there is −1. Alpha is
-   documented, not changed (see the warning at the top).
-6. **The Rat Trap release transient limit is not below the depth of a wall crossing.**
-   * `rattrap.yaml` and `sim.py: release` justify `release_transient_limit` = 2 mm as "below the cord's diameter,
-     so a release cannot spring the cord through a wall".
-   * The bound that matters is the deepest contact on the way through a wall. For the 1.2 mm-radius cord and a
-     1.5 mm hole wall that is $r_c + h/2$ = 1.95 mm, measured with MuJoCo: a capsule of radius 1.2 mm swept
-     through a 1.5 mm box peaks at 1.950 mm.
-   * So a release that sprang the cord through a hole wall, and settled clear, would not register as a violation.
-     Only the certificate (log mode) would record it.
-   * A limit below 1.95 mm (for example 1.5 mm, still above the 1.006 mm transient that motivated the exception)
-     would close this. It is a change to a scored rule, so it is left for a decision; the reference would have to
-     be re-validated under it.
-7. **The Rat Trap audit has no speed or instability check.** Alpha's has both (S3). An integrator
-   divergence, which MuJoCo resolves by silently resetting the state, is not a violation in the Rat Trap.
-8. **`RatTrapEpisode.score` does not validate its parameters.** `CSpaceTunnelPotentialReward` and
-   `ScaledProgressScore` refuse $\kappa \ge 1 - \alpha$; the Rat Trap reads `score_alpha` / `score_progress_cap`
-   from the YAML without that check. With the committed values (0.5, 0.3) the ordering holds and is tested.
-9. **`select_checkpoints` does not guarantee the $2\varepsilon$ separation for the last checkpoint.** When the final
-   state replaces the last kept one, it is not re-checked against its new predecessor. In the committed file every
-   consecutive separation is at least 35.7 mm > 33.2 mm, so the property holds for the data in use.
-
----
+* **`base`**: $S = 1 - \alpha\,a/T$ on a solve, else 0, with no partial credit. Superseded by the composite score (S1),
+  which adds held or ordered partial credit below every solve.
+* **`topology_shaping`**: potential $-g(w)/d_0$ on the reduced length of the cord's crossing word. Superseded by the
+  tunnel potential (A5) on Alpha and the checkpoint potential (R4) on the Rat Trap, after the word proved unsound
+  as progress (R6).
+* **`cost_to_go_shaping`**: $\Phi = -c(q)/c_0$, as A5 but with a terminal value of 0. Superseded by `cspace_tunnel`
+  (A5), whose terminal value is the score.
+* **`progress`**: $\kappa\,(1 - c_{\text{best}}/c_0)$ on the best single reading, without a hold. Superseded by the held
+  progress of A4, which a single lucky reading cannot raise.
+* **`scaled_progress`**: A4's score as a stand-alone component. Superseded by `cspace_tunnel`, which carries the same
+  score as its terminal value.
 
 ## Writing your own reward
 
