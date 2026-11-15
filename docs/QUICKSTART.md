@@ -14,7 +14,7 @@ for OpenAI, `OPENAI_API_KEY`.
 ```bash
 git clone https://github.com/TibiIC/Loophole && cd Loophole
 ./run_evaluation.sh alpha   gemini/gemini-4-carbon     # or: make judge TASK=alpha MODEL=...
-./run_evaluation.sh rattrap google/gemini-4-carbon     # or: make judge TASK=rattrap MODEL=...; see "Gemini on the Rat Trap"
+./run_evaluation.sh rattrap gemini/gemini-4-carbon     # or: make judge TASK=rattrap MODEL=...
 ```
 
 The script installs Harbor (0.25.0) and `uv` if missing, builds the simulator image (the first
@@ -81,13 +81,16 @@ harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon      
 harbor run -p ./tasks/loophole-alpha-planner -a opencode -m gemini/gemini-4-carbon  # + planning queries
 harbor run -p ./tasks/loophole-rattrap -a oracle                                   # Rat Trap reference
 harbor run -p ./tasks/loophole-rattrap -a nop
-harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon      # see the note below
+harbor run -p ./tasks/loophole-rattrap -a opencode -m gemini/gemini-4-carbon      # see the note below
 ```
 
-**Gemini on the Rat Trap.** The README runs it as `google/gemini-4-carbon` (OpenCode's native
-Google provider), not `gemini/...`. The task's OpenCode config sets `thinkingLevel: low` under
-the `google` provider; at the default level the model spent its whole output budget reasoning and
-never acted.
+**Gemini through Harbor: use `-m gemini/gemini-4-carbon`.** Harbor resolves the `gemini/` prefix, forwards
+`GOOGLE_GENERATIVE_AI_API_KEY` and allowlists the model endpoint, then starts OpenCode with
+`--model=google/gemini-4-carbon`. So the Rat Trap task's `thinkingLevel: low`, set under OpenCode's `google` provider,
+still applies; at the default level the model spent its whole output budget reasoning and never acted. Harbor cannot
+resolve a `google/` prefix: with `-m google/gemini-4-carbon` it forwards no key and the agent exits with 0 actions.
+`google/gemini-4-carbon` is the right name only for the local `scripts/opencode_rattrap.py`, which calls OpenCode
+directly.
 
 ## 2. Drive the simulator with your own agent
 
