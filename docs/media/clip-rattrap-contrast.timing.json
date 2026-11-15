@@ -1,0 +1,18 @@
+{
+ "out": "docs/media/clip-rattrap-contrast",
+ "seconds": 26.3,
+ "s_per_action": 0.0667,
+ "reference_actions": 284,
+ "reference_frames_used": 570,
+ "agent_actions": 357,
+ "agent": {
+  "score": 0.0,
+  "success": false,
+  "actions_used": 357,
+  "violation": false
+ },
+ "labels": [
+  "human reference \u2014 solved",
+  "agent \u2014 0/20 checkpoints"
+ ]
+}

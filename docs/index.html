@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loophole</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An RL environment where an LLM agent solves 3D disentanglement puzzles in a MuJoCo simulation, over MCP.">
+  <meta name="theme-color" content="#2b5cff">
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <!-- Link previews (chat apps, social sites): crawlers do not run JavaScript, so these are static. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Loophole">
+  <meta property="og:title" content="Loophole: LLM agents vs. 3D disentanglement puzzles">
+  <meta property="og:description" content="An RL environment (Harbor + MCP) where LLM agents try to untangle 3D puzzles in MuJoCo. A human solves the Rat Trap; no agent run has yet.">
+  <meta property="og:url" content="https://tibiic.github.io/Loophole/">
+  <meta property="og:image" content="https://tibiic.github.io/Loophole/media/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Rat Trap puzzle: the human reference solve beside an agent run that reached 0 of 20 checkpoints">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Loophole: LLM agents vs. 3D disentanglement puzzles">
+  <meta name="twitter:description" content="An RL environment (Harbor + MCP) where LLM agents try to untangle 3D puzzles in MuJoCo. A human solves the Rat Trap; no agent run has yet.">
+  <meta name="twitter:image" content="https://tibiic.github.io/Loophole/media/og-card.png">
+  <meta name="twitter:image:alt" content="The Rat Trap puzzle: the human reference solve beside an agent run that reached 0 of 20 checkpoints">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css">
+  <style>
+    /* 70 / 20 / 10: white reading area (70), light-blue sidebar and supporting surfaces (20),
+       one vivid blue accent for links, active nav and headings (10). */
+    :root {
+      --base: #ffffff;        /* 70 */
+      --text: #16203a;
+      --muted: #55627d;
+      --secondary: #eaf1ff;   /* 20 */
+      --secondary-line: #d3e0fb;
+      --accent: #2b5cff;      /* 10 */
+      --accent-strong: #1a44d6;
+      --theme-color: var(--accent);   /* Docsify's own accent, e.g. the GitHub corner */
+    }
+    .github-corner svg { fill: var(--accent); color: #ffffff; }
+    .github-corner:hover svg { fill: var(--accent-strong); }
+    html, body { background: var(--base); color: var(--text); }
+    body { -webkit-font-smoothing: antialiased; }
+
+    /* sidebar: the 20% */
+    .sidebar { background: var(--secondary); border-right: 1px solid var(--secondary-line); }
+    .sidebar > h1, .sidebar > h1 a { color: var(--text); font-weight: 700; letter-spacing: -0.01em; }
+    .sidebar > h1 { margin: 28px auto 20px; }
+    .sidebar ul li a { color: var(--muted); font-size: 15px; }
+    .sidebar ul li a:hover { color: var(--accent); text-decoration: none; }
+    .sidebar ul li.active > a { color: var(--accent); font-weight: 700; border-right: 3px solid var(--accent); }
+    .sidebar-toggle span { background-color: var(--accent); }
+    @media screen and (min-width: 769px) {
+      .sidebar-toggle { width: 260px; background: var(--secondary); }
+      .sidebar { width: 260px; }
+      .content { left: 260px; }
+      body.close .content { left: 0; }
+      body.close .sidebar { transform: translateX(-260px); }
+    }
+
+    /* content: the 70% */
+    .markdown-section { max-width: 860px; padding: 40px 32px 60px; color: var(--text); }
+    .markdown-section h1 { font-size: 2.4rem; letter-spacing: -0.02em; margin-bottom: 0.6em; }
+    .markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4 { color: var(--text); }
+    .markdown-section h2 { margin-top: 2.4em; padding-left: 12px; border-left: 4px solid var(--accent); }
+    .markdown-section p, .markdown-section li { color: var(--text); }
+    .markdown-section strong { color: var(--text); }
+    .markdown-section a { color: var(--accent); font-weight: 600; }
+    .markdown-section a:hover { color: var(--accent-strong); }
+    .markdown-section code, .markdown-section pre { background: var(--secondary); }
+    .markdown-section code { color: var(--accent-strong); border-radius: 4px; }
+    .markdown-section pre > code { color: var(--text); }
+    .markdown-section blockquote { border-left-color: var(--accent); color: var(--muted); }
+    .markdown-section table { display: block; overflow-x: auto; }
+    .markdown-section tr:nth-child(2n) { background: #f6f9ff; }
+    .markdown-section th { background: var(--secondary); }
+    .markdown-section td, .markdown-section th { border-color: var(--secondary-line); }
+
+    /* clips and placeholders */
+    .markdown-section video, .markdown-section img.clip { width: 100%; height: auto; border-radius: 8px; display: block; }
+    .markdown-section .clip-caption { font-size: 0.92em; color: var(--muted); margin-top: 0.6em; }
+    .markdown-section table.results { font-size: 0.9em; }
+    .markdown-section table.results tr.group td { background: var(--secondary); color: var(--text); font-weight: 700; }
+    .markdown-section table.results tr.pending td,
+    .markdown-section table.results tr.excluded td,
+    .markdown-section table.results tr.superseded td { color: var(--muted); font-style: italic; }
+    .markdown-section table.headline { display: table; width: 100%; font-size: 1em; }
+    .markdown-section table.headline td.env { font-weight: 700; vertical-align: top; background: var(--secondary); white-space: nowrap; }
+    .markdown-section table.headline tr.first td { border-top: 2px solid var(--secondary-line); }
+    .markdown-section table.headline tr:nth-child(2n) { background: transparent; }
+    .markdown-section .placeholder { background: #fff7e0; border: 1px dashed #f0b429; color: #8a5a00; padding: 0.8em 1em; border-radius: 6px; }
+
+    @media screen and (max-width: 768px) {
+      /* a round floating menu button instead of a bar over the text */
+      .sidebar-toggle { position: fixed; left: 16px; bottom: 16px; width: 48px; height: 48px; padding: 0;
+        border-radius: 50%; background: var(--accent); box-shadow: 0 4px 14px rgba(43, 92, 255, 0.35);
+        display: flex; align-items: center; justify-content: center; }
+      .sidebar-toggle span { background-color: #ffffff; }
+      .markdown-section { padding: 24px 16px 48px; }
+      .markdown-section h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    // Results tables, rendered from results.json (the only source of the numbers):
+    //   <div id="results-table">  the headline table (results.json "headline"): environment, agent, score, solved
+    //   <div id="results-full">   full results and provenance (results.json "full")
+    // A table spec is {columns: [{key, label, align}], groups: {id: label}, rows: [{group, status?, <key>: value}],
+    // caption?, footnotes?}. status is "pending", "excluded" or "superseded" (rendered muted, never as a banner).
+    function resultsTable(hook) {
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text !== undefined) e.textContent = text;
+        return e;
+      }
+      function cell(row, c) {
+        var v = row[c.key], td = el('td', null, v === undefined || v === null || v === '' ? '—' : String(v));
+        if (c.align) td.style.textAlign = c.align;
+        return td;
+      }
+      function render(spec, root, headline) {
+        var cols = spec.columns || [], rows = spec.rows || [], groups = spec.groups || {};
+        root.textContent = '';
+        var table = el('table', 'results' + (headline ? ' headline' : '')), thead = el('thead'), tbody = el('tbody'), tr = el('tr');
+        cols.forEach(function (c) {
+          var th = el('th', null, c.label || c.key);
+          if (c.align) th.style.textAlign = c.align;
+          tr.appendChild(th);
+        });
+        thead.appendChild(tr);
+        var current;
+        rows.forEach(function (row, i) {
+          var r = el('tr', row.status || '');
+          if (headline) {  // the first column is the environment, spanning its group's rows
+            if (row.group !== current) {
+              current = row.group;
+              var span = 1;
+              while (i + span < rows.length && rows[i + span].group === row.group) span++;
+              var env = el('td', 'env', groups[row.group] || row.group);
+              env.rowSpan = span;
+              r.appendChild(env);
+              r.className += ' first';
+            }
+            cols.slice(1).forEach(function (c) { r.appendChild(cell(row, c)); });
+          } else {
+            if (row.group !== current) {
+              current = row.group;
+              var g = el('tr', 'group'), gtd = el('td', null, groups[row.group] || row.group);
+              gtd.colSpan = cols.length;
+              g.appendChild(gtd);
+              tbody.appendChild(g);
+            }
+            cols.forEach(function (c) { r.appendChild(cell(row, c)); });
+          }
+          tbody.appendChild(r);
+        });
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        root.appendChild(table);
+        if (spec.caption) root.appendChild(el('p', 'clip-caption', spec.caption));
+        if ((spec.footnotes || []).length) {
+          var ul = el('ul', 'clip-caption');
+          spec.footnotes.forEach(function (f) { ul.appendChild(el('li', null, f)); });
+          root.appendChild(ul);
+        }
+      }
+      hook.doneEach(function () {
+        var head = document.getElementById('results-table'), full = document.getElementById('results-full');
+        if (!head && !full) return;
+        fetch('results.json', { cache: 'no-cache' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            if (head && data.headline) render(data.headline, head, true);
+            if (full && data.full) render(data.full, full, false);
+          })
+          .catch(function (e) { (head || full).textContent = 'Could not load results.json (' + e.message + ').'; });
+      });
+    }
+
+    window.$docsify = {
+      name: 'Loophole',
+      repo: 'TibiIC/Loophole',
+      loadSidebar: true,
+      plugins: [resultsTable],
+    };
+  </script>
+  <!-- Math: $...$ inline and $$...$$ display (GitHub-style), rendered with KaTeX. docsify-katex parses
+       with its own marked 4 instance, so these load after window.$docsify and before docsify. -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@2.0.2/dist/docsify-katex.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+</body>
+</html>
