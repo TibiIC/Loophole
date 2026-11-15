@@ -20,6 +20,35 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("oracle", "oracle-planner", "noop", "stop-early", "opencode")
+# Reader names for plot labels (no run hashes; the hashes stay in the results tables). Agent runs are numbered by
+# trial start time (started_at in each trial's Harbor result.json), as on the docs site.
+BASELINE_NAMES = {"oracle": "Reference (published path, replayed)", "oracle-planner": "Reference, planner task (published path, replayed)",
+                  "noop": "Do-nothing baseline", "stop-early": "Stop-early baseline"}
+MODEL_NAMES = {"gemini-4-carbon": "Gemini 4 Carbon", "gemini-3.8-flash": "Gemini 3.8 Flash", "gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite",
+               "gemini-2.5-flash": "Gemini 2.5 Flash", "deepseek-4-1-flash-1017": "DeepSeek V4.1 Flash", "kimi-k3-1-pro": "Kimi K3 Pro"}
+
+
+def model_name(model: str) -> str:
+    m = model.split("/")[-1]
+    return MODEL_NAMES.get(m, m)
+
+
+def reader_labels(run_dir: Path, data: dict) -> dict[str, str]:
+    """trial name -> reader label: the baselines by role, agent runs as '<model>, run <n>' by trial start time."""
+    out = {}
+    for g, ts in data.items():
+        if g != "opencode":
+            for t in ts:
+                out[t["trial"]] = BASELINE_NAMES.get(g, g)
+            continue
+        def started(t):
+            r = run_dir / g / t["trial"] / "result.json"
+            return json.loads(r.read_text()).get("started_at", "") if r.exists() else ""
+        for n, t in enumerate(sorted(ts, key=started), 1):
+            cfg = run_dir / g / t["trial"] / "config.json"
+            model = json.loads(cfg.read_text()).get("agent", {}).get("model_name", "agent") if cfg.exists() else "agent"
+            out[t["trial"]] = f"{model_name(model)}, run {n}"
+    return out
 
 
 def load_trial(trial: Path) -> dict | None:
@@ -47,13 +76,15 @@ def load_trial(trial: Path) -> dict | None:
     }
 
 
-def plots(run: str, data: dict, media: Path) -> list[str]:
+def plots(run: str, data: dict, media: Path, labels: dict[str, str] | None = None) -> list[str]:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     media.mkdir(parents=True, exist_ok=True)
+    if labels:  # agent runs in run-number order
+        data = {g: (sorted(ts, key=lambda t: labels.get(t["trial"], "")) if g == "opencode" else ts) for g, ts in data.items()}
     out = []
     fig, ax = plt.subplots(figsize=(7, 3.6))
     for group, trials in data.items():
@@ -61,7 +92,7 @@ def plots(run: str, data: dict, media: Path) -> list[str]:
             if not t["ctg"] or not t["c0"]:
                 continue
             ys = [None if c is None else 1 - c / t["c0"] for c in t["ctg"]]
-            lbl = f"{group} {t['trial'].split('__')[-1]} ({t['score']:.3f})"
+            lbl = f"{(labels or {}).get(t['trial'], group)} ({t['score']:.3f})"
             ax.plot(range(1, len(ys) + 1), ys, marker="." if len(ys) < 3 else None, label=lbl, lw=2 if group == "oracle" else 1.2)
     ax.set_xlabel("action")
     ax.set_ylabel("progress 1 - ctg / ctg0")
@@ -75,16 +106,16 @@ def plots(run: str, data: dict, media: Path) -> list[str]:
     out.append(p)
     plt.close(fig)
 
-    rows = [(f"{g}\n{t['trial'].split('__')[-1]}", t) for g, ts in data.items() for t in ts]
+    rows = [((labels or {}).get(t["trial"], g).replace(" (", "\n(").replace(", ", ",\n", 1), t) for g, ts in data.items() for t in ts]
     keys = ["render", "get_state", "get_contacts", "grab", "move", "release", "wait"]
-    fig, ax = plt.subplots(figsize=(7, 3.6))
+    fig, ax = plt.subplots(figsize=(8, 4.2))
     bottom = [0] * len(rows)
     for k in keys:
         vals = [t["observations"].get(k, 0) + t["calls"].get(k, 0) for _, t in rows]
         if any(vals):
             ax.bar(range(len(rows)), vals, bottom=bottom, label=k)
             bottom = [b + v for b, v in zip(bottom, vals)]
-    ax.set_xticks(range(len(rows)), [r for r, _ in rows], fontsize=7)
+    ax.set_xticks(range(len(rows)), [r for r, _ in rows], fontsize=6)
     ax.set_yscale("symlog")
     ax.set_ylabel("MCP calls (logged)")
     ax.legend(fontsize=7, ncol=4)
@@ -129,7 +160,7 @@ def main() -> None:
     a = ap.parse_args()
     data = {g: [t for t in (load_trial(p) for p in sorted((a.run_dir / g).glob("*__*"))) if t] for g in GROUPS}
     data = {g: ts for g, ts in data.items() if ts}
-    figs = plots(a.run_dir.name, data, a.media)
+    figs = plots(a.run_dir.name, data, a.media, reader_labels(a.run_dir, data))
     md = report(a.run_dir, data, figs, (a.out or ROOT / "docs" / "RESULTS.md").resolve())
     (a.run_dir / "analysis.json").write_text(json.dumps({g: [{k: v for k, v in t.items() if k not in ("ctg", "min_distance")} for t in ts]
                                                          for g, ts in data.items()}, indent=1))
