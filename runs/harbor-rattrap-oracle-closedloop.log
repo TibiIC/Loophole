@@ -1,0 +1,21 @@
+Agent 'oracle' exposes no native web search or fetch tools for Harbor to disable; continuing. Sandbox network policy still applies.
+  1/1 Mean: 0.833 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1:25:58 0:00:00
+adhoc • oracle
+┏━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓
+┃ Trials ┃ Exceptions ┃  Mean ┃
+┡━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩
+│      1 │          0 │ 0.833 │
+└────────┴────────────┴───────┘
+
+┏━━━━━━━━━━┳━━━━━━━┓
+┃ Reward   ┃ Count ┃
+┡━━━━━━━━━━╇━━━━━━━┩
+│ 0.833333 │     1 │
+└──────────┴───────┘
+
+Job Info
+Total runtime: 1h 25m 58s
+Results written to jobs/rattrap-oracle-closedloop/result.json
+Inspect results by running `harbor view jobs`
+Share results by running `harbor upload jobs/rattrap-oracle-closedloop`
+

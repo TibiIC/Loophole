@@ -1,0 +1,8 @@
+{
+    "job_name": "rattrap-oracle-closedloop",
+    "tasks": [
+        {
+            "path": "tasks/loophole-rattrap"
+        }
+    ]
+}

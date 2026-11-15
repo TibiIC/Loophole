@@ -9,9 +9,9 @@ reference.
 
 ## The two tasks and where their reference solutions come from
 
-| Task | Reference (`solution/reference.jsonl`) | Provenance | Solver anywhere in the pipeline? |
+| Task | Reference (`solution/`) | Provenance | Solver anywhere in the pipeline? |
 |---|---|---|---|
-| `tasks/loophole-rattrap`: the Rat Trap | 284 fixed commands | **A human solve.** Tibi's teleoperated solve, recorded in our simulator (`loophole/reference/rattrap-solve.jsonl`), converted once into agent commands and committed. | **None**, not at runtime, offline or as a fallback. |
+| `tasks/loophole-rattrap`: the Rat Trap | fixed waypoints (`solution/waypoints.jsonl`) | **A human solve.** Tibi's teleoperated solve, recorded in our simulator (`loophole/reference/rattrap-solve.jsonl`). Its waypoints are fixed and committed; at replay a controller moves the gripper toward the next waypoint from its actual position. | **None**, not at runtime, offline or as a fallback. |
 | `tasks/loophole-alpha`: Alpha 1.0 | 59 fixed commands | **A published, planner-generated path.** The solution path of Zhang et al. 2020 ([ZBKV20]), produced by their C-space tunnel-discovery planning pipeline, taken from their supplementary data (`alpha-1.0.simplified.txt`), converted once into agent commands and committed. | None of ours at runtime. The path was computed by the paper authors' planner, not by us. |
 
 For both, the "oracle" is Harbor's name for the agent that replays `solution/`; it searches
@@ -267,12 +267,18 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
   while cable-routing RL uses staged subtasks with geometric success tests (SILO,
   arXiv:2607.04616). Our own topological word / Przytycki–Sikora norm turned out unsound
   here and is kept as a logged diagnostic only.
-* **Reference solve: a human solve, recorded and replayed.**
-  * `solution/reference.jsonl` is a fixed, committed list of 284 commands, derived from
-    Tibi's own teleoperated solve, recorded in this simulator.
+* **Reference solve: Tibi's recorded human solve, replayed closed-loop.**
+  * The waypoints are fixed and committed (`solution/waypoints.jsonl`): the recording's
+    grabs and releases, and its hand path simplified to 0.1 mm.
+  * At replay a controller (`solution/follow_waypoints.py`) moves the gripper toward the next
+    waypoint from where it actually is. That is the same correction the offline conversion
+    performed, done live, so cross-platform numerical differences do not accumulate.
+  * Why: replayed as a fixed list of 284 commands, the solve reached 20 / 20 checkpoints on
+    macOS but only 18 / 20 on Linux (unsolved, 0.27), because the physics is not
+    bit-identical across platforms.
+  * Closed-loop, it solves on both: 284 actions, 20 / 20, 0.833, and through Harbor on Linux.
   * There is **no solver, planner or search anywhere in the Rat Trap pipeline**: not at
     runtime, not offline, not as a fallback.
-  * Replayed, it solves in 284 actions, so the oracle scores 0.833.
 
 **Through Harbor** (`tasks/loophole-rattrap`, the same structure as the Alpha task):
 * a sim sidecar serves the MCP tools;
@@ -281,7 +287,7 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
   a state hash per action.
 
 ```bash
-harbor run -p ./tasks/loophole-rattrap -a oracle                          # the reference solve over MCP (see the known issue below)
+harbor run -p ./tasks/loophole-rattrap -a oracle                          # the recorded human solve, replayed closed-loop: 0.833
 harbor run -p ./tasks/loophole-rattrap -a nop                             # 0
 harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon
 make reference TASKS=tasks/loophole-rattrap    # or: make noop / make agent TASKS=tasks/loophole-rattrap MODEL=...
@@ -336,11 +342,10 @@ Google's OpenAI-compatible endpoint it spent its whole 32k-token output budget o
 reasoning after the first tool result and returned nothing, with or without images;
 `reasoning_effort` and `thinking_budget` were both ignored. Round 2 runs it through OpenCode's
 native Google provider, the path that solves Alpha.
-**Known issue: the reference does not yet reproduce on Linux.**
-* On macOS (in-process, or over MCP) the 284 commands solve: 20 / 20 checkpoints, score 0.833.
-* Inside the Linux simulator container (Harbor) the same commands reach 18 / 20 checkpoints and end unsolved (0.27).
-* The physics is not bit-identical across platforms, and this solve is sensitive enough near its end to diverge.
-* Until this is fixed, Harbor's Rat Trap oracle does not score 0.833.
+**The reference reproduces on Linux.** Replayed closed-loop from its fixed waypoints, Tibi's solve scores 0.833
+(solved, 20 / 20 checkpoints, 284 actions) through Harbor in the Linux simulator container
+(`runs/harbor-rattrap/rattrap-oracle-closedloop/`). Replayed as a fixed command list it had diverged there, to
+18 / 20 checkpoints and 0.27 (`runs/harbor-rattrap/rattrap-oracle/`).
 <!-- rattrap-results:end -->
 
 ## Quick start
@@ -445,7 +450,7 @@ Each row points at the artifact behind it.
 | Component | Status | Evidence |
 |---|---|---|
 | **Alpha 1.0 task `tasks/loophole-alpha`** (Zhang et al. 2020) | done | `runs/20261114-111735/`: oracle **0.851** (the authors' published path), nop **0**, stop-early **0**, Gemini 4 Carbon 0.884 / 0.823 / 0.886 |
-| **Rat Trap task `tasks/loophole-rattrap`** | built; **oracle does not yet reproduce on Linux** | Harbor: nop 0, stop-early 0, oracle 0.27 (18 / 20 checkpoints, unsolved) in `runs/harbor-rattrap/`; on macOS the oracle solves (0.833: `loophole/reference/rattrap-checkpoints.npz` metadata); random agent 0: `runs/rattrap-random/` |
+| **Rat Trap task `tasks/loophole-rattrap`** | done | `runs/harbor-rattrap/`: Harbor oracle **0.833** (Tibi's recorded human solve, replayed closed-loop: solved, 20 / 20 checkpoints, Linux), nop **0**, stop-early **0**; random agent **0**: `runs/rattrap-random/` |
 | *Earlier:* Alpha 1.5 task on OMPL.app geometry | superseded | its oracle was our own RRT-Connect plan: `runs/harbor/canon-oracle/` (0.876) |
 | Real model runs (`-a opencode`) | done | Alpha: docs/RESULTS.md; Rat Trap: the README results table and `runs/rattrap-agents/` |
 | Cost-to-go roadmap (Alpha partial credit) | done | `loophole/puzzles/alpha_paper/roadmap-alpha-1.0-paper.npz` (8,044 nodes, 60,260 edges) |

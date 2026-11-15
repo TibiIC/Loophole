@@ -8,10 +8,20 @@ Code: `loophole/puzzles/rattrap/` (`reward.py`, `checkpoints.py`). Reference:
 
 ## The reference is a human solve, recorded and replayed
 
-* **What it is.** `tasks/loophole-rattrap/solution/reference.jsonl` is a fixed, committed list of 284 commands.
+* **What it is.** Tibi's recorded human solve. Its waypoints are fixed and committed in
+  `tasks/loophole-rattrap/solution/waypoints.jsonl`: the recording's grabs and releases, and its hand path simplified by
+  Ramer–Douglas–Peucker at 0.1 mm, the points the offline conversion followed. At replay a controller
+  (`solution/follow_waypoints.py`) moves the gripper toward the next waypoint from its actual position, in moves of at
+  most 30 mm; a blocked move ends that waypoint. That is the same correction the offline conversion performed, done live
+  so that cross-platform numerical differences do not accumulate.
+* **Why closed-loop.** Replayed as the fixed list of 284 commands (`solution/reference.jsonl`, kept unchanged), the solve
+  reached 20 / 20 checkpoints on macOS but only 18 / 20 inside the Linux simulator container, unsolved at 0.27
+  (`runs/harbor-rattrap/rattrap-oracle/`): the physics is not bit-identical across platforms. Closed-loop it solves on
+  both, in 284 actions with 20 / 20 checkpoints and a score of 0.833, including through Harbor on Linux
+  (`runs/harbor-rattrap/rattrap-oracle-closedloop/`). The waypoints, the checkpoint file, ε and T are unchanged.
   * It is derived from Tibi's own teleoperated solve, recorded in this simulator (`loophole/reference/rattrap-solve.jsonl`).
-  * It was converted once into agent commands (`loophole/reference/rattrap-solve.commands.jsonl`), as described
-    under "Reference solve and conversion fidelity".
+  * Its offline conversion to commands (`loophole/reference/rattrap-solve.commands.jsonl`) is described under
+    "Reference solve and conversion fidelity".
 * **No solver.** There is no solver, planner or search anywhere in the Rat Trap pipeline: not at runtime, not
   offline, not as a fallback. Harbor's "oracle" agent only replays `solution/`; it searches for nothing.
 * **What depends on it.** The checkpoints (`rattrap-checkpoints.npz`) are states of that same recorded run, and ε
