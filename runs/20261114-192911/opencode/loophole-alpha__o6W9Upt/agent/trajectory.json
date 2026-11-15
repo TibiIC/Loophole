@@ -418,7 +418,7 @@
         "results": [
           {
             "source_call_id": "yYn6MjQAhIer8gaH",
-            "content": "environ({'PYTHON_SHA256': '9120e0a653868f6e3698d36cdd99e5a58903ec9469e448f21d98f7b16d8fa290', 'NVM_INC': '/root/.nvm/versions/node/v22.23.5/include/node', 'HOSTNAME': 'eb4efe2a0ac7', 'PYTHON_VERSION': '3.11.18', 'XDG_DATA_HOME': '/logs/agent/opencode/xdg-data', 'AGENT': '1', 'OPENCODE_FAKE_VCS': 'git', 'PWD': '/app', '_': '/usr/local/bin/python3', 'OPENCODE_PID': '7909', 'HOME': '/root', 'OPENCODE': '1', 'LANG': 'C.UTF-8', 'GPG_KEY': 'A035C8C19219BA821ECEA86B64E628F8D684696D', 'NVM_DIR': '/root/.nvm', 'GOOGLE_GENERATIVE_AI_API_KEY': 'AIzaSyBKVlTGg0zCbL2rU4iTOdWArGqkJd221F4', 'SHLVL': '1', 'NVM_CD_FLAGS': '', 'npm_config_user_agent': 'npm/undefined node/v26.3.0 linux arm64 workspaces/false', 'XDG_STATE_HOME': '/logs/agent/opencode/xdg-state', 'PATH': '/root/.nvm/versions/node/v22.23.5/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'NVM_BIN': '/root/.nvm/versions/node/v22.23.5/bin'})\n"
+            "content": "environ(<environment dump removed>)\n"
           }
         ]
       },

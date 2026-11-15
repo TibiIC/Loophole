@@ -260,7 +260,7 @@
         "results": [
           {
             "source_call_id": "Jl1mboTme12Q1UJ6",
-            "content": "/app:\ntotal 8\ndrwxr-xr-x 2 root root 4096 Nov 13 23:19 .\ndrwxr-xr-x 1 root root 4096 Nov 14 06:11 ..\n\n/root/.config/opencode:\ntotal 16\ndrwxr-xr-x 2 root root 4096 Nov 14 06:12 .\ndrwxr-xr-x 3 root root 4096 Nov 14 06:12 ..\n-rw-r--r-- 1 root root   63 Nov 14 06:12 .gitignore\n-rw-r--r-- 1 root root  351 Nov 14 06:12 opencode.json\nAGENT=1\nGOOGLE_GENERATIVE_AI_API_KEY=AIzaSyBKVlTGg0zCbL2rU4iTOdWArGqkJd221F4\nGPG_KEY=A035C8C19219BA821ECEA86B64E628F8D684696D\nHOME=/root\nHOSTNAME=c15b254c0e63\nLANG=C.UTF-8\nNVM_BIN=/root/.nvm/versions/node/v22.23.5/bin\nNVM_CD_FLAGS=\nNVM_DIR=/root/.nvm\nNVM_INC=/root/.nvm/versions/node/v22.23.5/include/node\nOPENCODE=1\nOPENCODE_FAKE_VCS=git\nOPENCODE_PID=8851\nPATH=/root/.nvm/versions/node/v22.23.5/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\nPWD=/app\nPYTHON_SHA256=9120e0a653868f6e3698d36cdd99e5a58903ec9469e448f21d98f7b16d8fa290\nPYTHON_VERSION=3.11.18\nSHLVL=2\nXDG_DATA_HOME=/logs/agent/opencode/xdg-data\nXDG_STATE_HOME=/logs/agent/opencode/xdg-state\n_=/usr/bin/env\nnpm_config_user_agent=npm/undefined node/v26.3.0 linux arm64 workspaces/false\n"
+            "content": "/app:\ntotal 8\ndrwxr-xr-x 2 root root 4096 Nov 13 23:19 .\ndrwxr-xr-x 1 root root 4096 Nov 14 06:11 ..\n\n/root/.config/opencode:\ntotal 16\ndrwxr-xr-x 2 root root 4096 Nov 14 06:12 .\ndrwxr-xr-x 3 root root 4096 Nov 14 06:12 ..\n-rw-r--r-- 1 root root   63 Nov 14 06:12 .gitignore\n-rw-r--r-- 1 root root  351 Nov 14 06:12 opencode.json\n<environment dump removed>\n_=/usr/bin/env\nnpm_config_user_agent=npm/undefined node/v26.3.0 linux arm64 workspaces/false\n"
           }
         ]
       },

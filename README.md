@@ -272,6 +272,25 @@ set -a; source .env; set +a
 harbor run -p ./tasks/loophole-alpha -a opencode -m gemini/gemini-4-carbon
 ```
 
+**Disclosure: a Google API key was committed, has been revoked, and the transcripts are scrubbed.**
+* *What happened.* Agents in the agent container can run shell commands, and some printed their environment (`env`,
+  `os.environ`), which includes the model key Harbor forwards.
+  * The transcripts of 9 Gemini trials on Alpha were archived without our log scrubber and committed with those dumps
+    in them. They are in runs `20261114-080705`, `-111735`, `-174459` and `-192911`.
+  * Three OpenCode session databases (`opencode.db`) held the key as well.
+* *Revoked and rotated.* Google detected the key and revoked it on 14 November 2026: an agent run failed with "Your API
+  key was reported as leaked". The key was rotated, and no current key is in any commit.
+* *Scrubbed.* The commit that added this note replaces each environment dump with `<environment dump removed>` in the
+  18 transcript files (`agent/opencode.txt`, `agent/trajectory.json`) and deletes the three databases.
+  * Nothing scored changed: no file the verifier reads (`artifacts/`, `verifier/`) was touched.
+  * One trial was replayed through the verifier before and after the scrub, and gave byte-identical reports.
+  * Every archived score and verifier verdict stands as recorded.
+* *Still in history.* The revoked value remains in the git history of the earlier commits. A history rewrite is
+  planned after judging, so that the submitted commit SHAs do not change during it.
+* *Prevention.* `scripts/opencode_rattrap.py` scrubs its runs itself, and Harbor trials are scrubbed with the same
+  script (`python scripts/scrub_logs.py DIR`) before they are added to `runs/`. Each staged diff is checked against
+  every key in `.env` before it is committed.
+
 ## The Rat Trap: a cord-and-frame puzzle
 
 A closed string loop, with a mouse bead tied on, starts wrapped around a dowel of a wooden
