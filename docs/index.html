@@ -81,8 +81,13 @@
     .markdown-section .clip-caption { font-size: 0.92em; color: var(--muted); margin-top: 0.6em; }
     .markdown-section table.results { font-size: 0.9em; }
     .markdown-section table.results tr.group td { background: var(--secondary); color: var(--text); font-weight: 700; }
-    .markdown-section table.results tr.highlight td { background: #eef3ff; }
-    .markdown-section table.results tr.pending td { color: #8a5a00; background: #fff7e0; font-style: italic; }
+    .markdown-section table.results tr.pending td,
+    .markdown-section table.results tr.excluded td,
+    .markdown-section table.results tr.superseded td { color: var(--muted); font-style: italic; }
+    .markdown-section table.headline { display: table; width: 100%; font-size: 1em; }
+    .markdown-section table.headline td.env { font-weight: 700; vertical-align: top; background: var(--secondary); white-space: nowrap; }
+    .markdown-section table.headline tr.first td { border-top: 2px solid var(--secondary-line); }
+    .markdown-section table.headline tr:nth-child(2n) { background: transparent; }
     .markdown-section .placeholder { background: #fff7e0; border: 1px dashed #f0b429; color: #8a5a00; padding: 0.8em 1em; border-radius: 6px; }
 
     @media screen and (max-width: 768px) {
@@ -99,9 +104,11 @@
 <body>
   <div id="app"></div>
   <script>
-    // Fills <div id="results-table"> on the home page from results.json, the only source of the results
-    // numbers. Schema: columns [{key, label, align}], rows [{group?, status?: "pending", highlight?, <key>: value}],
-    // groups {id: heading}, caption, footnotes. Rows with status "pending" are flagged and listed above the table.
+    // Results tables, rendered from results.json (the only source of the numbers):
+    //   <div id="results-table">  the headline table (results.json "headline"): environment, agent, score, solved
+    //   <div id="results-full">   full results and provenance (results.json "full")
+    // A table spec is {columns: [{key, label, align}], groups: {id: label}, rows: [{group, status?, <key>: value}],
+    // caption?, footnotes?}. status is "pending", "excluded" or "superseded" (rendered muted, never as a banner).
     function resultsTable(hook) {
       function el(tag, cls, text) {
         var e = document.createElement(tag);
@@ -109,55 +116,67 @@
         if (text !== undefined) e.textContent = text;
         return e;
       }
+      function cell(row, c) {
+        var v = row[c.key], td = el('td', null, v === undefined || v === null || v === '' ? '—' : String(v));
+        if (c.align) td.style.textAlign = c.align;
+        return td;
+      }
+      function render(spec, root, headline) {
+        var cols = spec.columns || [], rows = spec.rows || [], groups = spec.groups || {};
+        root.textContent = '';
+        var table = el('table', 'results' + (headline ? ' headline' : '')), thead = el('thead'), tbody = el('tbody'), tr = el('tr');
+        cols.forEach(function (c) {
+          var th = el('th', null, c.label || c.key);
+          if (c.align) th.style.textAlign = c.align;
+          tr.appendChild(th);
+        });
+        thead.appendChild(tr);
+        var current;
+        rows.forEach(function (row, i) {
+          var r = el('tr', row.status || '');
+          if (headline) {  // the first column is the environment, spanning its group's rows
+            if (row.group !== current) {
+              current = row.group;
+              var span = 1;
+              while (i + span < rows.length && rows[i + span].group === row.group) span++;
+              var env = el('td', 'env', groups[row.group] || row.group);
+              env.rowSpan = span;
+              r.appendChild(env);
+              r.className += ' first';
+            }
+            cols.slice(1).forEach(function (c) { r.appendChild(cell(row, c)); });
+          } else {
+            if (row.group !== current) {
+              current = row.group;
+              var g = el('tr', 'group'), gtd = el('td', null, groups[row.group] || row.group);
+              gtd.colSpan = cols.length;
+              g.appendChild(gtd);
+              tbody.appendChild(g);
+            }
+            cols.forEach(function (c) { r.appendChild(cell(row, c)); });
+          }
+          tbody.appendChild(r);
+        });
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        root.appendChild(table);
+        if (spec.caption) root.appendChild(el('p', 'clip-caption', spec.caption));
+        if ((spec.footnotes || []).length) {
+          var ul = el('ul', 'clip-caption');
+          spec.footnotes.forEach(function (f) { ul.appendChild(el('li', null, f)); });
+          root.appendChild(ul);
+        }
+      }
       hook.doneEach(function () {
-        var root = document.getElementById('results-table');
-        if (!root) return;
+        var head = document.getElementById('results-table'), full = document.getElementById('results-full');
+        if (!head && !full) return;
         fetch('results.json', { cache: 'no-cache' })
           .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (data) {
-            var cols = data.columns || [], rows = data.rows || [], groups = data.groups || {};
-            root.textContent = '';
-            var pending = rows.filter(function (r) { return r.status === 'pending'; });
-            if (!rows.length || pending.length) {
-              root.appendChild(el('p', 'placeholder', !rows.length ? 'Placeholder: results pending.' :
-                'Pending: ' + pending.map(function (r) { return (groups[r.group] || '').split(' · ')[0] + ' — ' + r.agent; }).join('; ') + '.'));
-              if (!rows.length) return;
-            }
-            var table = el('table', 'results'), thead = el('thead'), tbody = el('tbody'), tr = el('tr');
-            cols.forEach(function (c) {
-              var th = el('th', null, c.label || c.key);
-              if (c.align) th.style.textAlign = c.align;
-              tr.appendChild(th);
-            });
-            thead.appendChild(tr);
-            var current;
-            rows.forEach(function (row) {
-              if (row.group && row.group !== current) {
-                current = row.group;
-                var g = el('tr', 'group'), td = el('td', null, groups[row.group] || row.group);
-                td.colSpan = cols.length;
-                g.appendChild(td);
-                tbody.appendChild(g);
-              }
-              var r = el('tr', (row.status === 'pending' ? 'pending ' : '') + (row.highlight ? 'highlight' : ''));
-              cols.forEach(function (c) {
-                var v = row[c.key], td = el('td', null, v === undefined || v === null || v === '' ? '—' : String(v));
-                if (c.align) td.style.textAlign = c.align;
-                r.appendChild(td);
-              });
-              tbody.appendChild(r);
-            });
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            root.appendChild(table);
-            if (data.caption) root.appendChild(el('p', 'clip-caption', data.caption));
-            if ((data.footnotes || []).length) {
-              var ul = el('ul', 'clip-caption');
-              data.footnotes.forEach(function (f) { ul.appendChild(el('li', null, f)); });
-              root.appendChild(ul);
-            }
+            if (head && data.headline) render(data.headline, head, true);
+            if (full && data.full) render(data.full, full, false);
           })
-          .catch(function (e) { root.textContent = 'Could not load results.json (' + e.message + ').'; });
+          .catch(function (e) { (head || full).textContent = 'Could not load results.json (' + e.message + ').'; });
       });
     }
 

@@ -3,14 +3,14 @@
  "seconds": 17.8,
  "s_per_action": 0.1,
  "left": {
-  "name": "sbMy6Ld",
+  "name": "Gemini 4 Carbon, run 1",
   "score": 0.886364,
   "success": true,
   "actions_used": 45,
   "done_reason": "solved"
  },
  "right": {
-  "name": "Kt5DJ3h",
+  "name": "Gemini 4 Carbon, original interface, run 3",
   "score": 0.13941,
   "success": false,
   "actions_used": 157,

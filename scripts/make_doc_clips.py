@@ -181,15 +181,19 @@ def draw_label(img: np.ndarray, text: str, where: str = "tl", size: int = 18, st
 
     im = Image.fromarray(img)
     d = ImageDraw.Draw(im)
+    W, H = im.size
     f = font(size)
     x0, _, x1, _ = d.textbbox((0, 0), text, font=f)
+    while x1 - x0 > W - 24 and size > 9:  # shrink to fit the tile
+        size -= 1
+        f = font(size)
+        x0, _, x1, _ = d.textbbox((0, 0), text, font=f)
     try:  # line height from the font, not the string, so labels on both sides line up
         ascent, descent = f.getmetrics()
     except AttributeError:
         _, ascent, _, descent = d.textbbox((0, 0), "Ag", font=f)
     tw, th = x1 - x0, ascent + descent
     pad = 6
-    W, H = im.size
     x = pad if where in ("tl", "bl") else (W - tw) // 2
     y = pad if where.startswith("t") else H - th - 3 * pad
     bg = (20, 20, 20) if strong else (255, 255, 255)

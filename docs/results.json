@@ -1,46 +1,633 @@
 {
-  "status": "partial",
-  "updated": "2026-11-15",
-  "caption": "Scores are the verifier's episode score (solved: 1 − 0.5·actions/T; unsolved: 0.3 × progress; any violation: 0). Rat Trap progress is checkpoints reached in order out of 20; 'closest' is the nearest the cord came to the first checkpoint (it counts as reached within 16.6 mm). Rows marked pending are filled in when those runs land.",
+ "updated": "2026-11-15",
+ "headline": {
   "columns": [
-    { "key": "agent", "label": "Agent / model" },
-    { "key": "runs", "label": "Runs", "align": "right" },
-    { "key": "solved", "label": "Solved", "align": "right" },
-    { "key": "score", "label": "Score (mean ± sd)", "align": "right" },
-    { "key": "actions", "label": "Actions", "align": "right" },
-    { "key": "blocked", "label": "Blocked moves", "align": "right" },
-    { "key": "progress", "label": "Progress" },
-    { "key": "notes", "label": "Notes" }
+   {
+    "key": "env",
+    "label": "Environment"
+   },
+   {
+    "key": "agent",
+    "label": "Agent"
+   },
+   {
+    "key": "score",
+    "label": "Score",
+    "align": "right"
+   },
+   {
+    "key": "solved",
+    "label": "Solved",
+    "align": "right"
+   }
   ],
   "groups": {
-    "alpha": "Alpha 1.0 · tasks/loophole-alpha · budget T = 198 · free-escape goal, sensors profile",
-    "rattrap": "Rat Trap · tasks/loophole-rattrap · budget T = 852 · checkpoint progress (K = 20)",
-    "rattrap-r1": "Rat Trap, round 1 · sparse reward, T = 400 · command logs re-scored offline under the checkpoint reward"
+   "alpha": "Alpha 1.0",
+   "rattrap": "Rat Trap"
   },
   "rows": [
-    { "group": "alpha", "agent": "Reference (oracle): published path, Zhang et al. 2020", "runs": 1, "solved": "1 / 1", "score": "0.851", "actions": "59", "blocked": "0", "progress": "—", "notes": "Harbor, run 20261114-111735", "source": "docs/RESULTS.md" },
-    { "group": "alpha", "agent": "Gemini 4 Carbon (OpenCode)", "runs": 3, "solved": "3 / 3", "score": "0.864 ± 0.036", "actions": "45 / 46 / 70", "blocked": "0 / 0 / 0", "progress": "—", "notes": "reconstruct-and-plan; two runs beat the oracle (docs/ANOMALY.md)", "source": "docs/RESULTS.md, run 20261114-111735", "highlight": true },
-    { "group": "alpha", "agent": "Gemini 3.8 Flash (OpenCode)", "runs": 3, "solved": "0 / 3", "score": "0.008 ± 0.010", "actions": "76 / 189 / 196", "blocked": "", "progress": "—", "notes": "run 20261114-174459", "source": "docs/RESULTS.md, behaviour axes" },
-    { "group": "alpha", "agent": "Gemini 3.5 Flash-Lite (OpenCode)", "runs": 3, "solved": "0 / 3", "score": "0.000 ± 0.000", "actions": "55 / 54 / 198", "blocked": "", "progress": "—", "notes": "run 20261114-192911", "source": "docs/RESULTS.md, behaviour axes" },
-    { "group": "alpha", "agent": "DeepSeek V4.1 Flash (Verda, OpenCode)", "runs": 3, "solved": "0 / 3", "score": "0.005 ± 0.002", "actions": "198 / 198 / 179", "blocked": "", "progress": "—", "notes": "run 20261114-200129", "source": "docs/RESULTS.md, behaviour axes" },
-    { "group": "alpha", "agent": "Kimi K3 Pro (Verda, OpenCode)", "runs": 3, "solved": "0 / 3", "score": "0.002 ± 0.003", "actions": "35 / 3 / 182", "blocked": "", "progress": "—", "notes": "run 20261114-204530", "source": "docs/RESULTS.md, behaviour axes" },
-    { "group": "alpha", "agent": "Do nothing (nop) / stop early", "runs": 2, "solved": "0 / 2", "score": "0 / 0", "actions": "0 / 6", "blocked": "", "progress": "—", "notes": "baselines", "source": "docs/RESULTS.md" },
-    { "group": "alpha", "agent": "Gemini 4 Carbon, original interface (superseded)", "runs": 3, "solved": "1 / 3", "score": "0.326 ± 0.449", "actions": "64 / 157 / 0", "blocked": "0 / 36 / 0", "progress": "—", "notes": "cost-to-go exposed in get_state; one trial aborted by an API error", "source": "docs/RESULTS.md, run 20261114-080705" },
-
-    { "group": "rattrap", "agent": "Reference (oracle): human teleoperated solve, replayed closed-loop", "runs": 1, "solved": "1 / 1", "score": "0.833", "actions": "284", "blocked": "—", "progress": "20 / 20", "notes": "Harbor, Linux simulator container", "source": "README, runs/harbor-rattrap/rattrap-oracle-closedloop/", "highlight": true },
-    { "group": "rattrap", "agent": "Kimi K3 Pro (Verda, function calling)", "runs": 1, "solved": "0 / 1", "score": "0.0", "actions": "852 / 852", "blocked": "141", "progress": "0 / 20 · closest 63.4 mm", "notes": "full budget", "source": "README, runs/rattrap-agents/kimi-20261114-205209/" },
-    { "group": "rattrap", "agent": "DeepSeek V4.1 Flash (Verda, function calling)", "runs": 1, "solved": "0 / 1", "score": "0.0", "actions": "493 / 852", "blocked": "43", "progress": "0 / 20 · closest 88.1 mm", "notes": "", "source": "README" },
-    { "group": "rattrap", "agent": "Nemotron 3.5 Super VL (Verda, function calling, with images)", "runs": 1, "solved": "—", "score": "excluded", "actions": "501 / 852", "blocked": "48", "progress": "0 / 20 · closest 94.3 mm", "notes": "spurious release violation, an environment defect since fixed; not a capability result", "source": "README" },
-    { "group": "rattrap", "agent": "Gemini 4 Carbon (OpenCode, native Google provider)", "status": "pending", "runs": "pending", "solved": "pending", "score": "pending", "actions": "pending", "blocked": "pending", "progress": "pending", "notes": "restarted Harbor run in progress; earlier runs were stopped early on superseded code (298 and 248 of 852 actions) or excluded", "source": "README" },
-    { "group": "rattrap", "agent": "Do nothing (nop) / stop early / random agent", "runs": 3, "solved": "0 / 3", "score": "0 / 0 / 0", "actions": "", "blocked": "", "progress": "0 / 20", "notes": "nop and stop-early through Harbor; random grabs and moves to the full budget", "source": "README, runs/harbor-rattrap/, runs/rattrap-random/" },
-
-    { "group": "rattrap-r1", "agent": "Kimi K3 Pro (Verda, function calling)", "runs": 1, "solved": "0 / 1", "score": "0.0", "actions": "357 / 400", "blocked": "47", "progress": "0 / 20 · closest 70.1 mm", "notes": "the run shown in the lead clip", "source": "README" },
-    { "group": "rattrap-r1", "agent": "DeepSeek V4.1 Flash (Verda, function calling)", "runs": 1, "solved": "0 / 1", "score": "0.0", "actions": "322 / 400", "blocked": "42", "progress": "0 / 20 · closest 97.7 mm", "notes": "", "source": "README" },
-    { "group": "rattrap-r1", "agent": "Nemotron 3.5 Super VL (Verda, function calling, with images)", "runs": 1, "solved": "0 / 1", "score": "0.0", "actions": "343 / 400", "blocked": "35", "progress": "0 / 20 · closest 110.8 mm", "notes": "never got closer than the start", "source": "README" }
+   {
+    "group": "alpha",
+    "agent": "Reference (published path, replayed)",
+    "score": "0.851",
+    "solved": "1 / 1"
+   },
+   {
+    "group": "alpha",
+    "agent": "Gemini 4 Carbon",
+    "score": "0.864 ± 0.036",
+    "solved": "3 / 3"
+   },
+   {
+    "group": "alpha",
+    "agent": "Gemini 3.8 Flash",
+    "score": "0.008 ± 0.010",
+    "solved": "0 / 3"
+   },
+   {
+    "group": "alpha",
+    "agent": "DeepSeek V4.1 Flash",
+    "score": "0.005 ± 0.002",
+    "solved": "0 / 3"
+   },
+   {
+    "group": "alpha",
+    "agent": "Kimi K3 Pro",
+    "score": "0.002 ± 0.003",
+    "solved": "0 / 3"
+   },
+   {
+    "group": "alpha",
+    "agent": "Gemini 3.5 Flash-Lite",
+    "score": "0.000",
+    "solved": "0 / 3"
+   },
+   {
+    "group": "alpha",
+    "agent": "Do-nothing baseline",
+    "score": "0.000",
+    "solved": "0 / 1"
+   },
+   {
+    "group": "alpha",
+    "agent": "Stop-early baseline",
+    "score": "0.000",
+    "solved": "0 / 1"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Reference (human solve, replayed)",
+    "score": "0.833",
+    "solved": "1 / 1"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Kimi K3 Pro",
+    "score": "0.000",
+    "solved": "0 / 2"
+   },
+   {
+    "group": "rattrap",
+    "agent": "DeepSeek V4.1 Flash",
+    "score": "0.000",
+    "solved": "0 / 2"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Nemotron 3.5 Super VL",
+    "score": "0.000",
+    "solved": "0 / 1"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Gemini 4 Carbon",
+    "score": "pending",
+    "solved": "pending",
+    "status": "pending"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Do-nothing baseline",
+    "score": "0.000",
+    "solved": "0 / 1"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Stop-early baseline",
+    "score": "0.000",
+    "solved": "0 / 1"
+   },
+   {
+    "group": "rattrap",
+    "agent": "Random baseline",
+    "score": "0.000",
+    "solved": "0 / 1"
+   }
+  ]
+ },
+ "full": {
+  "caption": "Score: the verifier's episode score. Solved: 1 − 0.5·actions/T; unsolved: 0.3 × progress; any violation: 0. Rat Trap progress is checkpoints reached in order out of 20; 'closest' is the nearest the cord came to the first checkpoint, which counts as reached within 16.6 mm. Runs are numbered in the order they started. The headline table counts the valid runs on the submitted tasks (Alpha: the first group; Rat Trap: rounds 1 and 2, with round 1 re-scored offline under the current checkpoint reward). Excluded and superseded runs are listed here only.",
+  "columns": [
+   {
+    "key": "agent",
+    "label": "Agent, run"
+   },
+   {
+    "key": "score",
+    "label": "Score",
+    "align": "right"
+   },
+   {
+    "key": "solved",
+    "label": "Solved",
+    "align": "right"
+   },
+   {
+    "key": "actions",
+    "label": "Actions",
+    "align": "right"
+   },
+   {
+    "key": "blocked",
+    "label": "Blocked moves",
+    "align": "right"
+   },
+   {
+    "key": "progress",
+    "label": "Progress"
+   },
+   {
+    "key": "notes",
+    "label": "Notes"
+   },
+   {
+    "key": "identifier",
+    "label": "Identifier"
+   }
+  ],
+  "groups": {
+   "a-sub": "Alpha 1.0 · tasks/loophole-alpha, the submitted task · T = 198 · free-escape goal, sensors profile",
+   "a-plan": "Alpha 1.0 · tasks/loophole-alpha-planner",
+   "a-orig": "Alpha 1.0 · original interface (superseded): min-distance goal, cost-to-go exposed in get_state",
+   "r-sub": "Rat Trap · tasks/loophole-rattrap, the submitted task · T = 852 · checkpoint progress (K = 20) · round 2",
+   "r-r1": "Rat Trap · round 1 · sparse reward, T = 400 · command logs re-scored offline under the checkpoint reward"
+  },
+  "rows": [
+   {
+    "group": "a-sub",
+    "agent": "Reference (published path, replayed)",
+    "score": "0.851",
+    "solved": "yes",
+    "actions": "59",
+    "blocked": "0",
+    "progress": "",
+    "notes": "Zhang et al. 2020, replayed through the agent's rig",
+    "identifier": "runs/20261114-111735 · loophole-alpha__fVDVriY"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 4 Carbon, run 1",
+    "score": "0.886",
+    "solved": "yes",
+    "actions": "45",
+    "blocked": "0",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-111735 · loophole-alpha__sbMy6Ld"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 4 Carbon, run 2",
+    "score": "0.823",
+    "solved": "yes",
+    "actions": "70",
+    "blocked": "0",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-111735 · loophole-alpha__qxQuETk"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 4 Carbon, run 3",
+    "score": "0.884",
+    "solved": "yes",
+    "actions": "46",
+    "blocked": "0",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-111735 · loophole-alpha__AbJs9Px"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.8 Flash, run 1",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "196",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-174459 · loophole-alpha__sHE2fBv"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.8 Flash, run 2",
+    "score": "0.006",
+    "solved": "no",
+    "actions": "189",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-174459 · loophole-alpha__QrsMh3s"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.8 Flash, run 3",
+    "score": "0.019",
+    "solved": "no",
+    "actions": "76",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-174459 · loophole-alpha__snypBd4"
+   },
+   {
+    "group": "a-sub",
+    "agent": "DeepSeek V4.1 Flash, run 1",
+    "score": "0.007",
+    "solved": "no",
+    "actions": "179",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-200129 · loophole-alpha__wZquaF5"
+   },
+   {
+    "group": "a-sub",
+    "agent": "DeepSeek V4.1 Flash, run 2",
+    "score": "0.004",
+    "solved": "no",
+    "actions": "198",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-200129 · loophole-alpha__BpQxf4N"
+   },
+   {
+    "group": "a-sub",
+    "agent": "DeepSeek V4.1 Flash, run 3",
+    "score": "0.005",
+    "solved": "no",
+    "actions": "198",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-200129 · loophole-alpha__jAVD75d"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Kimi K3 Pro, run 1",
+    "score": "0.005",
+    "solved": "no",
+    "actions": "35",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-204530 · loophole-alpha__4BanhcW"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Kimi K3 Pro, run 2",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "3",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-204530 · loophole-alpha__D9VAB6s"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Kimi K3 Pro, run 3",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "182",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode, via Verda",
+    "identifier": "runs/20261114-204530 · loophole-alpha__UpevmKp"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.5 Flash-Lite, run 1",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "198",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-192911 · loophole-alpha__tyxJ2PC"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.5 Flash-Lite, run 2",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "55",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-192911 · loophole-alpha__o6W9Upt"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 3.5 Flash-Lite, run 3",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "54",
+    "blocked": "",
+    "progress": "",
+    "notes": "OpenCode",
+    "identifier": "runs/20261114-192911 · loophole-alpha__UofRoUL"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Do-nothing baseline",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "0",
+    "blocked": "",
+    "progress": "",
+    "notes": "Harbor's nop agent",
+    "identifier": "runs/20261114-111735 · loophole-alpha__pjvF4jM"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Stop-early baseline",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "6",
+    "blocked": "",
+    "progress": "",
+    "notes": "the reference cut short",
+    "identifier": "runs/20261114-111735 · loophole-alpha__H67A5CT"
+   },
+   {
+    "group": "a-sub",
+    "agent": "Gemini 2.5 Flash, runs 1–3",
+    "score": "—",
+    "solved": "—",
+    "actions": "0",
+    "blocked": "",
+    "progress": "",
+    "notes": "excluded: model no longer available to new API users (never acted)",
+    "identifier": "runs/20261114-194920 · loophole-alpha__cDA8RbC, __8RcG9VQ, __j7MwLox",
+    "status": "excluded"
+   },
+   {
+    "group": "a-plan",
+    "agent": "Reference (published path, replayed)",
+    "score": "0.851",
+    "solved": "yes",
+    "actions": "59",
+    "blocked": "0",
+    "progress": "",
+    "notes": "planner profile (adds collision queries and meshes)",
+    "identifier": "runs/20261114-093603-v2 · loophole-alpha-planner__dDK5ftS"
+   },
+   {
+    "group": "a-orig",
+    "agent": "Reference (published path, replayed)",
+    "score": "0.801",
+    "solved": "yes",
+    "actions": "79",
+    "blocked": "0",
+    "progress": "",
+    "notes": "min-distance goal",
+    "identifier": "runs/20261114-080705 · loophole-alpha__Xx78e6N",
+    "status": "superseded"
+   },
+   {
+    "group": "a-orig",
+    "agent": "Gemini 4 Carbon, run 1",
+    "score": "—",
+    "solved": "—",
+    "actions": "0",
+    "blocked": "",
+    "progress": "",
+    "notes": "excluded: API 400 before any action",
+    "identifier": "runs/20261114-080705 · loophole-alpha__wRU3ykj",
+    "status": "excluded"
+   },
+   {
+    "group": "a-orig",
+    "agent": "Gemini 4 Carbon, run 2",
+    "score": "0.838",
+    "solved": "yes",
+    "actions": "64",
+    "blocked": "0",
+    "progress": "",
+    "notes": "reconstruct-and-plan",
+    "identifier": "runs/20261114-080705 · loophole-alpha__5oFTZb8",
+    "status": "superseded"
+   },
+   {
+    "group": "a-orig",
+    "agent": "Gemini 4 Carbon, run 3",
+    "score": "0.139",
+    "solved": "no",
+    "actions": "157",
+    "blocked": "36",
+    "progress": "",
+    "notes": "gradient search on the exposed cost-to-go",
+    "identifier": "runs/20261114-080705 · loophole-alpha__Kt5DJ3h",
+    "status": "superseded"
+   },
+   {
+    "group": "a-orig",
+    "agent": "Do-nothing / stop-early baselines",
+    "score": "0.000 / 0.000",
+    "solved": "no / no",
+    "actions": "0 / 6",
+    "blocked": "",
+    "progress": "",
+    "notes": "",
+    "identifier": "runs/20261114-080705 · loophole-alpha__qSYWQW4, __Hh5ATY8",
+    "status": "superseded"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Reference (human solve, replayed)",
+    "score": "0.833",
+    "solved": "yes",
+    "actions": "284",
+    "blocked": "—",
+    "progress": "20 / 20",
+    "notes": "replayed closed-loop from fixed waypoints, through Harbor on Linux",
+    "identifier": "runs/harbor-rattrap/rattrap-oracle-closedloop/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Kimi K3 Pro, round 2",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "852 / 852",
+    "blocked": "141",
+    "progress": "0 / 20 · closest 63.4 mm",
+    "notes": "function calling, via Verda; full budget",
+    "identifier": "runs/rattrap-agents/kimi-20261114-205209/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "DeepSeek V4.1 Flash, round 2",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "493 / 852",
+    "blocked": "43",
+    "progress": "0 / 20 · closest 88.1 mm",
+    "notes": "function calling, via Verda",
+    "identifier": "runs/rattrap-agents/deepseek-20261114-205209/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Gemini 4 Carbon",
+    "score": "pending",
+    "solved": "pending",
+    "actions": "",
+    "blocked": "",
+    "progress": "",
+    "notes": "restarted Harbor run in progress",
+    "identifier": "",
+    "status": "pending"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Nemotron 3.5 Super VL, round 2",
+    "score": "—",
+    "solved": "—",
+    "actions": "501 / 852",
+    "blocked": "48",
+    "progress": "0 / 20 · closest 94.3 mm",
+    "notes": "excluded: spurious release violation (an environment defect, since fixed)",
+    "identifier": "runs/rattrap-agents/nemotron-20261114-212408/",
+    "status": "excluded"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Gemini 4 Carbon, run 1",
+    "score": "—",
+    "solved": "—",
+    "actions": "89 / 852",
+    "blocked": "17",
+    "progress": "0 / 20",
+    "notes": "excluded: spurious release violation (same defect)",
+    "identifier": "runs/rattrap-agents/google-gemini-4-carbon-opencode-20261114-213742-1/",
+    "status": "excluded"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Gemini 4 Carbon, runs 0 and 2",
+    "score": "0.000 / 0.000",
+    "solved": "no / no",
+    "actions": "298 / 852, 248 / 852",
+    "blocked": "80 / 59",
+    "progress": "0 / 20",
+    "notes": "superseded: stopped early (OpenCode error / model stopped), started before the release fix",
+    "identifier": "runs/rattrap-agents/google-gemini-4-carbon-opencode-20261114-213742-0/, …-213744-2/",
+    "status": "superseded"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Do-nothing baseline",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "0",
+    "blocked": "—",
+    "progress": "0 / 20 · closest 110.8 mm (the start)",
+    "notes": "Harbor's nop agent",
+    "identifier": "runs/harbor-rattrap/rattrap-noop/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Stop-early baseline",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "",
+    "blocked": "",
+    "progress": "0 / 20",
+    "notes": "the reference cut short",
+    "identifier": "runs/harbor-rattrap/rattrap-stop-early/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Random baseline",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "",
+    "blocked": "",
+    "progress": "0 / 20",
+    "notes": "random grabs, moves and releases to the full budget",
+    "identifier": "runs/rattrap-random/"
+   },
+   {
+    "group": "r-sub",
+    "agent": "Reference, fixed-command replay",
+    "score": "0.27",
+    "solved": "no",
+    "actions": "",
+    "blocked": "",
+    "progress": "18 / 20",
+    "notes": "superseded: the fixed command list diverged on Linux; replaced by the closed-loop replay",
+    "identifier": "runs/harbor-rattrap/rattrap-oracle/",
+    "status": "superseded"
+   },
+   {
+    "group": "r-r1",
+    "agent": "Kimi K3 Pro, round 1",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "357 / 400",
+    "blocked": "47",
+    "progress": "0 / 20 · closest 70.1 mm",
+    "notes": "the run in the lead clip",
+    "identifier": "runs/rattrap-agents/kimi-20261114-185131/"
+   },
+   {
+    "group": "r-r1",
+    "agent": "DeepSeek V4.1 Flash, round 1",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "322 / 400",
+    "blocked": "42",
+    "progress": "0 / 20 · closest 97.7 mm",
+    "notes": "",
+    "identifier": "runs/rattrap-agents/deepseek-20261114-185131/"
+   },
+   {
+    "group": "r-r1",
+    "agent": "Nemotron 3.5 Super VL, round 1",
+    "score": "0.000",
+    "solved": "no",
+    "actions": "343 / 400",
+    "blocked": "35",
+    "progress": "0 / 20 · closest 110.8 mm",
+    "notes": "with images; never got closer than the start",
+    "identifier": "runs/rattrap-agents/nemotron-20261114-185131/"
+   },
+   {
+    "group": "r-r1",
+    "agent": "Gemini 4 Carbon, round 1",
+    "score": "—",
+    "solved": "—",
+    "actions": "0 / 400",
+    "blocked": "",
+    "progress": "",
+    "notes": "excluded: through Google's OpenAI-compatible API it returned nothing (a harness/API issue)",
+    "identifier": "runs/rattrap-agents/gemini-4-carbon-text-20261114-200445/",
+    "status": "excluded"
+   }
   ],
   "footnotes": [
-    "Alpha, excluded as harness-invalid (the model never acted on the puzzle): three gemini-2.5-flash trials (model no longer available to new API users) and one Gemini 4 Carbon trial ended by an API 400. Details: docs/RESULTS.md.",
-    "Rat Trap round 1, Gemini 4 Carbon through Google's OpenAI-compatible endpoint returned nothing (0 actions): a harness/API issue, not a verdict on the model.",
-    "A dash means not applicable, or not reported per run in the sources (docs/RESULTS.md and the repo README results table)."
+   "A dash means not applicable, or not reported per run in the sources: docs/RESULTS.md and the repo README results table."
   ]
+ }
 }

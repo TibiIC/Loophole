@@ -4,7 +4,8 @@ Short illustrative clips, not full runs. Each has a full-quality `.mp4` (for the
 muted, loop) and a palette-optimised `.gif` (≤ 600 px wide, 12 fps) for places a video player
 won't render, such as GitHub markdown. Made by `scripts/make_doc_clips.py`, which replays the
 logged actions in a fresh simulator and renders them. The replay reproduced each run's logged
-outcome; per-clip timing is in `<clip>.timing.json`.
+outcome; per-clip timing is in `<clip>.timing.json`. In-frame labels name runs by model and run
+number (runs are numbered in the order they started); the identifiers are given below.
 
 ## `clip-alpha-reference`: Alpha 1.0, reference solve
 
@@ -24,22 +25,23 @@ re-encoded. The GIF is made from it.
 
 ## `clip-rattrap-failure`: Rat Trap, an agent failing
 
-Kimi K3 Pro (`kimi-k3-1-pro`), run `kimi-20261114-185131` (`runs/rattrap-agents/` on the
-rattrap branch): 357 actions, 47 blocked moves, 0 / 20 checkpoints, score 0, ended at the
+Kimi K3 Pro, round 1 (model `kimi-k3-1-pro`; run `runs/rattrap-agents/kimi-20261114-185131/`):
+357 actions, 47 blocked moves, 0 / 20 checkpoints, score 0, ended at the
 time / turn limit. The clip is actions 45–72, the 28-action stretch with the most blocked
 moves (11): the agent grabs a cord node, pushes, is blocked, releases, grabs another node and
 pushes again (four blocked in a row at 66–69). Every action gets 0.25 s; blocked moves are
-labelled. Left: iso view; right: front view. Replayed from the run's `commands.jsonl` through
+labelled; the label reads "Kimi K3 Pro, round 1". Left: iso view; right: front view. Replayed from the run's `commands.jsonl` through
 `RatTrapEpisode`; the replay reproduces the committed re-score (357 actions, 47 blocked, 0).
 
-Not the run with the most blocked moves overall: that is `kimi-20261114-205209` (141), whose
-command log is not committed.
+Not the run with the most blocked moves overall: that is Kimi K3 Pro, round 2
+(`kimi-20261114-205209`, 141 blocked, the full 852-action budget). It was not used because aligning it to the
+reference would make a much longer clip that is mostly a frozen reference.
 
 ## `clip-rattrap-contrast`: Rat Trap, human reference beside an agent (lead clip)
 
 The lead clip. The only text in the frames is "human reference — solved" and "agent — 0/20 checkpoints";
 counts live in the results table, not in the clip. Left: the human teleoperated solve. Right: Kimi K3 Pro,
-run `kimi-20261114-185131` (round 1), illustrating the failure mode. Iso view on both sides.
+round 1 (run `kimi-20261114-185131`), illustrating the failure mode. Iso view on both sides.
 
 * **Reference half.** Re-rendered from the committed recording (`loophole/reference/rattrap-solve.jsonl`)
   by exact replay, one frame per 20 ms of sim time: 5,766 frames, all 75 grab / release events.
@@ -70,15 +72,16 @@ Illustrative, not a controlled comparison (see the last paragraph).
 Gemini 4 Carbon (OpenCode), two runs side by side, iso view, aligned by action index: every
 action gets 0.1 s on both sides, the same rate as the fast parts of `clip-alpha-reference`, with
 no slowdown for the twist.
-* Left, `sbMy6Ld` (trial `loophole-alpha__sbMy6Ld`, run `20261114-111735`): reconstructed
+* Left, Gemini 4 Carbon, run 1 (trial `loophole-alpha__sbMy6Ld`, run `20261114-111735`): reconstructed
   the geometry from renders, planned, and executed the plan; solved in 45 actions, then held
   on its final frame.
-* Right, `Kt5DJ3h` (trial `loophole-alpha__Kt5DJ3h`, run `20261114-080705`): finite-difference
+* Right, Gemini 4 Carbon, original interface, run 3 (trial `loophole-alpha__Kt5DJ3h`, run
+  `20261114-080705`): finite-difference
   descent on the exposed cost-to-go; it keeps pushing until it stops at 157 of its 198 actions,
   unsolved. It was not cut off by the budget.
 
-The two runs come from different interface rounds: `sbMy6Ld` from the redesigned task
-(free-escape goal, no progress signal shown), `Kt5DJ3h` from the original one (cost-to-go
+The two runs come from different interface rounds: run 1 from the redesigned task
+(free-escape goal, no progress signal shown), the original-interface run 3 from the original one (cost-to-go
 exposed in `get_state`). The puzzle and start pose are identical (same initial-state hash); the
-rig differs only in grasp tolerance (5 cm for `sbMy6Ld`, 3 m for `Kt5DJ3h`; tightened later, see
+rig differs only in grasp tolerance (5 cm for the left run, 3 m for the right; tightened later, see
 `docs/EXPLOITS.md` #11). Each side is replayed under its own logged config. See `docs/RESULTS.md`.
