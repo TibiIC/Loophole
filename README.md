@@ -194,6 +194,31 @@ endpoint. After the agent finishes, a collect hook in the sidecar finalises the 
 logged action in a fresh simulator and recomputes the score, checking puzzle hash, config,
 initial state and every per-action state hash. Nothing the agent writes is read.
 
+**Reproducing a score: re-run, don't replay an archived Alpha log.**
+* A run is verified inside the image build that recorded it. The verifier replays every action and requires every
+  per-action state hash to match, bit for bit.
+* **The Alpha image is not bit-reproducible across builds.**
+  * Its collision geometry is regenerated at every build. In two clean builds of the same commit, 22 of 5,592 convex
+    pieces differ, by about 1.4e-5 in vertex coordinates.
+  * The differences are confined to face-wedge pieces, whose inward depth is set by ray casting in the face-wedge
+    decomposition. Python packages and compiled libraries are identical across the two builds.
+  * Replays then drift in the last bits: the same 59 actions, the same 0.851010, poses agreeing to six decimal places.
+    But the state hash differs from action 2, so an archived Alpha log re-verified in a different build scores 0: it
+    fails closed.
+  * Of the 31 committed Alpha trials, only the 5 zero-action episodes re-verify in a rebuilt image.
+* **The Rat Trap is reproducible across builds.** Its geometry is boxes and capsules, with no mesh decomposition. Its
+  archived closed-loop oracle log (`runs/harbor-rattrap/rattrap-oracle-closedloop/`) re-verifies in an independently
+  rebuilt image: 0.833333, solved, 20 / 20, every per-action state hash matching.
+* **What holds:**
+  * Every archived score was computed at run time by Harbor's separate, no-network verifier, with
+    `log_consistent: 1`.
+  * Only cross-build re-verification of archived Alpha logs fails.
+  * A fresh evaluation reproduces. From a clean HTTPS clone of main and a cleared Docker cache, the Alpha reference
+    scored exactly 0.851010 and the do-nothing baseline 0 (build 132 s, reference 248 s, noop 35 s). The Rat Trap
+    reference scored 0.833333, solved, 20 / 20.
+* Judges therefore reproduce a result by re-running it (`harbor run -p ./tasks/loophole-alpha ...`), not by
+  replaying an archived Alpha log.
+
 **One-command reproduction** (Docker + `uv tool install harbor`; the image build fetches
 the meshes):
 ```bash
@@ -289,7 +314,7 @@ Geometry: `loophole/puzzles/rattrap/rattrap.yaml`; every dimension is provisiona
 ```bash
 harbor run -p ./tasks/loophole-rattrap -a oracle                          # the recorded human solve, replayed closed-loop: 0.833
 harbor run -p ./tasks/loophole-rattrap -a nop                             # 0
-harbor run -p ./tasks/loophole-rattrap -a opencode -m google/gemini-4-carbon
+harbor run -p ./tasks/loophole-rattrap -a opencode -m gemini/gemini-4-carbon   # gemini/, not google/ (Harbor forwards the key only for gemini/)
 make reference TASKS=tasks/loophole-rattrap    # or: make noop / make agent TASKS=tasks/loophole-rattrap MODEL=...
 ```
 
@@ -373,6 +398,27 @@ Wall-clock on one loaded laptop (m = measured from the committed run logs; e = e
 | reference | 2.9 min (m) | ~1.5 h (e, from a 30-action Harbor run at ~9 s/action, replayed again by the verifier) |
 | each baseline | ≤ 0.5 min (m) | noop 0.6 min (m) |
 | each agent run | 55–74 min (m, Gemini 4 Carbon) | up to 4 h of agent time, plus up to ~2 h of verification (e) |
+
+**If an agent stops acting (repeated empty responses).**
+* **Seen with:** Gemini 4 Carbon through OpenCode's Google provider, on the Rat Trap. The task pins
+  `thinkingLevel: low` there, because at the default level the model reasons to OpenCode's 32k output cap and never
+  acts (docs/HARNESS_NOTES.md).
+* **How to spot it:**
+  * in the agent transcript (`agent/opencode.txt` in the trial directory), step after step ends with
+    `"reason":"unknown"`, 0 output tokens and 0 reasoning tokens, and there is no error event;
+  * the action count stops rising (`artifacts/episode/commands.jsonl`, or `actions_used` in `get_state`);
+  * the simulator sidecar sits idle, waiting for a request that never comes.
+* **It is the model's behaviour, not the environment.**
+  * In one Rat Trap run, 288 consecutive empty steps followed 25 actions.
+  * Earlier Rat Trap runs had bursts of 20, 34 and 86 and recovered. The runs that stalled were the ones in which the
+    model produced no reasoning tokens at all.
+  * The stall is not caused by context size. On Alpha, at OpenCode's default level, the same model ran with 0 empty
+    steps up to 176k tokens of context; the Rat Trap stalls at 26k–34k.
+* **Remedy:** restart the run. A run in progress either recovers on its own or reaches the agent timeout and is scored
+  on the actions it took.
+* **Model id:** use `-m gemini/gemini-4-carbon` with Harbor, not `google/...`. Harbor forwards the key only for
+  `gemini/`, and with `google/` the agent exits at once ("Google Generative AI API key is missing"). Harbor still
+  starts OpenCode with its `google` provider, so the task's thinking setting applies.
 
 Step by step, for development:
 
@@ -469,6 +515,9 @@ Each row points at the artifact behind it.
    `reward.roadmap` into both the sim sidecar and the verifier.
 4. **More variants**: clearance ladder via `generate.py VARIANTS`; check difficulty with planning time.
 5. Rope puzzles: keep as a second track (already working end to end).
+6. **Deterministic Alpha geometry**: make the face-wedge decomposition deterministic (fixed ray-casting order), with a
+   test that two clean builds produce byte-identical convex pieces. Archived Alpha logs would then re-verify in any build
+   of the same commit.
 
 ## Layout
 
