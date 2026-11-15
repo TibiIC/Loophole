@@ -126,6 +126,9 @@ and is re-run by the verifier.
 
 ### Rewards: formal definitions, intuition, sources
 
+The complete reference for every reward component in both environments (scored, shaping and diagnostic, each with
+its definition, a worked example from a committed run and its provenance) is [docs/rewards.md](docs/rewards.md).
+
 **Episode score: the only number the verifier writes** (`/logs/verifier/reward.txt`;
 `reward/literature_rewards.py: episode_score`). With a = actions used, T = 198, V = audit
 violations:
