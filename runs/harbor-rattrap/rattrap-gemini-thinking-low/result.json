@@ -1,0 +1,43 @@
+{
+    "id": "f7a2abc8-f951-4622-9c60-f7ac2e024125",
+    "started_at": "2026-11-15T02:58:53.340347",
+    "updated_at": "2026-11-15T07:04:18.988963",
+    "finished_at": "2026-11-15T07:04:18.988963",
+    "n_total_trials": 1,
+    "stats": {
+        "n_completed_trials": 1,
+        "n_errored_trials": 1,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "opencode__gemini-4-carbon__adhoc": {
+                "n_trials": 1,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "loophole-rattrap__bmAyau6"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "loophole-rattrap__bmAyau6"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 57420278,
+        "n_cache_tokens": 53855803,
+        "n_output_tokens": 5497,
+        "cost_usd": null
+    }
+}

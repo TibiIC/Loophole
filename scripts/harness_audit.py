@@ -24,6 +24,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OPENCODE_CAP = 32000  # OpenCode 1.19.5's default per-turn output cap (OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX)
+# Harbor trials do not record their task's compose, so a raised cap is listed by job directory (relative to runs/)
+HARBOR_CAP = {"harbor-rattrap/rattrap-gemini-output-cap": 65536}
+# runs whose figures are harness artefacts or partial by design, labelled in the table (keyed by Run label prefix)
+RUN_NOTES = {
+    "harbor-rattrap/rattrap-gemini-thinking-low/": "harness artefact: thinkingLevel low (the pinned workaround); 0 reasoning "
+                                                   "tokens in every turn, then empty turns until the 14,400 s timeout. Fixed by "
+                                                   "raising the output cap (docs/HARNESS_NOTES.md §1)",
+    "aborted/google-gemini-4-carbon-opencode-20261114-2117": "harness artefact: opening plan truncated at OpenCode's 32,000 cap",
+    "aborted/google-gemini-4-carbon-opencode-20261115-133646-0": "harness artefact: no includeThoughts, long turn lost to header timeouts",
+    "google-gemini-4-carbon-opencode-20261115-140522-0": "50-step probe of the output-cap fix, stopped by us; not a scored run",
+    "google-gemini-4-carbon-opencode-20261114-21374": "thinkingLevel low (the pinned workaround)",
+}
+
+
+def note(run: str) -> str:
+    return next((v for k, v in RUN_NOTES.items() if run.startswith(k)), "")
 
 
 def opencode_cap(cfg: dict) -> int:
@@ -63,8 +79,9 @@ def audit_opencode(path: Path, model: str, task: str, reward: str | None, cap: i
     # agents may also drive the server over raw HTTP from bash (OpenCode does not forward MCP images to Gemini)
     http = [t for t in tools if t["part"].get("tool") == "bash" and re.search(r"loophole-sim|:8000/mcp", json.dumps(t["part"].get("state", {}).get("input", {})))
             and re.search(r"\b(grab|move|release|wait)\b", json.dumps(t["part"].get("state", {}).get("input", {})))]
+    empty = [e for e in steps if not ((e["part"].get("tokens") or {}).get("output") or (e["part"].get("tokens") or {}).get("reasoning"))]
     return {"task": task, "model": model, "run": path.parent.parent.name if path.parent.name == "agent" else path.parent.name, "reward": reward,
-            "turns": len(steps), "game_calls": len(game), "actions": len(acts), "capped_turns": len(capped),
+            "turns": len(steps), "empty_turns": len(empty), "game_calls": len(game), "actions": len(acts), "capped_turns": len(capped),
             "last_capped": bool(steps) and bool(capped) and steps[-1]["part"].get("tokens") == capped[-1], "permission_denied": len(denied),
             "unknown_tool": len(unknown), "error_events": errors[:3], "no_action": len(acts) == 0 and len(http) == 0, "http_action_calls": len(http)}
 
@@ -84,8 +101,9 @@ def audit_fc(run: Path) -> dict:
     tools = [r for r in rs if r["type"] == "tool"]
     unknown = sum(1 for t in tools if "unknown tool" in json.dumps(t.get("result")))
     acts = [t for t in tools if t["name"] in ("grab", "move", "release")]
+    empty = sum(1 for r in replies if not (r["message"].get("content") or "").strip() and not r["message"].get("tool_calls"))
     return {"task": "rattrap", "model": res.get("model_id") or res.get("model") or run.name, "run": run.name, "reward": res.get("score"),
-            "turns": len(replies), "game_calls": len(tools), "actions": res.get("actions", len(acts)), "capped_turns": capped,
+            "turns": len(replies), "empty_turns": empty, "game_calls": len(tools), "actions": res.get("actions", len(acts)), "capped_turns": capped,
             "last_capped": bool(replies) and capped > 0 and (replies[-1].get("finish_reason") == "length"), "permission_denied": 0,
             "unknown_tool": unknown, "error_events": [res["error"][:200]] if res.get("error") else [], "no_action": len(acts) == 0,
             "end": res.get("end")}
@@ -99,18 +117,24 @@ def main() -> None:
     ap.add_argument("--md", type=Path, default=None)
     a = ap.parse_args()
     rows = []
-    for oc in sorted(set(a.runs.glob("*/opencode/*/agent/opencode.txt")) | set(a.runs.glob("*/*__*/agent/opencode.txt"))):
+    trials = set(a.runs.glob("*/opencode/*/agent/opencode.txt")) | set(a.runs.glob("*/*__*/agent/opencode.txt")) \
+        | set(a.runs.glob("*/*/*__*/agent/opencode.txt"))  # runs/<run>/opencode/<trial>, runs/<run>/<trial>, runs/<group>/<job>/<trial>
+    for oc in sorted(trials):
         trial = oc.parent.parent
         cfg = json.loads((trial / "config.json").read_text()) if (trial / "config.json").exists() else {}
         rw = trial / "verifier" / "reward.txt"
-        row = audit_opencode(oc, (cfg.get("agent") or {}).get("model_name") or "?", trial.name.split("__")[0],
-                             rw.read_text().strip() if rw.exists() else None)
         run_dir = trial.parent.parent if trial.parent.name == "opencode" else trial.parent
-        row["run"] = f"{run_dir.name}/{trial.name.split('__')[1]}"
+        label = f"{run_dir.relative_to(a.runs)}/{trial.name.split('__')[1]}"
+        row = audit_opencode(oc, (cfg.get("agent") or {}).get("model_name") or "?", trial.name.split("__")[0],
+                             rw.read_text().strip() if rw.exists() else None, HARBOR_CAP.get(str(run_dir.relative_to(a.runs)), OPENCODE_CAP))
+        row["run"] = label
         ep = next(iter(trial.glob("artifacts/**/episode.jsonl")), None)  # the simulator's own log: ground truth
+        rt = trial / "artifacts" / "episode" / "result.json"  # the Rat Trap simulator's own result
         if ep is not None:
             n = sum(1 for l in ep.read_text().splitlines() if '"type": "action"' in l or '"type":"action"' in l)
             row["actions"], row["no_action"] = n, n == 0
+        elif rt.exists() and "actions" in (res := json.loads(rt.read_text())):
+            row["actions"], row["no_action"] = res["actions"], res["actions"] == 0
         rows.append(row)
     for cfgf in sorted(a.jobs.glob("*/config.json")) if a.jobs else []:
         try:
@@ -158,13 +182,14 @@ def main() -> None:
                  "*Reward* is the run's own record: Harbor's `verifier/reward.txt`, or the Rat Trap harness's score. The",
                  "`20261114-080705` agent trials read 0 there because the verifier image changed mid-eval; their reported",
                  "scores come from replay (docs/RESULTS.md). *Actions* is the simulator's count. *Turns at the output cap*",
-                 "counts turns that ended with finish reason `length` or used at least 97 % of that run's cap.", "",
-                 "| Task | Model | Run | Reward | Turns | Actions | Turns at the output cap | Permission denials | Unknown tool | Errors | No action |",
-                 "|---|---|---|---|---|---|---|---|---|---|---|"]
+                 "counts turns that ended with finish reason `length` or used at least 97 % of that run's cap. *Empty turns*",
+                 "returned no text, no reasoning and no tool call. *Note* labels runs whose figures are harness artefacts.", "",
+                 "| Task | Model | Run | Reward | Turns | Empty turns | Actions | Turns at the output cap | Permission denials | Unknown tool | Errors | No action | Note |",
+                 "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for r in rows:
-            lines.append(f"| {r['task']} | {r['model']} | {r['run']} | {r['reward']} | {r['turns']} | {r['actions']} | {r['capped_turns']}"
+            lines.append(f"| {r['task']} | {r['model']} | {r['run']} | {r['reward']} | {r['turns']} | {r['empty_turns']} | {r['actions']} | {r['capped_turns']}"
                          f"{' (last turn)' if r['last_capped'] else ''} | {r['permission_denied']} | {r['unknown_tool']} | "
-                         f"{'; '.join(r['error_events'])[:120] or '–'} | {'yes' if r['no_action'] else ''} |")
+                         f"{'; '.join(r['error_events'])[:120] or '–'} | {'yes' if r['no_action'] else ''} | {note(r['run'])} |")
         a.md.write_text("\n".join(lines) + "\n")
 
 

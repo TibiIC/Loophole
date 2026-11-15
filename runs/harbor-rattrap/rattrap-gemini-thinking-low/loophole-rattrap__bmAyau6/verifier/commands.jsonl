@@ -1,0 +1,26 @@
+{"type": "header", "puzzle": "rattrap", "spec": "rattrap.yaml", "overrides": {}, "spec_sha256": "2a6476b6e53cfc7768d2acfe41d22eac3da356a23b11c1ca644ce1732d1218e9", "checkpoints_sha256": "ca86f2d7c69b9256d366f5d19b1b70a76138be7d612087deae341a73d51e4850", "max_actions": 852, "initial_state_hash": "91d2bbacbb05a99ad797a225d06b422dd8e78419de7de1cfe02d25bf84bf7ecb"}
+{"tool": "grab_node", "args": {"handle": 0, "node": 3}, "i": 1, "state_hash": "f6320b28dd8b0ad6ae60689abca3744025d5e33465d9b02b9a329c1594db2877"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.006, "dy": 0.002, "dz": 0.028}, "i": 2, "state_hash": "c9685acdc9101f26a756672384bfad9a3777fc025f128d43481003e75c0b6013"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": -0.0077, "dz": 0.003}, "i": 3, "state_hash": "3535f5d0c751a53f1fb285dc942b783dca2cd841d75f174c7861e2ced5d0d9b9"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0002, "dy": 0.0, "dz": 0.029}, "i": 4, "state_hash": "74e3c2791202dc1217b0b08fc065ca7d292e5ee4f711694803c7dede3007b070"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 141}, "i": 5, "state_hash": "4fcf325e644a587fd1c6554a4123375d51bef625c79b1a0dbd0151b3193c6f02"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.0043, "dy": -0.0075, "dz": 0.004}, "i": 6, "state_hash": "6287037f4326f0e95e4edb63fd407ddaef2a16eec4dfaacade1493655d5f7927"}
+{"tool": "release", "args": {"handle": 1}, "i": 7, "state_hash": "e1601546379b4cff91bdb7bc903a77f625a73bf1c7269e95ff5f661207cc616b"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0003, "dy": 0.0, "dz": 0.029}, "i": 8, "state_hash": "7731aaf625e28f404bcd6ebe7073e521783ad67e5572ec7d320cfb70e770b28d"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0007, "dy": 0.0, "dz": 0.029}, "i": 9, "state_hash": "764b3b85ae34bd204e336174a05b8862ce2930a3a24efc55bd90c9c46cbd7879"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 5}, "i": 10, "state_hash": "4b5ae96e398ee5506964ff4cd77113507d2eefe62d422b53a93b368092a6e81f"}
+{"tool": "move", "args": {"handle": 1, "dx": -0.0045, "dy": 0.0033, "dz": 0.003}, "i": 11, "state_hash": "4eac8854d4d85fc56f35b49ad4bece4b8bf652264ec491a84cd0d5c999e2ee09"}
+{"tool": "release", "args": {"handle": 1}, "i": 12, "state_hash": "8694606692828d5a683aa0e6d538a04a5edd1e6634c31339af7d5ec972ef5258"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0005, "dy": -0.001, "dz": 0.029}, "i": 13, "state_hash": "ffb5428cfada88398e1042a8937e3c975fac17657ac51cf426ece733924529d4"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 139}, "i": 14, "state_hash": "b49b1c68f793c8842ba378910f26a28cab7b1d26e984a4d93582d02472b4a8a7"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": -0.0095, "dz": 0.004}, "i": 15, "state_hash": "3bf94cf3c18abbf3d412b75ad70a956fc3f0d9d034fd3ff9f6ed1642bfb6d211"}
+{"tool": "release", "args": {"handle": 1}, "i": 16, "state_hash": "f928c0013052e5c57882c019f1fd6813a0c3d4c9f81bdbb4dc652d66184385fd"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0008, "dy": 0.0008, "dz": 0.025}, "i": 17, "state_hash": "dcb364ca756e44dc20dacd1c626f052396ae79fa1e8aaa0bfd8355778fdbc364"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 137}, "i": 18, "state_hash": "4b8b978d34f5ec1ec2eb53a32f55e4d66a49f6b4b8f51875399f84cf7b1d087b"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.005, "dy": 0.004, "dz": 0.02}, "i": 19, "state_hash": "b5619acbe9c30f8e198e96a0f537f82f9916019b5361140c35645da4d9615e19"}
+{"tool": "release", "args": {"handle": 1}, "i": 20, "state_hash": "39fdf94dc94fc81eeea75f83961593ff9063941e863c9bb51741ae2379ef6ac8"}
+{"tool": "grab_node", "args": {"handle": 1, "node": 9}, "i": 21, "state_hash": "9d9f4f654c2e27f7f8954f55c64725b0ed1c6d18de405faf983461da47b42db9"}
+{"tool": "move", "args": {"handle": 1, "dx": 0.002, "dy": -0.004, "dz": 0.025}, "i": 22, "state_hash": "31783eff4525560c168ca6a2b28fb7071cce2aad83712eea8d49277424ec686e"}
+{"tool": "release", "args": {"handle": 1}, "i": 23, "state_hash": "9cded44b3a7918782c2161bc8d41e34dc1358b54ac5caca7946c92b35dcf7571"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0008, "dy": 0.0003, "dz": 0.025}, "i": 24, "state_hash": "0f98809681b3f0f4a6432c4c27c5b22169b65f12bf51ee6038a97ab21f02cd60"}
+{"tool": "move", "args": {"handle": 0, "dx": 0.0, "dy": 0.0, "dz": 0.028}, "i": 25, "state_hash": "369bb67e658c30588cc248b145c844d00b6ec6fb31d43a4fccef5d6d778260d5"}

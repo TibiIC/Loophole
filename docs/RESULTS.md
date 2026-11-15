@@ -164,13 +164,35 @@ ended on the release defect, the harness truncation bug or a revoked API key are
 | right diagnosis, local execution | Kimi K3 Pro, round 1 | 357 (turn cap) | 0.19 | 21 | 55 | 0.17 | 0 | 0 | 70.1 mm | redirect, reverse, release |
 | explicit topology, then quitting | DeepSeek V4.1 Flash, round 2 | 493 (gave up) | 0.17 | 38 | 117 | 0.51 | 0 | 0 | 88.1 mm | release, redirect (state checked more often than the others) |
 | explicit topology, then quitting | DeepSeek V4.1 Flash, round 1 | 322 (turn cap) | 0.25 | 10 | 78 | 0.46 | 0 | 0 | 97.7 mm | release (27 of 42) |
-| acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 2 | 248 (model stopped) | 0.30 | 19 | 27 | 0.25 | 0 | 0 | not computed | redirect, then look and release |
-| acting without stated reasoning | Gemini 4 Carbon, OpenCode, run 0 | 298 (API key revoked) | 0.37 | 12 | 43 | 0.28 | 0 | 0 | not computed | redirect, then reverse, then look and release |
 
 *Blocked-move rate* is blocked moves over moves. *Repeated identical actions* counts consecutive identical calls.
 *Closest to c₁* is the smallest max-norm distance to the first checkpoint over the run (ε = 16.6 mm; the start is
-110.8 mm away). The Gemini runs predate the release fix and saw every 6th cord node; Nemotron had rendered images and
-the others text only. Each model has one or two runs, so these are case studies, not rates.
+110.8 mm away). Nemotron had rendered images and the others text only. Each model has one or two runs, so these are
+case studies, not rates.
+
+**Excluded: harness artefacts, not capability results.** These runs are kept in `runs/` and in the harness audit
+(`runs/harness-audit.md`), labelled there, and are not read as findings about the models.
+* *Nemotron 3.5 Super VL, round 2, first attempt:* 4 of its 18 replies (5, 15, 16 and 18) were cut off empty at the
+  harness's 8,192-token output default. After reply 18 the harness ended the run as "stopped talking", with 10 actions
+  taken (docs/HARNESS_NOTES.md §2).
+* *Nemotron round 2 and Gemini 4 Carbon (OpenCode) run 1:* both ended on the spurious release violation, an environment
+  defect that has since been fixed (README results table, note 3).
+* *Gemini 4 Carbon (OpenCode), runs 0 and 2, and the Harbor run `harbor-rattrap/rattrap-gemini-thinking-low`:* these
+  ran with reasoning capped by our own pin, `thinkingLevel: low`. That pin was a workaround for OpenCode's 32,000-token
+  output cap, and the output-ceiling fix removes it (docs/HARNESS_NOTES.md §1).
+  * At the `low` thinking level it emitted about 12 reasoning tokens per turn (4,894 over 392 turns in run 0).
+  * The Harbor run emitted 0 reasoning tokens in all 1,695 turns, and 1,654 of them were empty. It took 25 actions and
+    timed out at 14,400 s.
+  * These runs also predate the release fix, and they saw every 6th cord node. For the record, their transcript
+    figures:
+
+    | Run | Actions (end) | Blocked-move rate | Repeated identical actions | Grabs | State queries / move | Checkpoints |
+    |---|---|---|---|---|---|---|
+    | Gemini 4 Carbon, OpenCode, run 2 | 248 (model stopped) | 0.30 | 19 | 27 | 0.25 | 0 |
+    | Gemini 4 Carbon, OpenCode, run 0 | 298 (API key revoked) | 0.37 | 12 | 43 | 0.28 | 0 |
+
+* *Gemini 4 Carbon at OpenCode's default level, before the fix (3 runs, `runs/rattrap-agents/aborted/`):* the opening
+  plan was truncated at the 32,000-token cap, and the runs never acted.
 
 **A fixed, wrong picture of the puzzle (Nemotron).**
 * *The decision the task requires:* read off the structure what is fixed and what is free. The right dowel rises from
@@ -216,13 +238,7 @@ the others text only. Each model has one or two runs, so these are case studies,
   * The model went on for 625 more turns and took 492 more actions.
   * Its stated reason for stopping, quoted above, came in reply 629 of 630, with 359 of 852 actions unused.
 
-**Not every run fits a story.**
-* *Gemini 4 Carbon (OpenCode), runs 0 and 2:* these left no stated plan at all.
-  * At the `low` thinking level it emitted about 12 reasoning tokens per turn (4,894 over 392 turns in run 0). At
-    OpenCode's default level it reasoned past its 32k output cap and never acted (docs/HARNESS_NOTES.md).
-  * Its actions (grab the mouse most often, redirect after a block, a blocked-move rate of 0.30–0.37) can't be tied to
-    a belief.
-  * Run 0 did not stop on its own: Google revoked the key mid-run.
+**What the transcripts do and do not support.**
 * *The closest-approach column is a coarse signal, not a progress scale:* 63 mm and 111 mm are both far outside ε, and
   getting nearer to the first checkpoint is not getting nearer to freeing the cord.
 * *What the transcripts support is narrower than a single cause:* different models fail at different decisions. One

@@ -16,15 +16,18 @@ with the puzzle. Each is fixed or excluded. `scripts/harness_audit.py` scans eve
   min(`limit.output`, `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX`), and the variable defaults to **32,000**. Gemini 4
   Carbon's opening plan on the Rat Trap needs **50,324 reasoning tokens**, measured with the cap raised. So at 32,000
   the plan was cut off before the model could act. OpenCode cannot re-prompt after a truncated turn.
-* *Fix.* Raise the cap to **65,536**, the endpoint's real per-turn ceiling for `gemini-4-carbon`.
-  * **65,536 is the ceiling.** Raising the cap further changes nothing.
-    * The endpoint accepts requests of 98,304 and 131,072, but a turn asked for 131,072 stopped at exactly 65,536
-      tokens: 63,101 output plus 2,435 reasoning.
-    * The published `outputTokenLimit` (32,768, from Gemini's `models.get`) is not what binds: step 2 below produced
-      50,350 tokens.
-    * **Headroom:** the largest turn observed, the opening plan, was 50,350 tokens (reasoning plus output) against
-      the 65,536 ceiling. That is 77 % of it, leaving 15,186 tokens. A harder opening plan, on a future variant, could
-      overrun the ceiling just as this one overran 32,000. No setting can prevent that, but `scripts/harness_audit.py` flags such a turn.
+* *The real ceiling is 65,536 tokens per turn, and both limits a reader can see are wrong, in opposite directions.*
+  Neither error can be discovered without measuring.
+  * **Configuring more than 65,536 looks as if it worked.** The endpoint accepts requests of 98,304 and 131,072 without
+    error, then silently truncates the turn at 65,536. A turn asked for 131,072 stopped at exactly 65,536 tokens: 63,101
+    output plus 2,435 reasoning.
+  * **Google's published limit is lower than what applies.** Gemini's `models.get` gives this model an
+    `outputTokenLimit` of 32,768, and models.dev lists the same as `limit.output`. Step 2 of the probe below used
+    50,350 tokens.
+  * **Headroom:** the largest turn observed, the opening plan, was **50,350 tokens against the 65,536 ceiling**. That is
+    77 % of it, leaving 15,186 tokens. A harder opening plan, on a future variant, could overrun the ceiling just as
+    this one overran 32,000. No setting can prevent that, but `scripts/harness_audit.py` flags such a turn.
+* *Fix.* Raise the cap to **65,536**, the ceiling.
   * Two settings are needed. The variable alone is not enough, because OpenCode sends the minimum of the two values,
     and models.dev lists this model's `limit.output` as 32,768.
   * OpenCode rejects a `limit` without `context`, and `context` also sets when OpenCode compacts the history. It is
@@ -56,9 +59,12 @@ with the puzzle. Each is fixed or excluded. `scripts/harness_audit.py` scans eve
     giving up. We have not confirmed OpenCode's session-level retry limit.
 * *The thinking pin was a workaround we have replaced.* Before this fix, the Rat Trap task pinned `thinkingLevel: "low"`.
   * At `low` Gemini acted, but it barely reasoned: about 12 reasoning tokens per turn, and 0 in most turns.
-  * The runs that stalled with long streaks of empty steps were the ones with no reasoning at all. The last Harbor run
-    at `low` made 1,695 steps, 1,654 of them empty, and timed out at 14,400 s.
-  * The Gemini 4 Carbon Rat Trap results recorded so far (OpenCode runs 0–2 and the Harbor run) were all at `low`.
+  * The runs that stalled with long streaks of empty steps were the ones with no reasoning at all. The clearest case
+    is the last Harbor run at `low` (`runs/harbor-rattrap/rattrap-gemini-thinking-low/`). It emitted 0 reasoning
+    tokens in all 1,695 steps, 1,654 of which were empty, took 25 actions, and timed out at 14,400 s. It is kept as the
+    evidence for this fix.
+  * The Gemini 4 Carbon Rat Trap runs recorded at `low` (OpenCode runs 0–2 and that Harbor run) are excluded from the
+    capability findings as harness artefacts (docs/RESULTS.md) and labelled in `runs/harness-audit.md`.
 * *Difficulty, from the uncapped probe only.* The figures from the capped runs measured the cap, so no ratio is derived
   from them. On the Rat Trap Gemini reasons about **2× as much per step** as on Alpha, and its opening plan is about
   **8× its largest Alpha turn**:
@@ -77,8 +83,8 @@ with the puzzle. Each is fixed or excluded. `scripts/harness_audit.py` scans eve
 **2. Nemotron 3.5 Super VL: output truncation.**
 * *Symptom.* Through the OpenAI-compatible harness (`scripts/agent_rattrap.py`), its
   reasoning overran the 8,192-token output default. Replies came back cut off with no tool
-  call, and three in a row ended the run as "stopped talking": round 2's first attempt
-  ended after 10 actions.
+  call: round 2's first attempt had 4 such replies (5, 15, 16 and 18 of 18). After the last of
+  them the harness ended the run as "stopped talking", with 10 actions taken.
 * *Fix.*
   * The output cap is now 32,768 tokens, which its endpoint allows.
   * A cut-off reply is re-prompted ("reply with a tool call now"), not counted as quitting;

@@ -349,7 +349,8 @@ PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
 | 2 | Kimi K3 Pro (Verda, function calling) | checkpoints, T = 852 | 0.0 | no | 852 / 852 | 0 / 20 | 141 | 63.4 mm |
 | 2 | Nemotron 3.5 Super VL (Verda, function calling, with images) | **excluded³** (spurious release violation) | – | – | 501 / 852 | 0 / 20 | 48 | 94.3 mm |
 | 2 | Gemini 4 Carbon (OpenCode, native Google provider), run 1 | **excluded³** (spurious release violation) | – | – | 89 / 852 | 0 / 20 | 17 | – |
-| 2 | Gemini 4 Carbon (OpenCode, native Google provider), runs 0 and 2 | checkpoints, T = 852; before the release fix, every 6th node in `get_state` | 0.0 / 0.0 | no | 298 / 852, 248 / 852 (OpenCode error / model stopped) | 0 / 20 | 80 / 59 | – |
+| 2 | Gemini 4 Carbon (OpenCode, native Google provider), runs 0 and 2 | **excluded⁴** (reasoning capped by our `thinkingLevel: low` pin) | – | – | 298 / 852, 248 / 852 (OpenCode error / model stopped) | 0 / 20 | 80 / 59 | – |
+| 2 | Gemini 4 Carbon (Harbor, `thinkingLevel: low`) | **excluded⁴** (0 reasoning tokens; 1,654 of 1,695 turns empty; timed out) | – | – | 25 / 852 | 0 / 20 | 6 | – |
 | – | reference solve (oracle) | checkpoints, T = 852 | **0.833** | yes | 284 / 852 | 20 / 20 | – | 0 |
 | – | noop | checkpoints, T = 852 | 0.0 | no | 0 | 0 / 20 | – | 110.8 mm (the start) |
 
@@ -363,6 +364,12 @@ integrity: hundreds of plausible-looking moves buy no partial credit.
 cord strained against the frame, and the agent's next `release` registered a 1.006 mm
 penetration for a few substeps (tolerance 1 mm) before the cord settled at 0.1 mm. That is an
 environment defect, found and fixed (docs/HARNESS_NOTES.md), not an agent error.
+
+⁴ **Excluded, not capability results.** These runs had their reasoning capped by our own pin,
+`thinkingLevel: low`: about 12 reasoning tokens per turn, and none at all in the Harbor run. The pin was a
+workaround for OpenCode's 32,000-token output cap. The task now raises the cap to the endpoint's
+real ceiling, 65,536, and keeps the default level (docs/HARNESS_NOTES.md §1). The runs are kept as the
+evidence: `runs/rattrap-agents/`, `runs/harbor-rattrap/rattrap-gemini-thinking-low/`.
 
 The Gemini 4 Carbon row in round 1 is a harness/API issue, not a verdict on the model. Through
 Google's OpenAI-compatible endpoint it spent its whole 32k-token output budget on hidden

@@ -10,7 +10,8 @@
   simulator's own episode log are what the analysis reads.
 * In every remaining text file, replaces anything matching a provider key pattern with `<redacted:KIND>`, and replaces
   environment dumps (a run of `NAME=value` lines, or a Python / JSON mapping of environment variables, as printed by an
-  agent that dumped `os.environ` / `env`) with `<environment dump removed>`.
+  agent that dumped `os.environ` / `env` / `/proc/*/environ`) with `<environment dump removed>`, and the value of any
+  credential-named variable (`*_API_KEY`, `*_TOKEN`, `*SECRET*`) with `<redacted:env>`, whatever its format.
 Nothing we report depends on the removed content (docs/HARNESS_NOTES.md).
 """
 
@@ -34,6 +35,10 @@ KEY_PATTERNS = {
 ENV_MAP = re.compile(r"\{[^{}]{0,20000}?['\"](?:PATH|HOME|HOSTNAME|NVM_DIR|PYTHONPATH|SHLVL)['\"]\s*:\s*['\"][^{}]{0,20000}?\}")
 # shell `env` output: 4+ consecutive NAME=value lines (in raw text, or as escaped \n inside JSON strings)
 ENV_LINES = re.compile(r"(?:(?:^|\\n|\n)[A-Z][A-Z0-9_]{2,}=[^\n\\]*){4,}")
+# /proc/<pid>/environ: NAME=value pairs separated by NUL, raw or JSON-escaped as \u0000
+ENV_NUL = re.compile(r"(?:[A-Z][A-Z0-9_]{2,}=[^\x00\\\n\"]*(?:\x00|\\u0000)){3,}(?:[A-Z][A-Z0-9_]{2,}=[^\x00\\\n\"]*)?")
+# the value of any credential-named variable, whatever its format (provider keys are not all AIza / sk- shaped)
+SECRET_VAR = re.compile(r"\b([A-Z0-9_]*(?:API_KEY|TOKEN|SECRET)[A-Z0-9_]*\s*[=:]\s*['\"]?)([^\s'\"\\\x00,}]{8,})")
 INTERNAL = ("xdg-data", "xdg-state")
 
 
@@ -49,6 +54,10 @@ def scrub_text(s: str) -> tuple[str, dict]:
     n["env_map"] = k
     s, k = ENV_LINES.subn(_env_lines, s)
     n["env_lines"] = k
+    s, k = ENV_NUL.subn("<environment dump removed>", s)
+    n["env_nul"] = k
+    s, k = SECRET_VAR.subn(lambda m: m.group(1) + "<redacted:env>", s)
+    n["secret_var"] = k
     for kind, rx in KEY_PATTERNS.items():
         s, k = rx.subn(f"<redacted:{kind}>", s)
         if k:

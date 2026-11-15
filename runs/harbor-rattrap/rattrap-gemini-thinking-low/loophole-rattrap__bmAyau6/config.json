@@ -1,0 +1,13 @@
+{
+    "task": {
+        "path": "tasks/loophole-rattrap"
+    },
+    "trial_name": "loophole-rattrap__bmAyau6",
+    "trials_dir": "/private/tmp/claude-502/-Users-tg4018-Documents-Hackathons-Junction-Loophole/1c304005-3ee9-4382-ae04-0e8853ba5b65/scratchpad/fresh-jobs/rattrap-gemini-harbor-3",
+    "agent_setup_timeout_multiplier": 4.0,
+    "agent": {
+        "name": "opencode",
+        "model_name": "gemini/gemini-4-carbon"
+    },
+    "job_id": "f7a2abc8-f951-4622-9c60-f7ac2e024125"
+}
