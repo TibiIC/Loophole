@@ -180,11 +180,23 @@
       });
     }
 
+    // docsify-katex only lets a backslash escape a character on the same line, so a LaTeX control space
+    // written as a backslash at the end of a line ("\\" + newline) breaks the whole $$...$$ block. Inside display
+    // math (never inside code fences) rewrite it to backslash-space-newline, which means the same to LaTeX.
+    function mathLineEnds(hook) {
+      hook.beforeEach(function (md) {
+        return md.split(/(^```[\s\S]*?^```)/m).map(function (part) {
+          if (/^```/.test(part)) return part;
+          return part.replace(/\$\$[\s\S]*?\$\$/g, function (m) { return m.replace(/\\\n/g, '\\ \n'); });
+        }).join('');
+      });
+    }
+
     window.$docsify = {
       name: 'Loophole',
       repo: 'TibiIC/Loophole',
       loadSidebar: true,
-      plugins: [resultsTable],
+      plugins: [mathLineEnds, resultsTable],
     };
   </script>
   <!-- Math: $...$ inline and $$...$$ display (GitHub-style), rendered with KaTeX. docsify-katex parses
