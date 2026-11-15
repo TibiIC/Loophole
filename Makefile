@@ -8,12 +8,13 @@ JOBS   ?= jobs
 PY     ?= python3.11
 STAMP  := $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: help build dev test tasks alpha fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random judge watch watch-last
+.PHONY: help build dev test tasks alpha alpha-oracle fetch-alpha-paper view-alpha reference agent noop stop-early eval view clean rattrap-oracle rattrap-noop rattrap-random judge watch watch-last
 
 help:
 	@echo "make build                         build the simulator / verifier image"
 	@echo "make reference | noop | stop-early run the oracle / baselines through Harbor"
 	@echo "make agent MODEL=<provider/model> [AGENT=opencode] [RUNS=3]"
+	@echo "make alpha-oracle                  Alpha reference replayed in-process: 0.85101"
 	@echo "make rattrap-oracle | rattrap-noop | rattrap-random   Rat Trap baselines (in-process)"
 	@echo "make eval MODEL=<provider/model>   oracle + RUNS opencode runs + noop + stop-early -> runs/<ts>/summary.md"
 	@echo "make dev && make test              local venv + pytest"
@@ -35,6 +36,12 @@ alpha:
 # Alpha 1.0 as in Zhang et al. 2020 (meshes + .cfg + solution; fetched, never committed)
 fetch-alpha-paper:
 	scripts/fetch_alpha_paper.sh
+	.venv/bin/python -c "from loophole.puzzles.paper_alpha import prepare; prepare()"   # derived meshes (the Docker build does the same)
+
+# replay the Alpha reference (the paper's published path) in-process and print its score: 0.85101, solved, 59 actions
+alpha-oracle: fetch-alpha-paper
+	.venv/bin/python -m loophole.reference.replay loophole/reference/trajectories/alpha-1.0-paper.jsonl \
+		--config loophole/configs/alpha_training.yaml | tail -1
 
 # watch the oracle (the paper's published solution) in the MuJoCo viewer
 # first run simulates once (~80 s) into .view_cache/; playback speed: SPEED=10, the
