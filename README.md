@@ -370,6 +370,7 @@ PYTHONPATH=$PWD .venv/bin/python scripts/agent_rattrap.py --model deepseek
 | 2 | Gemini 4 Carbon (OpenCode, native Google provider), run 1 | **excluded³** (spurious release violation) | – | – | 89 / 852 | 0 / 20 | 17 | – |
 | 2 | Gemini 4 Carbon (OpenCode, native Google provider), runs 0 and 2 | **excluded⁴** (reasoning capped by our `thinkingLevel: low` pin) | – | – | 298 / 852, 248 / 852 (OpenCode error / model stopped) | 0 / 20 | 80 / 59 | – |
 | 2 | Gemini 4 Carbon (Harbor, `thinkingLevel: low`) | **excluded⁴** (0 reasoning tokens; 1,654 of 1,695 turns empty; timed out) | – | – | 25 / 852 | 0 / 20 | 6 | – |
+| 2 | Gemini 4 Carbon (Harbor, output cap 65,536, default thinking) | **partial, not full-budget**: ended after 34 min when the provider rejected the API key; 0 empty turns, 0 connection resets | 0.0 | no | 1 / 852 | 0 / 20 | 0 | – |
 | – | reference solve (oracle) | checkpoints, T = 852 | **0.833** | yes | 284 / 852 | 20 / 20 | – | 0 |
 | – | noop | checkpoints, T = 852 | 0.0 | no | 0 | 0 / 20 | – | 110.8 mm (the start) |
 

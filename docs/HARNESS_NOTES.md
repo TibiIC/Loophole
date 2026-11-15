@@ -57,6 +57,16 @@ with the puzzle. Each is fixed or excluded. `scripts/harness_audit.py` scans eve
   * **Connection resets.** There were 2 ECONNRESETs in the 50 steps, 2 minutes apart. OpenCode's AI SDK classifies them
     as retryable, and OpenCode retried each within 5 s, so no step was lost. Probe 1 retried one step four times without
     giving up. We have not confirmed OpenCode's session-level retry limit.
+* *Through Harbor, with the fix* (`runs/harbor-rattrap/rattrap-gemini-output-cap/`, the judges' command). This is not a
+  full-budget result.
+  * The agent container received both settings (checked inside the container).
+  * The run went 52 turns with **0 empty turns** and **0 connection resets**. Its largest turn was 11,912 tokens and
+    it averaged 1,203 reasoning tokens per turn.
+  * With Harbor's shell and file tools available, Gemini spent the turns writing its own code (22 shell calls,
+    17 file writes) and took 1 action.
+  * After 34 minutes the provider rejected the API key ("API key not valid", UNAUTHENTICATED), and the run ended,
+    scoring 0, log consistent. That key is not in any commit, and we do not know why it was invalidated.
+  * A full-budget Harbor run needs a new key.
 * *The thinking pin was a workaround we have replaced.* Before this fix, the Rat Trap task pinned `thinkingLevel: "low"`.
   * At `low` Gemini acted, but it barely reasoned: about 12 reasoning tokens per turn, and 0 in most turns.
   * The runs that stalled with long streaks of empty steps were the ones with no reasoning at all. The clearest case

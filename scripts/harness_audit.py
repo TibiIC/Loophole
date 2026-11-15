@@ -28,6 +28,9 @@ OPENCODE_CAP = 32000  # OpenCode 1.19.5's default per-turn output cap (OPENCODE_
 HARBOR_CAP = {"harbor-rattrap/rattrap-gemini-output-cap": 65536}
 # runs whose figures are harness artefacts or partial by design, labelled in the table (keyed by Run label prefix)
 RUN_NOTES = {
+    "harbor-rattrap/rattrap-gemini-output-cap/": "the output-cap fix through Harbor: 0 empty turns, 0 connection resets; ended "
+                                                 "after 52 turns (34 min) when the provider rejected the API key (UNAUTHENTICATED); "
+                                                 "not a full-budget run",
     "harbor-rattrap/rattrap-gemini-thinking-low/": "harness artefact: thinkingLevel low (the pinned workaround); 0 reasoning "
                                                    "tokens in every turn, then empty turns until the 14,400 s timeout. Fixed by "
                                                    "raising the output cap (docs/HARNESS_NOTES.md §1)",

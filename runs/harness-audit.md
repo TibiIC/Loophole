@@ -31,6 +31,7 @@ returned no text, no reasoning and no tool call. *Note* labels runs whose figure
 | loophole-alpha | verda/kimi-k3-1-pro | 20261114-204530/D9VAB6s | 0.000000 | 79 | 0 | 3 | 0 | 0 | 0 | – |  |  |
 | loophole-alpha | verda/kimi-k3-1-pro | 20261114-204530/UpevmKp | 0.000000 | 476 | 0 | 182 | 0 | 0 | 0 | – |  |  |
 | loophole-alpha | gemini/gemini-4-carbon | 20261115-alpha-control/FRGhnWU | 0.896465 | 110 | 0 | 41 | 0 | 0 | 0 | – |  |  |
+| loophole-rattrap | gemini/gemini-4-carbon | harbor-rattrap/rattrap-gemini-output-cap/v6wkaiv | 0.000000 | 52 | 0 | 1 | 0 | 0 | 0 | {"name": "APIError", "data": {"message": "API key not valid. Please pass a valid API key.", "statusCode": 401, "isRetrya |  | the output-cap fix through Harbor: 0 empty turns, 0 connection resets; ended after 52 turns (34 min) when the provider rejected the API key (UNAUTHENTICATED); not a full-budget run |
 | loophole-rattrap | gemini/gemini-4-carbon | harbor-rattrap/rattrap-gemini-thinking-low/bmAyau6 | 0.000000 | 1695 | 1654 | 25 | 0 | 0 | 0 | – |  | harness artefact: thinkingLevel low (the pinned workaround); 0 reasoning tokens in every turn, then empty turns until the 14,400 s timeout. Fixed by raising the output cap (docs/HARNESS_NOTES.md §1) |
 | rattrap | deepseek-4-1-flash-1017 | deepseek-20261114-185131 | 0.0 | 400 | 0 | 322 | 0 | 0 | 0 | – |  |  |
 | rattrap | deepseek-4-1-flash-1017 | deepseek-20261114-205209 | 0.0 | 630 | 1 | 493 | 1 | 0 | 0 | – |  |  |
